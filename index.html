@@ -127,13 +127,47 @@
             </div>
           </div>
 
-          <!-- Group 2: ตั้งค่า (Settings & Filters tucked neatly inside ตั้งค่า like Image 1!) -->
+          <!-- Village & Health Unit Filters (Always visible & synced with 13 villages in block.json) -->
+          <div class="p-3 bg-[#ebe4f5] space-y-2.5 text-xs">
+            <div>
+              <label for="villageSelect" class="block text-[11px] font-bold text-indigo-950 mb-1">กรองหมู่บ้าน (13 หมู่บ้าน):</label>
+              <select id="villageSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - หมู่ 13)</option>
+                <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
+                <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
+                <option value="3">หมู่ที่ 3 บ้านขุน</option>
+                <option value="4">หมู่ที่ 4 บ้านนาฟ่อน</option>
+                <option value="5">หมู่ที่ 5 บ้านแม่ลายเหนือ</option>
+                <option value="6">หมู่ที่ 6 บ้านแม่ลายใต้</option>
+                <option value="7">หมู่ที่ 7 บ้านพุย</option>
+                <option value="8">หมู่ที่ 8 บ้านกิ่วลม</option>
+                <option value="9">หมู่ที่ 9 บ้านแม่สะนาม</option>
+                <option value="10">หมู่ที่ 10 บ้านเตียนอาง</option>
+                <option value="11">หมู่ที่ 11 บ้านบ่อสะแง๋</option>
+                <option value="12">หมู่ที่ 12 บ้านบ่อพะแวน</option>
+                <option value="13">หมู่ที่ 13 บ้านแม่หืด</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="WaitUnitSelect" class="block text-[11px] font-bold text-indigo-950 mb-1">กรองหน่วยบริการ:</label>
+              <select id="WaitUnitSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option value="ALL">ทุกหน่วยบริการ (ทต.บ่อหลวง + 3 รพ.สต.)</option>
+                <option value="กองสาธารณสุข ทต.บ่อหลวง">กองสาธารณสุข ทต.บ่อหลวง (ม.1-3)</option>
+                <option value="รพ.สต.บ้านนาฟ่อน (ม.4)">รพ.สต.บ้านนาฟ่อน (ม.4-6)</option>
+                <option value="รพ.สต.บ้านพุย (ม.7)">รพ.สต.บ้านพุย (ม.7-10)</option>
+                <option value="รพ.สต.บ้านบ่อพะแวน (ม.12)">รพ.สต.บ้านบ่อพะแวน (ม.11-13)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Group 2: ตั้งค่า -->
           <div>
             <button type="button" id="toggleSettingsMenuBtn" class="w-full px-4 py-3 bg-[#e6dff2] hover:bg-[#d9d0ea] flex items-center gap-2 font-bold text-slate-800 text-xs transition">
               <span id="settingsMenuArrow">▸</span>
               <span>ตั้งค่า</span>
             </button>
-            <div id="settingsSubmenu" class="hidden bg-[#f2eef9] p-3 space-y-2.5 border-t border-purple-200/60 text-xs">
+            <div id="settingsSubmenu" class="hidden bg-[#f2eef9] p-3 space-y-2 border-t border-purple-200/60 text-xs">
               <button type="button" data-nav="sheets" id="openSheetsTabBtn" class="nav-tab-btn w-full text-left px-2.5 py-2 rounded-lg font-semibold text-emerald-900 bg-emerald-100/80 hover:bg-emerald-200/80 transition block">
                 🔗 เชื่อม Google Sheets / โค้ด
               </button>
@@ -144,35 +178,6 @@
                 📂 โหลดไฟล์ JSON ขอบเขต
               </button>
               <input type="file" id="geoJsonFileInput" accept=".json,.geojson" multiple class="hidden" />
-
-              <div class="pt-1">
-                <label for="WaitUnitSelect" class="block text-[11px] font-bold text-slate-700 mb-1">กรองหน่วยบริการ:</label>
-                <select id="WaitUnitSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] text-slate-800">
-                  <option value="ALL">ทุกหน่วยบริการ (ทต.บ่อหลวง)</option>
-                  <option value="กองสาธารณสุข ทต.บ่อหลวง">กองสาธารณสุข ทต.บ่อหลวง</option>
-                  <option value="รพ.สต.บ้านนาฟ่อน (ม.4)">รพ.สต.บ้านนาฟ่อน (หมู่ 4)</option>
-                  <option value="รพ.สต.บ้านพุย (ม.7)">รพ.สต.บ้านพุย (หมู่ 7)</option>
-                  <option value="รพ.สต.บ้านบ่อพะแวน (ม.12)">รพ.สต.บ้านบ่อพะแวน (หมู่ 12)</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="villageSelect" class="block text-[11px] font-bold text-slate-700 mb-1">กรองหมู่บ้าน:</label>
-                <select id="villageSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] text-slate-800">
-                  <option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - 12)</option>
-                  <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
-                  <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
-                  <option value="3">หมู่ที่ 3 บ้านขุน</option>
-                  <option value="4">หมู่ที่ 4 บ้านนาฟ่อน</option>
-                  <option value="5">หมู่ที่ 5 บ้านแม่ลายเหนือ</option>
-                  <option value="6">หมู่ที่ 6 บ้านแม่ลายใต้</option>
-                  <option value="7">หมู่ที่ 7 บ้านพุย</option>
-                  <option value="8">หมู่ที่ 8 บ้านกิ่วลม</option>
-                  <option value="10">หมู่ที่ 10 บ้านเตียนอาง</option>
-                  <option value="11">หมู่ที่ 11 บ้านบ่อสะแง๋</option>
-                  <option value="12">หมู่ที่ 12 บ้านบ่อพะแวน</option>
-                </select>
-              </div>
             </div>
           </div>
         </nav>
@@ -1117,6 +1122,82 @@
           { seq: 5, temp: '36.9', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่ลายใต้', date: '2026-10-15', time: '09:29:40' },
           { seq: 6, temp: '', weight: '', height: '158', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่ลายใต้', date: '2026-10-15', time: '09:29:05' }
         ]
+      },
+      {
+        id: 'BL-012',
+        name: 'แม่อุ๊ยคำหล้า พรมมา',
+        age: 81,
+        group: 'ผู้ป่วยติดเตียง',
+        risk: 'DANGER',
+        outOfArea: false,
+        moo: 9,
+        village: 'บ้านแม่สะนาม',
+        address: '28 หมู่ที่ 9 บ้านแม่สะนาม ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่',
+        careUnit: 'รพ.สต.บ้านพุย (ม.7)',
+        inspector: 'อสม.บ้านแม่สะนาม',
+        condition: 'ผู้สูงอายุติดเตียง โรคความดันโลหิตสูงและกล้ามเนื้ออ่อนแรง • ADL = 3',
+        lat: 18.1285,
+        lng: 98.3520,
+        svgX: 330,
+        svgY: 230,
+        temp: 36.7,
+        weight: 45.0,
+        height: 150,
+        bmi: 20.0,
+        sys: 164,
+        dia: 94,
+        pulse: 86,
+        spo2: 94,
+        pi: 2.6,
+        sugar: 168.0,
+        lastDate: '2026-10-15',
+        lastTime: '09:40:15',
+        sensorLogs: [
+          { seq: 1, temp: '', weight: '45.0', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:40:15' },
+          { seq: 2, temp: '', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '168.0', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:39:40' },
+          { seq: 3, temp: '', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '94', pulseOx: '86', pi: '2.6', sugar: '', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:39:05' },
+          { seq: 4, temp: '', weight: '', height: '', sys: '164', dia: '94', pulseBp: '86', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:38:20' },
+          { seq: 5, temp: '36.7', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:37:50' },
+          { seq: 6, temp: '', weight: '', height: '150', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่สะนาม', date: '2026-10-15', time: '09:37:15' }
+        ]
+      },
+      {
+        id: 'BL-013',
+        name: 'นายอินสม แม่หืดคีรี',
+        age: 76,
+        group: 'ผู้ป่วยติดเตียง',
+        risk: 'RISK',
+        outOfArea: false,
+        moo: 13,
+        village: 'บ้านแม่หืด',
+        address: '49 หมู่ที่ 13 บ้านแม่หืด ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่',
+        careUnit: 'รพ.สต.บ้านบ่อพะแวน (ม.12)',
+        inspector: 'อสม.บ้านแม่หืด',
+        condition: 'ผู้ป่วยติดเตียงฟื้นฟูหลังผ่าตัดกระดูกสันหลัง โรคความดันโลหิตสูง • ADL = 4',
+        lat: 18.1420,
+        lng: 98.3620,
+        svgX: 450,
+        svgY: 210,
+        temp: 36.6,
+        weight: 53.0,
+        height: 160,
+        bmi: 20.7,
+        sys: 148,
+        dia: 88,
+        pulse: 80,
+        spo2: 96,
+        pi: 3.5,
+        sugar: 138.0,
+        lastDate: '2026-10-15',
+        lastTime: '10:05:30',
+        sensorLogs: [
+          { seq: 1, temp: '', weight: '53.0', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:05:30' },
+          { seq: 2, temp: '', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '138.0', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:04:55' },
+          { seq: 3, temp: '', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '96', pulseOx: '80', pi: '3.5', sugar: '', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:04:15' },
+          { seq: 4, temp: '', weight: '', height: '', sys: '148', dia: '88', pulseBp: '80', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:03:40' },
+          { seq: 5, temp: '36.6', weight: '', height: '', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:03:05' },
+          { seq: 6, temp: '', weight: '', height: '160', sys: '', dia: '', pulseBp: '', spo2: '', pulseOx: '', pi: '', sugar: '', inspector: 'อสม.บ้านแม่หืด', date: '2026-10-15', time: '10:02:30' }
+        ]
       }
     ];
 
@@ -1197,6 +1278,63 @@
       return `<div class="text-xs space-y-1"><div class="font-bold text-indigo-900 border-b border-slate-200 pb-1">${titlePrefix}</div><table>${rows}</table></div>`;
     }
 
+    // ข้อมูลทางการของทั้ง 13 หมู่บ้านในตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่
+    const BO_LUANG_13_VILLAGES = [
+      { moo: 1, name: 'บ้านบ่อหลวง', pop: 876, unit: 'กองสาธารณสุข ทต.บ่อหลวง' },
+      { moo: 2, name: 'บ้านวังกอง', pop: 716, unit: 'กองสาธารณสุข ทต.บ่อหลวง' },
+      { moo: 3, name: 'บ้านขุน', pop: 936, unit: 'กองสาธารณสุข ทต.บ่อหลวง' },
+      { moo: 4, name: 'บ้านนาฟ่อน', pop: 1434, unit: 'รพ.สต.บ้านนาฟ่อน (ม.4)' },
+      { moo: 5, name: 'บ้านแม่ลายเหนือ', pop: 1236, unit: 'รพ.สต.บ้านนาฟ่อน (ม.4)' },
+      { moo: 6, name: 'บ้านแม่ลายใต้', pop: 1583, unit: 'รพ.สต.บ้านนาฟ่อน (ม.4)' },
+      { moo: 7, name: 'บ้านพุย', pop: 1078, unit: 'รพ.สต.บ้านพุย (ม.7)' },
+      { moo: 8, name: 'บ้านกิ่วลม', pop: 575, unit: 'รพ.สต.บ้านพุย (ม.7)' },
+      { moo: 9, name: 'บ้านแม่สะนาม', pop: 259, unit: 'รพ.สต.บ้านพุย (ม.7)' },
+      { moo: 10, name: 'บ้านเตียนอาง', pop: 936, unit: 'รพ.สต.บ้านพุย (ม.7)' },
+      { moo: 11, name: 'บ้านบ่อสะแง๋', pop: 637, unit: 'รพ.สต.บ้านบ่อพะแวน (ม.12)' },
+      { moo: 12, name: 'บ้านบ่อพะแวน', pop: 1456, unit: 'รพ.สต.บ้านบ่อพะแวน (ม.12)' },
+      { moo: 13, name: 'บ้านแม่หืด', pop: 265, unit: 'รพ.สต.บ้านบ่อพะแวน (ม.12)' }
+    ];
+
+    const villagePolygonLayersByMoo = {};
+
+    function detectMooFromProperties(props, fallbackIdx) {
+      if (props && typeof props === 'object') {
+        // 1. Check direct Moo number fields
+        const mooKeys = ['MOO', 'moo', 'Moo', 'VILL_MOO', 'VILL_NO', 'MOO_NO', 'BLK_MOO', 'FID'];
+        for (const k of mooKeys) {
+          if (props[k] !== undefined && props[k] !== null && String(props[k]).trim() !== '') {
+            const n = parseInt(String(props[k]).replace(/\D+/g, ''), 10);
+            if (n >= 1 && n <= 13) return n;
+          }
+        }
+        // 2. Check 8-digit / 10-digit DOPA village code (e.g., 50160401 .. 50160413)
+        const codeKeys = ['VILL_CODE', 'VILL_ID', 'CODE', 'TAM_CODE', 'AMP_CODE', 'ID'];
+        for (const k of codeKeys) {
+          if (props[k] !== undefined && props[k] !== null) {
+            const s = String(props[k]).trim();
+            if (s.length >= 6) {
+              const last2 = parseInt(s.slice(-2), 10);
+              if (last2 >= 1 && last2 <= 13) return last2;
+            }
+          }
+        }
+        // 3. Check Thai village name match across all property values
+        const allText = Object.values(props).map((v) => String(v || '')).join(' ');
+        for (const vMeta of BO_LUANG_13_VILLAGES) {
+          const shortName = vMeta.name.replace(/^บ้าน/, '');
+          if (allText.includes(vMeta.name) || (shortName.length >= 2 && allText.includes(shortName))) {
+            return vMeta.moo;
+          }
+        }
+        const mooTextMatch = allText.match(/หมู่(?:ที่)?\s*(\d{1,2})/);
+        if (mooTextMatch) {
+          const mNum = parseInt(mooTextMatch[1], 10);
+          if (mNum >= 1 && mNum <= 13) return mNum;
+        }
+      }
+      return ((fallbackIdx % 13) + 1);
+    }
+
     function renderGeoJsonLayer(geojsonData, layerType, fitMap) {
       if (!mapInstance || !geojsonData) return;
       const isTambon = layerType === 'tambon';
@@ -1204,8 +1342,14 @@
       if (!targetGroup) return;
 
       targetGroup.clearLayers();
-      const palette = ['#10b981', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
+      const palette = [
+        '#10b981', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ec4899',
+        '#14b8a6', '#f97316', '#6366f1', '#84cc16', '#06b6d4',
+        '#e11d48', '#a855f7', '#eab308'
+      ];
       let featureIndex = 0;
+      const usedMoos = new Set();
+      const detectedVillagesForDropdown = [];
 
       const geoLayer = L.geoJSON(geojsonData, {
         style: () => {
@@ -1215,32 +1359,155 @@
               weight: 3.5,
               dashArray: '8, 4',
               fillColor: '#4f46e5',
-              fillOpacity: 0.05
+              fillOpacity: 0.04
             };
           }
-          const c = palette[featureIndex++ % palette.length];
+          const c = palette[featureIndex % palette.length];
           return {
             color: c,
-            weight: 2,
+            weight: 2.2,
             fillColor: c,
-            fillOpacity: 0.14
+            fillOpacity: 0.16
           };
         },
         onEachFeature: (feature, layer) => {
+          const idx = featureIndex++;
           const p = (feature && feature.properties) ? feature.properties : {};
-          const labelName = p.VILL_NAME || p.VILLAGE || p.NAME || p.TAM_NAM_T || p.TAMBON_T || p.BLK_NAME || p.moo || p.MOO || (isTambon ? 'เขตตำบลบ่อหลวง' : 'ขอบเขตหมู่บ้าน');
-          layer.bindPopup(formatGeoPropertiesPopup(p, isTambon ? `🗺️ ขอบเขตตำบล: ${labelName}` : `🏡 ขอบเขตหมู่บ้าน: ${labelName}`));
-          if (!isTambon && labelName) {
-            layer.bindTooltip(String(labelName), { sticky: true, direction: 'center', className: 'text-[11px] font-bold' });
+          if (isTambon) {
+            const tamName = p.TAM_NAM_T || p.TAMBON_T || p.NAME || 'ตำบลบ่อหลวง (13 หมู่บ้าน)';
+            layer.bindPopup(formatGeoPropertiesPopup(p, `🗺️ ขอบเขตตำบล: ${tamName}`));
+            return;
           }
+
+          let mooNum = detectMooFromProperties(p, idx);
+          if (usedMoos.has(mooNum)) {
+            for (let m = 1; m <= 13; m++) {
+              if (!usedMoos.has(m)) { mooNum = m; break; }
+            }
+          }
+          usedMoos.add(mooNum);
+
+          const officialMeta = BO_LUANG_13_VILLAGES.find((v) => v.moo === mooNum) || {
+            moo: mooNum,
+            name: `หมู่ที่ ${mooNum}`,
+            pop: 0,
+            unit: 'ทต.บ่อหลวง'
+          };
+          const jsonLabel = p.VILL_NAME || p.VILLAGE || p.VILL_T || p.NAME_T || p.NAME || p.BLK_NAME || '';
+          const displayVillageName = (jsonLabel && !/^\d+$/.test(String(jsonLabel).trim()))
+            ? String(jsonLabel).trim()
+            : officialMeta.name;
+
+          const fullTitle = `หมู่ที่ ${mooNum} ${displayVillageName.startsWith('บ้าน') ? displayVillageName : officialMeta.name}`;
+          villagePolygonLayersByMoo[String(mooNum)] = layer;
+          detectedVillagesForDropdown.push({ moo: mooNum, label: fullTitle });
+
+          // Enrich popup with official 13-village metadata + JSON properties
+          const enrichedProps = Object.assign({
+            'หมู่ที่': `หมู่ที่ ${mooNum}`,
+            'ชื่อหมู่บ้าน': officialMeta.name,
+            'หน่วยบริการรับผิดชอบ': officialMeta.unit,
+            'ประชากร (คน)': officialMeta.pop ? officialMeta.pop.toLocaleString() : '-'
+          }, p);
+
+          layer.bindPopup(formatGeoPropertiesPopup(enrichedProps, `🏡 ${fullTitle}`));
+          layer.bindTooltip(`ม.${mooNum} ${officialMeta.name}`, {
+            sticky: true,
+            direction: 'center',
+            className: 'text-[11px] font-bold'
+          });
+
+          // Click on a village polygon in block.json to filter or inspect
+          layer.on('click', () => {
+            layer.openPopup();
+          });
+
+          // Compute true polygon vertex centroid from GeoJSON coordinates so pins sit squarely inside each village polygon in block.json
+          try {
+            let centerLat = null;
+            let centerLng = null;
+            const geom = feature && feature.geometry;
+            if (geom && geom.coordinates) {
+              let ring = null;
+              if (geom.type === 'Polygon' && geom.coordinates[0]) {
+                ring = geom.coordinates[0];
+              } else if (geom.type === 'MultiPolygon' && geom.coordinates[0] && geom.coordinates[0][0]) {
+                // Pick largest polygon ring in MultiPolygon
+                let maxLen = 0;
+                geom.coordinates.forEach((poly) => {
+                  if (poly[0] && poly[0].length > maxLen) {
+                    maxLen = poly[0].length;
+                    ring = poly[0];
+                  }
+                });
+              }
+              if (ring && ring.length > 0) {
+                let sumLng = 0, sumLat = 0, cnt = 0;
+                ring.forEach((pt) => {
+                  if (Array.isArray(pt) && pt.length >= 2) {
+                    sumLng += Number(pt[0]);
+                    sumLat += Number(pt[1]);
+                    cnt++;
+                  }
+                });
+                if (cnt > 0) {
+                  centerLng = sumLng / cnt;
+                  centerLat = sumLat / cnt;
+                }
+              }
+            }
+            if (centerLat === null || centerLng === null) {
+              const bounds = layer.getBounds();
+              if (bounds && bounds.isValid()) {
+                const c = bounds.getCenter();
+                centerLat = c.lat;
+                centerLng = c.lng;
+              }
+            }
+            if (centerLat !== null && centerLng !== null) {
+              let offsetIdx = 0;
+              patientsData.forEach((pt) => {
+                if (Number(pt.moo) === Number(mooNum) && String(pt.id).startsWith('BL-')) {
+                  const dLat = (offsetIdx % 2 === 0 ? 1 : -1) * (offsetIdx * 0.0015);
+                  const dLng = (offsetIdx % 3 === 0 ? 1 : -1) * (offsetIdx * 0.0015);
+                  pt.lat = Number((centerLat + dLat).toFixed(6));
+                  pt.lng = Number((centerLng + dLng).toFixed(6));
+                  pt.village = officialMeta.name;
+                  offsetIdx++;
+                }
+              });
+            }
+          } catch (e) {}
         }
       });
 
       targetGroup.addLayer(geoLayer);
+
+      // If this was block.json (village boundaries), refresh dropdown and re-render markers so pins sit inside the 13 village polygons!
+      if (!isTambon && detectedVillagesForDropdown.length > 0) {
+        const sel = document.getElementById('villageSelect');
+        if (sel) {
+          const currentVal = sel.value || 'ALL';
+          detectedVillagesForDropdown.sort((a, b) => a.moo - b.moo);
+          // Ensure all 13 villages are present in dropdown
+          const byMoo = new Map();
+          BO_LUANG_13_VILLAGES.forEach((v) => byMoo.set(v.moo, `หมู่ที่ ${v.moo} ${v.name}`));
+          detectedVillagesForDropdown.forEach((d) => byMoo.set(d.moo, d.label));
+
+          sel.innerHTML = `<option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - หมู่ ${byMoo.size})</option>` +
+            Array.from(byMoo.entries())
+              .sort((a, b) => a[0] - b[0])
+              .map(([m, lbl]) => `<option value="${m}">${lbl}</option>`)
+              .join('');
+          sel.value = currentVal;
+        }
+        renderMapAndSidebar();
+      }
+
       if (fitMap) {
         try {
           const b = geoLayer.getBounds();
-          if (b && b.isValid()) mapInstance.fitBounds(b, { padding: [20, 20] });
+          if (b && b.isValid()) mapInstance.fitBounds(b, { padding: [24, 24] });
         } catch (e) {}
       }
     }
@@ -1610,11 +1877,15 @@
       villageChartInstance = new Chart(ctx1, {
         type: 'bar',
         data: {
-          labels: ['ม.1 บ่อหลวง', 'ม.2 วังกอง', 'ม.3 บ้านขุน', 'ม.4 นาฟ่อน', 'ม.5 แม่ลายเหนือ', 'ม.7 บ้านพุย', 'ม.8 กิ่วลม', 'ม.12 บ่อพะแวน'],
+          labels: [
+            'ม.1 บ่อหลวง', 'ม.2 วังกอง', 'ม.3 บ้านขุน', 'ม.4 นาฟ่อน', 'ม.5 แม่ลายเหนือ',
+            'ม.6 แม่ลายใต้', 'ม.7 บ้านพุย', 'ม.8 กิ่วลม', 'ม.9 แม่สะนาม', 'ม.10 เตียนอาง',
+            'ม.11 บ่อสะแง๋', 'ม.12 บ่อพะแวน', 'ม.13 แม่หืด'
+          ],
           datasets: [
-            { label: 'ผู้ป่วยติดเตียง', data: [14, 9, 8, 16, 11, 15, 13, 12], backgroundColor: '#e11d48', borderRadius: 4 },
-            { label: 'ผู้พิการ', data: [11, 8, 6, 12, 7, 9, 8, 10], backgroundColor: '#4f46e5', borderRadius: 4 },
-            { label: 'กลุ่มเปราะบาง', data: [22, 18, 15, 25, 19, 24, 21, 20], backgroundColor: '#f59e0b', borderRadius: 4 }
+            { label: 'ผู้ป่วยติดเตียง', data: [14, 9, 8, 16, 11, 15, 15, 10, 6, 11, 8, 14, 6], backgroundColor: '#e11d48', borderRadius: 4 },
+            { label: 'ผู้พิการ', data: [11, 8, 6, 12, 7, 10, 9, 7, 4, 8, 6, 10, 5], backgroundColor: '#4f46e5', borderRadius: 4 },
+            { label: 'กลุ่มเปราะบาง', data: [22, 18, 15, 25, 19, 26, 24, 16, 11, 18, 14, 23, 12], backgroundColor: '#f59e0b', borderRadius: 4 }
           ]
         },
         options: {
@@ -1814,6 +2085,24 @@
       document.getElementById('villageSelect').addEventListener('change', (e) => {
         appState.villageFilter = e.target.value;
         refreshAllViews();
+        if (mapInstance && appState.mapMode !== 'tactical') {
+          if (e.target.value === 'ALL') {
+            try {
+              const allBounds = villageBoundaryLayer && villageBoundaryLayer.getLayers().length > 0
+                ? villageBoundaryLayer.getLayers()[0].getBounds()
+                : null;
+              if (allBounds && allBounds.isValid()) mapInstance.fitBounds(allBounds, { padding: [24, 24] });
+            } catch (err) {}
+          } else {
+            const poly = villagePolygonLayersByMoo[String(e.target.value)];
+            if (poly && poly.getBounds) {
+              try {
+                mapInstance.fitBounds(poly.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                poly.openPopup();
+              } catch (err) {}
+            }
+          }
+        }
       });
 
       // Map Mode Switcher (แผนที่ | ดาวเทียม | แผนที่โครงข่าย 12 หมู่บ้าน Offline GIS)
