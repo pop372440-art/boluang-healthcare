@@ -7,131 +7,171 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     body {
       font-family: 'Sarabun', 'Inter', sans-serif;
-      background-color: #e2e8f0;
+      background-color: #f8fafc;
       color: #1e293b;
       overflow-x: hidden;
     }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .leaflet-popup-content-wrapper {
-      border-radius: 6px;
+      border-radius: 10px;
       padding: 2px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -3px rgba(15, 23, 42, 0.04);
     }
     .leaflet-popup-content {
       margin: 10px 12px;
       font-family: 'Sarabun', 'Inter', sans-serif;
     }
-    /* Move Leaflet zoom control to bottom-right like Google Maps in Image 1 */
     .leaflet-top.leaflet-left {
-      top: 58px !important;
+      top: 56px !important;
       left: 12px !important;
+    }
+    .leaflet-bar {
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+      border-radius: 8px !important;
+      overflow: hidden;
+    }
+    .leaflet-bar a {
+      background-color: #ffffff !important;
+      color: #475569 !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+    }
+    .leaflet-bar a:hover {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-600 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased selection:bg-slate-800 selection:text-white">
 
-  <!-- Top Purple Header Bar (Exact 1:1 Layout with Image 1 BearCON Care) -->
-  <header class="h-12 bg-gradient-to-r from-[#4c2882] via-[#6b3fa0] to-[#7c52b5] text-white shadow flex items-center justify-between pr-4 sticky top-0 z-30">
-    <!-- Left Brand Box matching Image 1 dark purple header block -->
-    <div class="w-48 sm:w-56 h-full bg-[#3b1d6b] flex items-center justify-center px-3 border-r border-white/15 shrink-0">
-      <div class="flex items-center gap-2">
-        <div class="leading-none text-center">
-          <div class="font-extrabold text-lg tracking-wide text-white flex items-center gap-1">
-            <span>บ่อหลวง</span>
-            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white text-[#3b1d6b] text-xs font-black">♥</span>
-          </div>
-          <div class="text-[11px] font-bold text-purple-200 tracking-widest uppercase -mt-0.5 text-right">Health Care</div>
+  <!-- Minimal Line Top Header Bar with Soft Border -->
+  <header class="h-14 bg-white/95 backdrop-blur border-b border-slate-200/90 text-slate-800 flex items-center justify-between pr-4 sm:pr-6 sticky top-0 z-30">
+    <!-- Left Brand Box -->
+    <div class="w-52 sm:w-60 h-full bg-slate-50/70 flex items-center justify-between px-4 border-r border-slate-200/90 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-white border border-slate-200/90 flex items-center justify-center text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.03)]">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="leading-tight">
+          <div class="font-bold text-sm tracking-tight text-slate-900">บ่อหลวง Health Care</div>
+          <div class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Community Telehealth</div>
         </div>
       </div>
     </div>
 
     <!-- Right Quick Actions & Live Clock -->
     <div class="flex items-center gap-2 ml-auto text-xs">
-      <span id="liveClockText" class="hidden md:inline-block text-purple-100 font-medium mr-2">วันศุกร์ที่ 16 ตุลาคม 2569</span>
+      <span id="liveClockText" class="hidden md:inline-block text-slate-400 font-normal mr-2">วันศุกร์ที่ 16 ตุลาคม 2569</span>
 
-      <a href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-rose-500/80 hover:bg-rose-500 text-white font-semibold shadow-sm transition">
-        📸 ถ่ายรูป+พิกัด
+      <a href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition">
+        <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span>ถ่ายรูปและพิกัด</span>
       </a>
 
-      <button id="openAddCheckupBtn" type="button" class="px-2.5 py-1 rounded bg-white/15 hover:bg-white/25 text-white font-semibold border border-white/25 transition">
-        + รับค่าชุดตรวจ อสม.
+      <button id="openAddCheckupBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition">
+        <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        <span>รับค่าชุดตรวจ อสม.</span>
       </button>
 
-      <button id="openCloudConfigBtn" type="button" class="px-2.5 py-1 rounded bg-emerald-500/30 hover:bg-emerald-500/45 text-emerald-100 border border-emerald-300/40 font-semibold transition flex items-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
-        <span id="cloudStatusBtnLabel">Supabase เชื่อมต่อแล้ว</span>
+      <button id="openCloudConfigBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50/70 hover:bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-medium transition">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span id="cloudStatusBtnLabel">เชื่อมต่อฐานข้อมูลแล้ว</span>
       </button>
 
-      <!-- Hidden compatibility elements so existing JS listeners never break -->
+      <!-- Hidden compatibility elements -->
       <button id="toggleNetworkBtn" type="button" class="hidden"><span id="networkDot"></span><span id="networkStatusLabel"></span></button>
       <button id="syncQueueBtn" type="button" class="hidden"><strong id="offlineQueueCount">0</strong></button>
     </div>
   </header>
 
-  <!-- Main Edge-to-Edge Container (Matching Image 1) -->
+  <!-- Main Edge-to-Edge Workspace -->
   <div class="flex-1 flex flex-col lg:flex-row w-full">
 
-    <!-- Left Sidebar (Exact Image 1 Width & Style: Logo -> Municipality Name -> Dashboard / ตั้งค่า -> Purple Bottom) -->
-    <aside class="w-full lg:w-56 shrink-0 bg-[#e6dff2] border-r border-slate-300 flex flex-col justify-between select-none">
+    <!-- Minimal Line Left Sidebar with Soft Borders -->
+    <aside class="w-full lg:w-60 shrink-0 bg-white border-r border-slate-200/90 flex flex-col justify-between select-none">
       <div>
         <!-- Municipality Seal & Name Box -->
-        <div class="bg-[#dcd3ec] px-4 pt-5 pb-4 flex flex-col items-center text-center border-b border-purple-200/80">
-          <div id="logoContainerBox" title="คลิกเพื่อเปลี่ยนรูปโลโก้เทศบาลตำบลบ่อหลวง" class="group cursor-pointer w-28 h-28 rounded-full bg-white shadow-md border-2 border-slate-300 flex items-center justify-center p-1 mb-2.5 relative overflow-hidden">
+        <div class="px-5 pt-6 pb-5 flex flex-col items-center text-center border-b border-slate-200/80 bg-slate-50/40">
+          <div id="logoContainerBox" title="คลิกเพื่อเปลี่ยนรูปโลโก้เทศบาลตำบลบ่อหลวง" class="group cursor-pointer w-24 h-24 rounded-full bg-white border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center p-1.5 mb-3 relative overflow-hidden transition hover:border-slate-300">
             <input type="file" id="logoFileInput" accept="image/*" class="hidden" />
             <img id="customLogoImg" src="./logo.png" alt="โลโก้เทศบาลตำบลบ่อหลวง" class="hidden w-full h-full object-contain rounded-full" onerror="this.classList.add('hidden'); document.getElementById('defaultLogoSvg').classList.remove('hidden');" onload="this.classList.remove('hidden'); document.getElementById('defaultLogoSvg').classList.add('hidden');" />
-            <svg id="defaultLogoSvg" viewBox="0 0 100 100" class="w-full h-full">
-              <circle cx="50" cy="50" r="47" fill="#ffffff" stroke="#1e3a8a" stroke-width="2.5"/>
-              <circle cx="50" cy="50" r="39" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="1.2"/>
-              <path d="M14 64 L36 36 L54 58 L70 40 L86 64 Z" fill="#15803d" opacity="0.85"/>
-              <path d="M26 64 L49 30 L73 64 Z" fill="#166534"/>
-              <circle cx="66" cy="28" r="6.5" fill="#f59e0b"/>
-              <path d="M12 64 Q50 59 88 64 L86 80 Q50 90 14 80 Z" fill="#0284c7"/>
-              <text x="50" y="76" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="bold">ทต.บ่อหลวง</text>
+            <svg id="defaultLogoSvg" viewBox="0 0 100 100" class="w-full h-full text-slate-600">
+              <circle cx="50" cy="50" r="46" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5"/>
+              <circle cx="50" cy="50" r="38" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+              <path d="M20 62 L38 38 L52 54 L66 36 L80 62 Z" fill="none" stroke="#64748b" stroke-width="2" stroke-linejoin="round"/>
+              <circle cx="64" cy="28" r="4.5" fill="none" stroke="#94a3b8" stroke-width="1.75"/>
+              <path d="M22 68 Q50 63 78 68" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/>
+              <text x="50" y="79" text-anchor="middle" fill="#475569" font-size="7.5" font-weight="600">ทต.บ่อหลวง</text>
             </svg>
-            <div class="absolute inset-0 rounded-full bg-indigo-950/60 text-white text-[11px] font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-              🖼️ เปลี่ยนโลโก้
+            <div class="absolute inset-0 rounded-full bg-slate-900/60 text-white text-[10px] font-medium flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+              เปลี่ยนโลโก้
             </div>
           </div>
-          <h2 class="font-bold text-slate-800 text-[15px] leading-snug">เทศบาลตำบลบ่อหลวง</h2>
-          <p class="text-[11px] text-slate-600">อำเภอฮอด จังหวัดเชียงใหม่</p>
+          <h2 class="font-semibold text-slate-800 text-sm leading-snug">เทศบาลตำบลบ่อหลวง</h2>
+          <p class="text-[11px] text-slate-400 mt-0.5">อำเภอฮอด จังหวัดเชียงใหม่</p>
         </div>
 
-        <!-- Clean Collapsible Navigation Menu matching Image 1 (▸ Dashboard, ▸ ตั้งค่า) -->
-        <nav class="divide-y divide-purple-200/70 text-sm" aria-label="เมนูหลัก">
+        <!-- Minimal Collapsible Navigation -->
+        <nav class="divide-y divide-slate-200/80 text-xs" aria-label="เมนูหลัก">
           <!-- Group 1: Dashboard -->
-          <div>
-            <button type="button" id="toggleDashboardMenuBtn" class="w-full px-4 py-3 bg-[#e6dff2] hover:bg-[#d9d0ea] flex items-center gap-2 font-bold text-slate-800 text-xs transition">
-              <span id="dashboardMenuArrow">▾</span>
+          <div class="p-3">
+            <button type="button" id="toggleDashboardMenuBtn" class="w-full px-2 py-1.5 flex items-center justify-between font-semibold text-slate-400 uppercase tracking-wider text-[10px] hover:text-slate-700 transition">
               <span>Dashboard</span>
+              <svg id="dashboardMenuArrow" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
             </button>
-            <div id="dashboardSubmenu" class="bg-[#f2eef9] divide-y divide-purple-100 text-xs">
-              <button type="button" data-nav="map" class="nav-tab-btn w-full text-left pl-7 pr-3 py-2.5 font-bold text-[#4c2882] bg-purple-200/70 hover:bg-purple-200 transition flex items-center justify-between">
-                <span>📍 พิกัดผู้รับการตรวจ</span>
+            <div id="dashboardSubmenu" class="mt-1.5 space-y-1">
+              <button type="button" data-nav="map" class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-semibold text-slate-900 bg-slate-100 border border-slate-200 transition flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>พิกัดผู้รับการตรวจ</span>
               </button>
-              <button type="button" data-nav="summary" class="nav-tab-btn w-full text-left pl-7 pr-3 py-2.5 font-semibold text-slate-700 hover:bg-purple-100 transition flex items-center justify-between">
-                <span>📋 ข้อมูลสุขภาพ (ตาราง)</span>
+              <button type="button" data-nav="summary" class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="3" y1="9" x2="21" y2="9"/>
+                  <line x1="9" y1="21" x2="9" y2="9"/>
+                </svg>
+                <span>ข้อมูลสุขภาพ (ตาราง)</span>
               </button>
-              <button type="button" data-nav="analytics" class="nav-tab-btn w-full text-left pl-7 pr-3 py-2.5 font-semibold text-slate-700 hover:bg-purple-100 transition flex items-center justify-between">
-                <span>📊 สถิติรายหมู่บ้าน</span>
+              <button type="button" data-nav="analytics" class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"/>
+                  <line x1="12" y1="20" x2="12" y2="4"/>
+                  <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span>สถิติรายหมู่บ้าน</span>
               </button>
             </div>
           </div>
 
-          <!-- Village & Health Unit Filters (Always visible & synced with 13 villages in block.json) -->
-          <div class="p-3 bg-[#ebe4f5] space-y-2.5 text-xs">
+          <!-- Village & Health Unit Filters (13 Villages) -->
+          <div class="p-3.5 bg-slate-50/50 space-y-3">
             <div>
-              <label for="villageSelect" class="block text-[11px] font-bold text-indigo-950 mb-1">กรองหมู่บ้าน (13 หมู่บ้าน):</label>
-              <select id="villageSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] font-semibold text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label for="villageSelect" class="block text-[11px] font-medium text-slate-500 mb-1.5">กรองหมู่บ้าน (13 หมู่บ้าน)</label>
+              <select id="villageSelect" class="w-full rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] focus:outline-none focus:border-slate-400 transition">
                 <option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - หมู่ 13)</option>
                 <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
                 <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
@@ -150,8 +190,8 @@
             </div>
 
             <div>
-              <label for="WaitUnitSelect" class="block text-[11px] font-bold text-indigo-950 mb-1">กรองหน่วยบริการ:</label>
-              <select id="WaitUnitSelect" class="w-full rounded-lg border border-purple-300 bg-white px-2 py-1.5 text-[11px] font-medium text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <label for="WaitUnitSelect" class="block text-[11px] font-medium text-slate-500 mb-1.5">กรองหน่วยบริการ</label>
+              <select id="WaitUnitSelect" class="w-full rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] focus:outline-none focus:border-slate-400 transition">
                 <option value="ALL">ทุกหน่วยบริการ (ทต.บ่อหลวง + 3 รพ.สต.)</option>
                 <option value="กองสาธารณสุข ทต.บ่อหลวง">กองสาธารณสุข ทต.บ่อหลวง (ม.1-3)</option>
                 <option value="รพ.สต.บ้านนาฟ่อน (ม.4)">รพ.สต.บ้านนาฟ่อน (ม.4-6)</option>
@@ -161,21 +201,37 @@
             </div>
           </div>
 
-          <!-- Group 2: ตั้งค่าระบบ (Clean Production Menu) -->
-          <div>
-            <button type="button" id="toggleSettingsMenuBtn" class="w-full px-4 py-3 bg-[#e6dff2] hover:bg-[#d9d0ea] flex items-center gap-2 font-bold text-slate-800 text-xs transition">
-              <span id="settingsMenuArrow">▸</span>
-              <span>ตั้งค่า</span>
+          <!-- Group 2: ตั้งค่า -->
+          <div class="p-3">
+            <button type="button" id="toggleSettingsMenuBtn" class="w-full px-2 py-1.5 flex items-center justify-between font-semibold text-slate-400 uppercase tracking-wider text-[10px] hover:text-slate-700 transition">
+              <span>ตั้งค่าระบบ</span>
+              <svg id="settingsMenuArrow" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
             </button>
-            <div id="settingsSubmenu" class="hidden bg-[#f2eef9] p-3 space-y-2 border-t border-purple-200/60 text-xs">
-              <button type="button" id="quickPullSupabaseBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-emerald-900 bg-emerald-100 hover:bg-emerald-200 transition block">
-                🔄 ซิงค์ข้อมูลล่าสุดเดี๋ยวนี้
+            <div id="settingsSubmenu" class="hidden mt-1.5 space-y-1 text-xs">
+              <button type="button" id="quickPullSupabaseBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="23 4 23 10 17 10"/>
+                  <polyline points="1 20 1 14 7 14"/>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                </svg>
+                <span>ซิงค์ข้อมูลล่าสุด</span>
               </button>
-              <button type="button" id="quickOpenConfigBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-indigo-900 bg-indigo-100/80 hover:bg-indigo-200 transition block">
-                🔌 ตั้งค่าฐานข้อมูล Cloud
+              <button type="button" id="quickOpenConfigBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                  <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                  <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                </svg>
+                <span>ตั้งค่าฐานข้อมูล Cloud</span>
               </button>
-              <button type="button" id="uploadGeoJsonBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-amber-950 bg-amber-100 hover:bg-amber-200 transition block">
-                📂 อัปเดตไฟล์แผนที่ JSON
+              <button type="button" id="uploadGeoJsonBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+                <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                <span>อัปเดตไฟล์แผนที่ JSON</span>
               </button>
               <input type="file" id="geoJsonFileInput" accept=".json,.geojson" multiple class="hidden" />
             </div>
@@ -183,147 +239,187 @@
         </nav>
       </div>
 
-      <!-- Bottom Purple Gradient Fill matching Image 1 Sidebar -->
-      <div class="flex-1 bg-gradient-to-b from-[#9b72cf] to-[#7c52b5] min-h-[180px] p-3 flex flex-col justify-between text-white/90">
-        <button type="button" id="resetMapCenterBtn" title="รีเซ็ตมุมมองแผนที่" class="w-7 h-7 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center text-white font-bold text-xs shadow">
-          ❯
-        </button>
-        <div class="text-[11px] text-purple-100/90 leading-snug">
-          <div class="font-bold text-white">แสดงพิกัด: <span id="visiblePinCount">12</span> ราย</div>
+      <!-- Minimal Bottom Status Box -->
+      <div class="p-4 border-t border-slate-200/80 bg-slate-50/40 flex items-center justify-between text-xs text-slate-500">
+        <div>
+          <div class="text-[11px] text-slate-400">พิกัดที่แสดงบนแผนที่</div>
+          <div class="font-semibold text-slate-700 mt-0.5"><span id="visiblePinCount">12</span> รายการ</div>
           <span id="sidebarListCountBadge" class="hidden">12 ราย</span>
         </div>
+        <button type="button" id="resetMapCenterBtn" title="รีเซ็ตมุมมองแผนที่" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 border border-slate-200/90 flex items-center justify-center text-slate-600 transition shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+          </svg>
+        </button>
       </div>
     </aside>
 
-    <!-- Right Main Workspace (Exact Image 1 Layout: 5 KPI Cards -> Search & 4 Switches -> Full-Screen Map) -->
-    <main class="flex-1 flex flex-col min-w-0 bg-[#f4f5f7]">
+    <!-- Right Main Workspace -->
+    <main class="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
 
-      <!-- 5 Top KPI Summary Cards (Exact 1:1 Proportions & Colors from Image 1) -->
-      <section aria-label="สรุปสถิติผู้รับการตรวจ" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 bg-white border-b border-slate-300 divide-x divide-slate-200 shadow-sm">
+      <!-- 5 Top KPI Summary Cards (Minimal Line + Soft Borders) -->
+      <section aria-label="สรุปสถิติผู้รับการตรวจ" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 bg-white border-b border-slate-200/90 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80">
         <!-- Card 1: จำนวนผู้รับการตรวจ -->
-        <button type="button" data-risk-filter="ALL" class="kpi-card text-left px-4 py-2.5 hover:bg-slate-50 transition flex flex-col justify-between h-28">
-          <span class="text-xs font-bold text-slate-700">จำนวนผู้รับการตรวจ</span>
-          <div class="text-center my-auto text-4xl font-extrabold text-slate-500 tracking-tight" id="kpiTotalCount">920</div>
-          <div class="text-right text-xs font-bold text-transparent select-none">.</div>
+        <button type="button" data-risk-filter="ALL" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500">จำนวนผู้รับการตรวจ</span>
+            <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+          </div>
+          <div class="my-auto text-3xl font-semibold text-slate-800 tracking-tight" id="kpiTotalCount">920</div>
+          <div class="text-[11px] text-slate-400">ทั้งหมดในระบบ</div>
         </button>
 
         <!-- Card 2: เกณฑ์สุขภาพเหมาะสม -->
-        <button type="button" data-risk-filter="NORMAL" class="kpi-card text-left px-4 py-2.5 hover:bg-slate-50 transition flex flex-col justify-between h-28">
-          <span class="text-xs font-bold text-slate-700">เกณฑ์สุขภาพเหมาะสม</span>
-          <div class="text-center my-auto text-4xl font-extrabold text-[#65a30d] tracking-tight" id="kpiNormalCount">183</div>
-          <div class="text-right text-xs font-bold text-slate-800" id="kpiNormalPct">19.89 %</div>
+        <button type="button" data-risk-filter="NORMAL" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพเหมาะสม</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          </div>
+          <div class="my-auto text-3xl font-semibold text-emerald-600 tracking-tight" id="kpiNormalCount">183</div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">สัดส่วน</span>
+            <span class="font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/70" id="kpiNormalPct">19.89 %</span>
+          </div>
         </button>
 
         <!-- Card 3: เกณฑ์สุขภาพมีความเสี่ยง -->
-        <button type="button" data-risk-filter="RISK" class="kpi-card text-left px-4 py-2.5 hover:bg-slate-50 transition flex flex-col justify-between h-28">
-          <span class="text-xs font-bold text-slate-700">เกณฑ์สุขภาพมีความเสี่ยง</span>
-          <div class="text-center my-auto text-4xl font-extrabold text-[#f59e0b] tracking-tight" id="kpiRiskCount">336</div>
-          <div class="text-right text-xs font-bold text-slate-800" id="kpiRiskPct">36.52 %</div>
+        <button type="button" data-risk-filter="RISK" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพมีความเสี่ยง</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          </div>
+          <div class="my-auto text-3xl font-semibold text-amber-600 tracking-tight" id="kpiRiskCount">336</div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">สัดส่วน</span>
+            <span class="font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200/70" id="kpiRiskPct">36.52 %</span>
+          </div>
         </button>
 
         <!-- Card 4: เกณฑ์สุขภาพอันตราย -->
-        <button type="button" data-risk-filter="DANGER" class="kpi-card text-left px-4 py-2.5 hover:bg-slate-50 transition flex flex-col justify-between h-28">
-          <span class="text-xs font-bold text-slate-700">เกณฑ์สุขภาพอันตราย</span>
-          <div class="text-center my-auto text-4xl font-extrabold text-[#dc2626] tracking-tight" id="kpiDangerCount">394</div>
-          <div class="text-right text-xs font-bold text-slate-800" id="kpiDangerPct">42.83 %</div>
+        <button type="button" data-risk-filter="DANGER" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพอันตราย</span>
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+          </div>
+          <div class="my-auto text-3xl font-semibold text-rose-600 tracking-tight" id="kpiDangerCount">394</div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">สัดส่วน</span>
+            <span class="font-medium text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200/70" id="kpiDangerPct">42.83 %</span>
+          </div>
         </button>
 
         <!-- Card 5: ประชากรนอกเขต -->
-        <button type="button" data-risk-filter="OUTAREA" class="kpi-card col-span-2 sm:col-span-1 text-left px-4 py-2.5 hover:bg-slate-50 transition flex flex-col justify-between h-28">
-          <span class="text-xs font-bold text-slate-700">ประชากรนอกเขต</span>
-          <div class="text-center my-auto text-4xl font-extrabold text-[#1e40af] tracking-tight" id="kpiOutCount">467</div>
-          <div class="text-right text-xs font-bold text-slate-800" id="kpiOutPct">50.76 %</div>
+        <button type="button" data-risk-filter="OUTAREA" class="kpi-card col-span-2 sm:col-span-1 text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-500">ประชากรนอกเขต</span>
+            <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+          </div>
+          <div class="my-auto text-3xl font-semibold text-sky-700 tracking-tight" id="kpiOutCount">467</div>
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-400">สัดส่วน</span>
+            <span class="font-medium text-sky-700 bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200/70" id="kpiOutPct">50.76 %</span>
+          </div>
         </button>
       </section>
 
-      <!-- Search & 4 Target Group Switches Bar (Exact Image 1 Layout) -->
-      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" class="bg-[#f4f5f7] px-5 py-3 border-b border-slate-300 flex flex-wrap items-center justify-between gap-4">
+      <!-- Minimal Search & 4 Target Group Switches Bar -->
+      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" class="bg-white px-5 py-3 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-4">
         <!-- Search Input -->
         <div class="flex items-center gap-3">
-          <label for="patientSearchInput" class="text-sm font-bold text-slate-800 leading-tight">ชื่อผู้รับการตรวจ :</label>
-          <div class="relative w-56 sm:w-64">
-            <input id="patientSearchInput" type="text" placeholder="" class="w-full h-9 rounded-full border border-slate-300 bg-white px-4 text-xs text-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-            <button id="clearSearchBtn" type="button" title="ล้างคำค้นหา" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</button>
+          <label for="patientSearchInput" class="text-xs font-medium text-slate-500">ชื่อผู้รับการตรวจ</label>
+          <div class="relative w-60 sm:w-72">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input id="patientSearchInput" type="text" placeholder="ค้นหาชื่อ, หมู่บ้าน หรือที่อยู่..." class="w-full h-9 rounded-lg border border-slate-200/90 bg-slate-50/60 pl-8 pr-8 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-slate-400 transition" />
+            <button id="clearSearchBtn" type="button" title="ล้างคำค้นหา" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-[11px]">ล้าง</button>
           </div>
         </div>
 
-        <!-- 4 Pill Switches (ปกติ, ผู้ป่วยติดเตียง, ผู้พิการ, กลุ่มเปราะบาง) matching Image 1 -->
-        <div class="flex flex-wrap items-center gap-5 sm:gap-7">
-          <button type="button" data-group-toggle="ปกติ" class="group-toggle-btn flex items-center gap-2.5 transition">
-            <span class="toggle-track w-12 h-6 rounded-full bg-slate-300 border border-slate-400/50 relative transition-colors flex items-center p-0.5 shadow-inner">
-              <span class="toggle-thumb w-5 h-5 rounded-full bg-white shadow transform transition-transform translate-x-0"></span>
+        <!-- 4 Minimal Line Pill Switches -->
+        <div class="flex flex-wrap items-center gap-5 sm:gap-6">
+          <button type="button" data-group-toggle="ปกติ" class="group-toggle-btn flex items-center gap-2 transition">
+            <span class="toggle-track w-10 h-5 rounded-full bg-slate-200 border border-slate-300 relative transition-colors flex items-center p-0.5">
+              <span class="toggle-thumb w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform translate-x-0"></span>
             </span>
-            <span class="text-sm font-bold text-slate-800">ปกติ</span>
+            <span class="text-xs font-medium text-slate-700">ปกติ</span>
           </button>
 
-          <button type="button" data-group-toggle="ผู้ป่วยติดเตียง" class="group-toggle-btn flex items-center gap-2.5 transition">
-            <span class="toggle-track w-12 h-6 rounded-full bg-rose-500 border border-rose-600/40 relative transition-colors flex items-center p-0.5 shadow-inner">
-              <span class="toggle-thumb w-5 h-5 rounded-full bg-white shadow transform transition-transform translate-x-6"></span>
+          <button type="button" data-group-toggle="ผู้ป่วยติดเตียง" class="group-toggle-btn flex items-center gap-2 transition">
+            <span class="toggle-track w-10 h-5 rounded-full bg-slate-800 border border-slate-800 relative transition-colors flex items-center p-0.5">
+              <span class="toggle-thumb w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform translate-x-5"></span>
             </span>
-            <span class="text-sm font-bold text-slate-800">ผู้ป่วยติดเตียง</span>
+            <span class="text-xs font-medium text-slate-700">ผู้ป่วยติดเตียง</span>
           </button>
 
-          <button type="button" data-group-toggle="ผู้พิการ" class="group-toggle-btn flex items-center gap-2.5 transition">
-            <span class="toggle-track w-12 h-6 rounded-full bg-slate-300 border border-slate-400/50 relative transition-colors flex items-center p-0.5 shadow-inner">
-              <span class="toggle-thumb w-5 h-5 rounded-full bg-white shadow transform transition-transform translate-x-0"></span>
+          <button type="button" data-group-toggle="ผู้พิการ" class="group-toggle-btn flex items-center gap-2 transition">
+            <span class="toggle-track w-10 h-5 rounded-full bg-slate-200 border border-slate-300 relative transition-colors flex items-center p-0.5">
+              <span class="toggle-thumb w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform translate-x-0"></span>
             </span>
-            <span class="text-sm font-bold text-slate-800">ผู้พิการ</span>
+            <span class="text-xs font-medium text-slate-700">ผู้พิการ</span>
           </button>
 
-          <button type="button" data-group-toggle="กลุ่มเปราะบาง" class="group-toggle-btn flex items-center gap-2.5 transition">
-            <span class="toggle-track w-12 h-6 rounded-full bg-slate-300 border border-slate-400/50 relative transition-colors flex items-center p-0.5 shadow-inner">
-              <span class="toggle-thumb w-5 h-5 rounded-full bg-white shadow transform transition-transform translate-x-0"></span>
+          <button type="button" data-group-toggle="กลุ่มเปราะบาง" class="group-toggle-btn flex items-center gap-2 transition">
+            <span class="toggle-track w-10 h-5 rounded-full bg-slate-200 border border-slate-300 relative transition-colors flex items-center p-0.5">
+              <span class="toggle-thumb w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform translate-x-0"></span>
             </span>
-            <span class="text-sm font-bold text-slate-800">กลุ่มเปราะบาง</span>
+            <span class="text-xs font-medium text-slate-700">กลุ่มเปราะบาง</span>
           </button>
 
-          <button id="showAllGroupsBtn" type="button" class="text-xs font-semibold text-indigo-700 hover:underline">แสดงทุกกลุ่ม</button>
+          <button id="showAllGroupsBtn" type="button" class="text-xs font-medium text-slate-500 hover:text-slate-900 border border-slate-200/90 rounded-lg px-2.5 py-1 bg-slate-50/60 hover:bg-slate-100 transition">แสดงทุกกลุ่ม</button>
         </div>
       </section>
 
-      <!-- VIEW 1: Full-Width, Full-Height Interactive Map (Exact Image 1 Layout) -->
-      <section id="viewMapSection" class="flex-1 relative bg-slate-200 px-3 pb-3 pt-2 flex flex-col">
-        <div class="relative w-full flex-1 min-h-[580px] h-[calc(100vh-230px)] rounded shadow-sm overflow-hidden border border-slate-300 bg-slate-100">
+      <!-- VIEW 1: Full-Width, Full-Height Interactive Map -->
+      <section id="viewMapSection" class="flex-1 relative bg-[#f8fafc] p-3 flex flex-col">
+        <div class="relative w-full flex-1 min-h-[580px] h-[calc(100vh-235px)] rounded-xl overflow-hidden border border-slate-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
 
-          <!-- Floating Top-Left [ แผนที่ | ดาวเทียม ] Control (Exact Google Maps Style in Image 1) -->
-          <div class="absolute top-3 left-3 z-20 inline-flex rounded bg-white shadow-md border border-slate-300 overflow-hidden divide-x divide-slate-300">
-            <button type="button" data-map-mode="street" class="map-mode-btn px-4 py-1.5 text-xs font-bold bg-white text-slate-900 hover:bg-slate-50 transition">แผนที่</button>
-            <button type="button" data-map-mode="satellite" class="map-mode-btn px-4 py-1.5 text-xs font-medium bg-white text-slate-600 hover:bg-slate-50 transition">ดาวเทียม</button>
+          <!-- Floating Top-Left [ แผนที่ | ดาวเทียม ] Minimal Control -->
+          <div class="absolute top-3 left-3 z-20 inline-flex rounded-lg bg-white/95 backdrop-blur shadow-sm border border-slate-200/90 overflow-hidden divide-x divide-slate-200/80">
+            <button type="button" data-map-mode="street" class="map-mode-btn px-3.5 py-1.5 text-xs font-semibold bg-slate-100/90 text-slate-900 transition">แผนที่</button>
+            <button type="button" data-map-mode="satellite" class="map-mode-btn px-3.5 py-1.5 text-xs font-medium bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition">ดาวเทียม</button>
           </div>
 
-          <!-- Floating Top-Right Boundary Layer Checkboxes (Compact & unobtrusive) -->
-          <div class="absolute top-3 right-3 z-20 flex flex-wrap items-center gap-1.5 bg-white/95 backdrop-blur px-2.5 py-1.5 rounded shadow-md border border-slate-300 text-[11px]">
-            <label class="inline-flex items-center gap-1 font-semibold text-indigo-950 cursor-pointer mr-1">
-              <input type="checkbox" id="toggleTambonBoundaryChk" checked class="rounded text-indigo-600 focus:ring-0" />
+          <!-- Floating Top-Right Boundary Layer Checkboxes -->
+          <div class="absolute top-3 right-3 z-20 flex flex-wrap items-center gap-3 bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-slate-200/90 text-xs">
+            <label class="inline-flex items-center gap-1.5 font-medium text-slate-700 cursor-pointer">
+              <input type="checkbox" id="toggleTambonBoundaryChk" checked class="rounded border-slate-300 text-slate-800 focus:ring-0" />
               <span>ขอบเขตตำบล</span>
             </label>
-            <label class="inline-flex items-center gap-1 font-semibold text-emerald-950 cursor-pointer">
-              <input type="checkbox" id="toggleVillageBoundaryChk" checked class="rounded text-emerald-600 focus:ring-0" />
+            <label class="inline-flex items-center gap-1.5 font-medium text-slate-700 cursor-pointer">
+              <input type="checkbox" id="toggleVillageBoundaryChk" checked class="rounded border-slate-300 text-slate-800 focus:ring-0" />
               <span>ขอบเขตหมู่บ้าน</span>
             </label>
           </div>
 
-          <!-- Leaflet Map Canvas (100% Width & Height) -->
+          <!-- Leaflet Map Canvas -->
           <div id="leafletMapContainer" class="w-full h-full z-10"></div>
 
-          <!-- Hidden containers kept in DOM so existing JS functions never throw null errors -->
+          <!-- Hidden compatibility containers -->
           <div id="tacticalSvgContainer" class="hidden"><svg id="boLuangTacticalSvg"><g id="tacticalPinsLayer"></g></svg></div>
           <div id="mapSidePatientList" class="hidden"></div>
         </div>
       </section>
 
-      <!-- VIEW 2: Patient Summary & Vital Signs Table Section (Hidden on Map view; opens when clicking "ข้อมูลสุขภาพ (ตาราง)" in Sidebar like Image 2) -->
-      <section id="viewSummarySection" class="hidden m-4 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+      <!-- VIEW 2: Patient Summary & Vital Signs Table Section -->
+      <section id="viewSummarySection" class="hidden m-4 bg-white rounded-xl border border-slate-200/90 shadow-[0_1px_3px_rgba(15,23,42,0.03)] overflow-hidden">
+        <div class="px-5 py-3.5 bg-slate-50/60 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-              <span>ตารางทะเบียนสุขภาพผู้รับการตรวจคัดกรองล่าสุด (ทต.บ่อหลวง)</span>
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">คลิกที่แถวเพื่อเปิดหน้าต่างข้อมูลล่าสุด 6 แถว (ภาพที่ 2)</span>
+            <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2.5">
+              <span>ตารางทะเบียนสุขภาพผู้รับการตรวจคัดกรองล่าสุด</span>
+              <span class="text-[11px] font-normal px-2.5 py-0.5 rounded-full bg-white text-slate-500 border border-slate-200/80">คลิกที่แถวเพื่อดูประวัติสัญญาณชีพ 6 รายการ</span>
             </h3>
           </div>
           <div class="flex items-center gap-2">
-            <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 transition">
-              <span>⬇ ดาวน์โหลด CSV (HDC/LTC)</span>
+            <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 transition">
+              <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>ดาวน์โหลด CSV</span>
             </button>
           </div>
         </div>
@@ -331,44 +427,44 @@
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse text-xs">
             <thead>
-              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 font-bold text-center">
-                <th class="py-2.5 px-3 text-left">ลำดับ</th>
-                <th class="py-2.5 px-3 text-left">รูป / ชื่อ-สกุล</th>
-                <th class="py-2.5 px-2">อายุ (ปี)</th>
-                <th class="py-2.5 px-2">กลุ่มเป้าหมาย</th>
-                <th class="py-2.5 px-2">เกณฑ์สุขภาพ</th>
-                <th class="py-2.5 px-2">อุณหภูมิ (°C)</th>
-                <th class="py-2.5 px-2">น้ำหนัก (Kg)</th>
-                <th class="py-2.5 px-2">BMI</th>
-                <th class="py-2.5 px-2">SYS (mmHg)</th>
-                <th class="py-2.5 px-2">DIA (mmHg)</th>
-                <th class="py-2.5 px-2">Pulse (min)</th>
-                <th class="py-2.5 px-2">%SpO2</th>
-                <th class="py-2.5 px-2">PI (%)</th>
-                <th class="py-2.5 px-2">น้ำตาล (mg/dL)</th>
-                <th class="py-2.5 px-3">การจัดการ</th>
+              <tr class="bg-slate-50/80 text-slate-500 border-b border-slate-200/80 font-medium text-center">
+                <th class="py-3 px-3 text-left">ลำดับ</th>
+                <th class="py-3 px-3 text-left">ชื่อ-สกุล</th>
+                <th class="py-3 px-2">อายุ (ปี)</th>
+                <th class="py-3 px-2">กลุ่มเป้าหมาย</th>
+                <th class="py-3 px-2">เกณฑ์สุขภาพ</th>
+                <th class="py-3 px-2">อุณหภูมิ (°C)</th>
+                <th class="py-3 px-2">น้ำหนัก (Kg)</th>
+                <th class="py-3 px-2">BMI</th>
+                <th class="py-3 px-2">SYS (mmHg)</th>
+                <th class="py-3 px-2">DIA (mmHg)</th>
+                <th class="py-3 px-2">Pulse (min)</th>
+                <th class="py-3 px-2">%SpO2</th>
+                <th class="py-3 px-2">PI (%)</th>
+                <th class="py-3 px-2">น้ำตาล (mg/dL)</th>
+                <th class="py-3 px-3">รายละเอียด</th>
               </tr>
             </thead>
-            <tbody id="patientSummaryTableBody" class="divide-y divide-slate-200"></tbody>
+            <tbody id="patientSummaryTableBody" class="divide-y divide-slate-200/70"></tbody>
           </table>
         </div>
       </section>
 
       <!-- VIEW 3: Highland Analytics & Caregiver Workload Section -->
       <section id="viewAnalyticsSection" class="hidden m-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-800 mb-1">สัดส่วนผู้ป่วยติดเตียง ผู้พิการ และกลุ่มเปราะบาง รายหมู่บ้าน</h3>
-          <p class="text-xs text-slate-500 mb-3">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อจัดสรรทีม Caregiver และ อสม.</p>
+        <div class="bg-white rounded-xl border border-slate-200/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+          <h3 class="text-sm font-semibold text-slate-800 mb-1">สัดส่วนผู้ป่วยติดเตียง ผู้พิการ และกลุ่มเปราะบาง รายหมู่บ้าน (ครบ 13 หมู่บ้าน)</h3>
+          <p class="text-xs text-slate-400 mb-4">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อวางแผนจัดสรรทีม Caregiver และ อสม.</p>
           <div class="relative h-72"><canvas id="villageDistributionChart"></canvas></div>
         </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-800 mb-1">สถิติความเสี่ยงโรคไม่ติดต่อเรื้อรัง (NCDs) จากชุดตรวจ Telehealth</h3>
-          <p class="text-xs text-slate-500 mb-3">เปรียบเทียบภาวะความดันโลหิตสูง เบาหวาน และภาวะพร่องออกซิเจนบนพื้นที่สูง</p>
+        <div class="bg-white rounded-xl border border-slate-200/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
+          <h3 class="text-sm font-semibold text-slate-800 mb-1">สัดส่วนตามเกณฑ์ประเมินสุขภาพ</h3>
+          <p class="text-xs text-slate-400 mb-4">เปรียบเทียบสัดส่วนผู้รับการตรวจตามเกณฑ์ความดันโลหิต น้ำตาลในเลือด และออกซิเจน</p>
           <div class="relative h-72"><canvas id="riskBreakdownChart"></canvas></div>
         </div>
       </section>
 
-      <!-- Hidden compatibility stubs (Blueprint & Schema removed for clean production UI) -->
+      <!-- Hidden compatibility stubs -->
       <div id="viewArchitectureSection" class="hidden"></div>
       <div id="viewSheetsSection" class="hidden">
         <button id="focusDoiPupengBtn" type="button" class="hidden"></button>
@@ -382,247 +478,250 @@
     </main>
   </div>
 
-  <!-- Bottom Footer Bar matching Image 1 -->
-  <footer class="bg-white border-t border-slate-300 px-4 py-2 text-xs text-slate-600 flex flex-wrap items-center justify-between gap-2">
-    <div>สนใจติดต่อใช้งานระบบ / แจ้งเหตุฉุกเฉิน กองสาธารณสุขและสิ่งแวดล้อม เทศบาลตำบลบ่อหลวง โทร. 053-963-085</div>
-    <div>&copy; 2026 เทศบาลตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่ All rights reserved.</div>
+  <!-- Minimal Bottom Footer Bar -->
+  <footer class="bg-white border-t border-slate-200/90 px-6 py-2.5 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
+    <div>กองสาธารณสุขและสิ่งแวดล้อม เทศบาลตำบลบ่อหลวง โทร. 053-963-085</div>
+    <div>&copy; 2026 เทศบาลตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</div>
   </footer>
 
-<!-- MODAL 1: Patient Latest Vital Signs History Modal (Re-engineered 1:1 from Image 2 Pink/Red Modal + Consolidated Summary Upgrade) -->
-  <div id="patientDetailModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-5xl overflow-hidden my-auto">
-      <!-- Modal Top Status Header (Dynamic Pink/Amber/Green matching Image 2 "เกณฑ์สุขภาพอันตราย") -->
-      <div id="modalHeaderBanner" class="bg-rose-100 border-b border-rose-200 px-5 py-3 flex items-center justify-between">
+  <!-- MODAL 1: Patient Latest Vital Signs History Modal (Minimal Line + Soft Borders) -->
+  <div id="patientDetailModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-5xl overflow-hidden my-auto">
+      <!-- Modal Top Status Header -->
+      <div id="modalHeaderBanner" class="bg-rose-50/70 border-b border-rose-200/80 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <span id="modalRiskDot" class="w-3 h-3 rounded-full bg-rose-600"></span>
-          <h3 id="modalRiskTitle" class="text-base font-extrabold text-rose-900">เกณฑ์สุขภาพอันตราย</h3>
-          <span id="modalGroupBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white/80 text-rose-800 border border-rose-300">ผู้ป่วยติดเตียง</span>
+          <span id="modalRiskDot" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+          <h3 id="modalRiskTitle" class="text-sm font-bold tracking-tight text-rose-900">เกณฑ์สุขภาพอันตราย</h3>
+          <span id="modalGroupBadge" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-slate-700 border border-slate-200/90">ผู้ป่วยติดเตียง</span>
         </div>
         <div class="flex items-center gap-2">
-          <button id="downloadPatientReportBtn" type="button" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-sm transition">
-            <span>⬇ ดาวน์โหลด</span>
+          <button id="downloadPatientReportBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 transition">
+            <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span>ดาวน์โหลด CSV</span>
           </button>
-          <button id="closePatientModalBtn" type="button" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-bold bg-rose-700 hover:bg-rose-800 text-white shadow-sm transition">
-            <span>✕ ปิด</span>
+          <button id="closePatientModalBtn" type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 transition">
+            <span>ปิดหน้าต่าง</span>
           </button>
         </div>
       </div>
 
-      <!-- Patient Profile Bar (Matching Image 2: Photo + Name + Age + Full Address) -->
-      <div class="p-4 sm:p-5 bg-rose-50/40 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap sm:flex-nowrap items-center gap-3.5">
-          <img id="modalPatientPhotoImg" src="data:image/jpeg;base64,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" alt="รูปภาพการออกเยี่ยมบ้าน" class="hidden w-28 h-20 object-cover rounded-xl border-2 border-white shadow-md shrink-0" />
-          <div id="modalPatientAvatar" class="w-14 h-14 rounded-xl bg-indigo-100 border-2 border-white shadow flex items-center justify-center text-lg font-extrabold text-indigo-800 shrink-0">
+      <!-- Patient Profile Bar -->
+      <div class="p-5 bg-slate-50/40 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-4">
+          <img id="modalPatientPhotoImg" src="" alt="รูปภาพการออกเยี่ยมบ้าน" class="hidden w-24 h-20 object-cover rounded-xl border border-slate-200/90 shrink-0" />
+          <div id="modalPatientAvatar" class="w-14 h-14 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-base font-semibold text-slate-700 shrink-0">
             อบ
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h4 id="modalPatientName" class="text-base font-extrabold text-slate-900">นายอรัญ พงศ์ศักดิ์</h4>
-              <span id="modalPatientAge" class="text-sm font-bold text-slate-700">อายุ 55 ปี</span>
-              <span id="modalCareUnitBadge" class="text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">รพ.สต.บ้านนาฟ่อน (ม.4)</span>
-              <a id="modalDrivePhotoLink" href="https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="hidden text-[11px] font-bold text-emerald-700 hover:underline bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300">🔗 เปิดรูปต้นฉบับใน Google Drive</a>
+              <h4 id="modalPatientName" class="text-base font-bold text-slate-900">นายอรัญ พงศ์ศักดิ์</h4>
+              <span id="modalPatientAge" class="text-xs font-medium text-slate-500">อายุ 55 ปี</span>
+              <span id="modalCareUnitBadge" class="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-white text-slate-600 border border-slate-200/90">รพ.สต.บ้านนาฟ่อน (ม.4)</span>
+              <a id="modalDrivePhotoLink" href="https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="hidden text-[11px] font-medium text-slate-700 hover:text-slate-900 underline bg-white px-2.5 py-0.5 rounded-md border border-slate-200/90">เปิดรูปต้นฉบับใน Google Drive</a>
             </div>
-            <p id="modalPatientAddress" class="text-xs text-slate-600 mt-0.5">63 หมู่ที่ 4 บ้านนาฟ่อน ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</p>
-            <p id="modalPatientCondition" class="text-xs text-rose-700 font-semibold mt-1">โรคประจำตัว: ความดันโลหิตสูง, เบาหวานชนิดที่ 2 • คะแนน ADL: 3 (ติดเตียงสมบูรณ์)</p>
+            <p id="modalPatientAddress" class="text-xs text-slate-500 mt-1">63 หมู่ที่ 4 บ้านนาฟ่อน ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</p>
+            <p id="modalPatientCondition" class="text-xs text-slate-700 font-medium mt-1">โรคประจำตัว: ความดันโลหิตสูง, เบาหวานชนิดที่ 2 • คะแนน ADL: 3 (ติดเตียงสมบูรณ์)</p>
           </div>
         </div>
 
-        <!-- Senior Engineer Upgrade: Consolidated Single-Card Summary before the 6-row IoT log -->
-        <div class="flex flex-wrap items-center gap-2 bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm text-xs">
-          <div class="px-2.5 py-1 border-r border-slate-200">
-            <div class="text-[10px] text-slate-500">ความดัน (SYS/DIA)</div>
-            <div id="modalSummaryBp" class="font-extrabold text-slate-900">130/78 <span class="text-[10px] font-normal">mmHg</span></div>
+        <!-- Consolidated Single-Card Summary -->
+        <div class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-xl border border-slate-200/90 text-xs">
+          <div class="px-3 py-1 border-r border-slate-200/80">
+            <div class="text-[10px] text-slate-400">ความดัน (SYS/DIA)</div>
+            <div id="modalSummaryBp" class="font-semibold text-slate-900 mt-0.5">130/78 <span class="text-[10px] font-normal text-slate-400">mmHg</span></div>
           </div>
-          <div class="px-2.5 py-1 border-r border-slate-200">
-            <div class="text-[10px] text-slate-500">ออกซิเจน (%SpO2)</div>
-            <div id="modalSummarySpo2" class="font-extrabold text-emerald-700">99% <span class="text-[10px] font-normal">(PI 5.7)</span></div>
+          <div class="px-3 py-1 border-r border-slate-200/80">
+            <div class="text-[10px] text-slate-400">ออกซิเจน (%SpO2)</div>
+            <div id="modalSummarySpo2" class="font-semibold text-emerald-700 mt-0.5">99% <span class="text-[10px] font-normal text-slate-400">(PI 5.7)</span></div>
           </div>
-          <div class="px-2.5 py-1 border-r border-slate-200">
-            <div class="text-[10px] text-slate-500">น้ำตาล (DTX)</div>
-            <div id="modalSummarySugar" class="font-extrabold text-rose-600">171.0 <span class="text-[10px] font-normal">mg/dL</span></div>
+          <div class="px-3 py-1 border-r border-slate-200/80">
+            <div class="text-[10px] text-slate-400">น้ำตาล (DTX)</div>
+            <div id="modalSummarySugar" class="font-semibold text-rose-600 mt-0.5">171.0 <span class="text-[10px] font-normal text-slate-400">mg/dL</span></div>
           </div>
-          <div class="px-2.5 py-1">
-            <div class="text-[10px] text-slate-500">อุณหภูมิ / น้ำหนัก</div>
-            <div id="modalSummaryTempWeight" class="font-extrabold text-slate-800">36.3 °C • 79.4 Kg</div>
+          <div class="px-3 py-1">
+            <div class="text-[10px] text-slate-400">อุณหภูมิ / น้ำหนัก</div>
+            <div id="modalSummaryTempWeight" class="font-semibold text-slate-800 mt-0.5">36.3 °C • 79.4 Kg</div>
           </div>
         </div>
       </div>
 
-      <!-- Exact Re-engineered Multi-Row IoT Sensor Table from Image 2 ("ข้อมูลล่าสุด") -->
-      <div class="p-4 sm:p-5 space-y-3">
+      <!-- 6-Row IoT Sensor Table -->
+      <div class="p-5 space-y-3.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h5 class="text-sm font-bold text-slate-900">ข้อมูลล่าสุด (บันทึกการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพอัจฉริยะ 6 รายการ)</h5>
-            <p class="text-[11px] text-slate-500">ตารางแสดงลำดับเวลาที่เครื่องมือแพทย์ Bluetooth แต่ละชิ้นส่งค่าเข้าสู่ระบบ (เหมือนหน้าจอจริงในภาพที่ 2 ทุกคอลัมน์)</p>
+            <h5 class="text-xs font-semibold text-slate-800">ข้อมูลล่าสุด (บันทึกการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพ 6 รายการ)</h5>
+            <p class="text-[11px] text-slate-400">ตารางแสดงลำดับเวลาที่เครื่องมือแพทย์แต่ละชิ้นส่งค่าเข้าสู่ระบบ</p>
           </div>
-          <button id="simulateNewReadingForPatientBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition">
-            + จำลองการส่งค่าจากกระเป๋า อสม. ตอนนี้
+          <button id="simulateNewReadingForPatientBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition">
+            จำลองการส่งค่าจากชุดตรวจ อสม.
           </button>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-slate-300">
+        <div class="overflow-x-auto rounded-xl border border-slate-200/90">
           <table class="w-full text-center border-collapse text-xs">
             <thead>
-              <tr class="bg-slate-100 text-slate-800 font-bold border-b border-slate-300">
-                <th rowspan="2" class="border-r border-slate-300 py-2 px-2">ลำดับ</th>
-                <th rowspan="2" class="border-r border-slate-300 py-2 px-2">อุณหภูมิ<br/><span class="text-[10px] font-normal">(°C)</span></th>
-                <th rowspan="2" class="border-r border-slate-300 py-2 px-2">น้ำหนัก<br/><span class="text-[10px] font-normal">(Kg)</span></th>
-                <th rowspan="2" class="border-r border-slate-300 py-2 px-2">ความสูง<br/><span class="text-[10px] font-normal">(Cm)</span></th>
-                <th colspan="3" class="border-r border-b border-slate-300 py-1.5 px-2 bg-indigo-50/60">ความดันโลหิต</th>
-                <th colspan="3" class="border-r border-b border-slate-300 py-1.5 px-2 bg-sky-50/60">ออกซิเจนในเลือด</th>
-                <th colspan="1" class="border-r border-b border-slate-300 py-1.5 px-2 bg-rose-50/60">ตรวจเลือด</th>
-                <th colspan="3" class="border-b border-slate-300 py-1.5 px-2 bg-emerald-50/60">ผู้ตรวจคัดกรอง</th>
+              <tr class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200/90">
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">ลำดับ</th>
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">อุณหภูมิ<br/><span class="text-[10px] font-normal text-slate-400">(°C)</span></th>
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">น้ำหนัก<br/><span class="text-[10px] font-normal text-slate-400">(Kg)</span></th>
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">ความสูง<br/><span class="text-[10px] font-normal text-slate-400">(Cm)</span></th>
+                <th colspan="3" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ความดันโลหิต</th>
+                <th colspan="3" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ออกซิเจนในเลือด</th>
+                <th colspan="1" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ตรวจเลือด</th>
+                <th colspan="3" class="border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ผู้ตรวจคัดกรอง</th>
               </tr>
-              <tr class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-300 text-[11px]">
-                <th class="border-r border-slate-300 py-1.5 px-2">SYS<br/><span class="text-[10px] font-normal">(mmHg)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">DIA<br/><span class="text-[10px] font-normal">(mmHg)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal">(min)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">%SpO2<br/><span class="text-[10px] font-normal">(%)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal">(min)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">PI<br/><span class="text-[10px] font-normal">(%)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">น้ำตาล<br/><span class="text-[10px] font-normal">(mg/dL)</span></th>
-                <th class="border-r border-slate-300 py-1.5 px-2">ผู้ตรวจ</th>
-                <th class="border-r border-slate-300 py-1.5 px-2">วันที่ตรวจคัดกรอง</th>
+              <tr class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200/90 text-[11px]">
+                <th class="border-r border-slate-200/80 py-1.5 px-2">SYS<br/><span class="text-[10px] font-normal text-slate-400">(mmHg)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">DIA<br/><span class="text-[10px] font-normal text-slate-400">(mmHg)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(min)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">%SpO2<br/><span class="text-[10px] font-normal text-slate-400">(%)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(min)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">PI<br/><span class="text-[10px] font-normal text-slate-400">(%)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">น้ำตาล<br/><span class="text-[10px] font-normal text-slate-400">(mg/dL)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">ผู้ตรวจ</th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">วันที่ตรวจคัดกรอง</th>
                 <th class="py-1.5 px-2">เวลา</th>
               </tr>
             </thead>
-            <tbody id="modalSensorLogBody" class="divide-y divide-slate-200 bg-white"></tbody>
+            <tbody id="modalSensorLogBody" class="divide-y divide-slate-200/70 bg-white"></tbody>
           </table>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- MODAL 2: Add / Simulate Smart Health Kit Checkup (Field Caregiver / อสม. Form) -->
-  <div id="addCheckupModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-xl overflow-hidden">
-      <div class="bg-indigo-900 text-white px-5 py-3.5 flex items-center justify-between">
+  <!-- MODAL 2: Add / Simulate Smart Health Kit Checkup (Minimal Line + Soft Borders) -->
+  <div id="addCheckupModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-xl overflow-hidden">
+      <div class="bg-slate-50/80 border-b border-slate-200/90 px-5 py-4 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold">บันทึกผลตรวจเยี่ยมบ้านเชิงรุก (Smart Telehealth Kit • ทต.บ่อหลวง)</h3>
-          <p class="text-[11px] text-indigo-200">รองรับการบันทึกทั้งโหมดออนไลน์ และโหมดออฟไลน์บนพื้นที่ดอยสูง</p>
+          <h3 class="text-sm font-semibold text-slate-900">บันทึกผลตรวจเยี่ยมบ้านเชิงรุก (ทต.บ่อหลวง)</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">ประเมินเกณฑ์สุขภาพและซิงค์เข้าสู่ฐานข้อมูลอัตโนมัติ</p>
         </div>
-        <button id="closeAddCheckupModalBtn" type="button" class="text-indigo-200 hover:text-white font-bold text-sm">✕</button>
+        <button id="closeAddCheckupModalBtn" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-white text-xs transition">ปิด</button>
       </div>
 
-      <form id="checkupForm" class="p-5 space-y-3.5 text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <form id="checkupForm" class="p-5 space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label for="formPatientSelect" class="block font-bold text-slate-700 mb-1">เลือกผู้รับการตรวจในพื้นที่</label>
-            <select id="formPatientSelect" class="w-full rounded-lg border border-slate-300 px-3 py-2 bg-white text-slate-800"></select>
+            <label for="formPatientSelect" class="block font-medium text-slate-600 mb-1.5">เลือกผู้รับการตรวจในพื้นที่</label>
+            <select id="formPatientSelect" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 focus:outline-none focus:border-slate-400"></select>
           </div>
           <div>
-            <label for="formInspectorInput" class="block font-bold text-slate-700 mb-1">รหัสชุดตรวจ / ผู้ตรวจคัดกรอง</label>
-            <input id="formInspectorInput" type="text" value="ทต.บ่อหลวง 4 (อสม.บ้านนาฟ่อน)" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-800" required />
+            <label for="formInspectorInput" class="block font-medium text-slate-600 mb-1.5">รหัสชุดตรวจ / ผู้ตรวจคัดกรอง</label>
+            <input id="formInspectorInput" type="text" value="ทต.บ่อหลวง 4 (อสม.บ้านนาฟ่อน)" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 text-slate-800 focus:outline-none focus:border-slate-400" required />
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label for="formSysInput" class="block font-bold text-slate-700 mb-1">ความดัน SYS (mmHg)</label>
-            <input id="formSysInput" type="number" value="158" min="60" max="260" class="w-full rounded-lg border border-slate-300 px-3 py-1.5" required />
+            <label for="formSysInput" class="block font-medium text-slate-600 mb-1.5">ความดัน SYS (mmHg)</label>
+            <input id="formSysInput" type="number" value="158" min="60" max="260" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formDiaInput" class="block font-bold text-slate-700 mb-1">ความดัน DIA (mmHg)</label>
-            <input id="formDiaInput" type="number" value="94" min="40" max="160" class="w-full rounded-lg border border-slate-300 px-3 py-1.5" required />
+            <label for="formDiaInput" class="block font-medium text-slate-600 mb-1.5">ความดัน DIA (mmHg)</label>
+            <input id="formDiaInput" type="number" value="94" min="40" max="160" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formPulseInput" class="block font-bold text-slate-700 mb-1">ชีพจร Pulse (min)</label>
-            <input id="formPulseInput" type="number" value="84" min="40" max="180" class="w-full rounded-lg border border-slate-300 px-3 py-1.5" required />
+            <label for="formPulseInput" class="block font-medium text-slate-600 mb-1.5">ชีพจร Pulse (min)</label>
+            <input id="formPulseInput" type="number" value="84" min="40" max="180" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
         </div>
 
         <div class="grid grid-cols-4 gap-2.5">
           <div>
-            <label for="formSpo2Input" class="block font-bold text-slate-700 mb-1">%SpO2 (%)</label>
-            <input id="formSpo2Input" type="number" value="96" min="70" max="100" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5" required />
+            <label for="formSpo2Input" class="block font-medium text-slate-600 mb-1.5">%SpO2 (%)</label>
+            <input id="formSpo2Input" type="number" value="96" min="70" max="100" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formSugarInput" class="block font-bold text-slate-700 mb-1">น้ำตาล (mg/dL)</label>
-            <input id="formSugarInput" type="number" step="0.1" value="164.0" min="40" max="500" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5" required />
+            <label for="formSugarInput" class="block font-medium text-slate-600 mb-1.5">น้ำตาล (mg/dL)</label>
+            <input id="formSugarInput" type="number" step="0.1" value="164.0" min="40" max="500" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formTempInput" class="block font-bold text-slate-700 mb-1">อุณหภูมิ (°C)</label>
-            <input id="formTempInput" type="number" step="0.1" value="36.6" min="34" max="42" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5" required />
+            <label for="formTempInput" class="block font-medium text-slate-600 mb-1.5">อุณหภูมิ (°C)</label>
+            <input id="formTempInput" type="number" step="0.1" value="36.6" min="34" max="42" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formWeightInput" class="block font-bold text-slate-700 mb-1">น้ำหนัก (Kg)</label>
-            <input id="formWeightInput" type="number" step="0.1" value="62.5" min="20" max="180" class="w-full rounded-lg border border-slate-300 px-2.5 py-1.5" required />
+            <label for="formWeightInput" class="block font-medium text-slate-600 mb-1.5">น้ำหนัก (Kg)</label>
+            <input id="formWeightInput" type="number" step="0.1" value="62.5" min="20" max="180" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200">
-          <button id="cancelCheckupBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">ยกเลิก</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 text-white font-bold shadow">บันทึกผลตรวจ & ประเมินเกณฑ์</button>
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-200/80">
+          <button id="cancelCheckupBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-200/90 text-slate-600 font-medium hover:bg-slate-50">ยกเลิก</button>
+          <button type="submit" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium">บันทึกผลตรวจ</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL 3: Live Cloud Connection Settings (Supabase REST API + Google Sheets Apps Script Web App URL) -->
-  <div id="cloudConfigModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-2xl overflow-hidden my-auto">
-      <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white px-5 py-3.5 flex items-center justify-between">
+  <!-- MODAL 3: Live Cloud Connection Settings (Minimal Line + Soft Borders) -->
+  <div id="cloudConfigModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-2xl overflow-hidden my-auto">
+      <div class="bg-slate-50/80 border-b border-slate-200/90 px-5 py-4 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold">🔌 ตั้งค่าเชื่อมต่อฐานข้อมูลจริง (Supabase + Google Sheets "ระบบบันทึกพิกัด")</h3>
-          <p class="text-[11px] text-emerald-200">เมื่อกรอก URL/Key แล้วกดบันทึก เว็บแอปบน Vercel จะดึงและบันทึกข้อมูลจริงทันที</p>
+          <h3 class="text-sm font-semibold text-slate-900">ตั้งค่าเชื่อมต่อฐานข้อมูล Cloud (Supabase และ Google Sheets)</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">เชื่อมต่อข้อมูลพิกัดและประวัติสัญญาณชีพแบบเรียลไทม์</p>
         </div>
-        <button id="closeCloudConfigModalBtn" type="button" class="text-emerald-200 hover:text-white font-bold text-sm">✕</button>
+        <button id="closeCloudConfigModalBtn" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-white text-xs transition">ปิด</button>
       </div>
 
       <form id="cloudConfigForm" class="p-5 space-y-4 text-xs">
-        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2.5">
-          <div class="font-bold text-emerald-950 flex items-center justify-between">
-            <span>ส่วนที่ 1: เชื่อมต่อ Google Sheets ("ระบบบันทึกพิกัด" แท็บ "ผู้มีสุขภาวะพึ่งพิง")</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 font-bold">แนะนำขั้นแรก</span>
+        <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/90 space-y-2.5">
+          <div class="font-semibold text-slate-800 flex items-center justify-between">
+            <span>ส่วนที่ 1: เชื่อมต่อ Google Sheets (ระบบบันทึกพิกัด)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200/80 font-medium">Apps Script API</span>
           </div>
-          <label for="cfgAppsScriptUrlInput" class="block font-semibold text-slate-700">Google Apps Script Web App URL (ที่ได้จากการกด Deploy ➔ Web App):</label>
-          <input id="cfgAppsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full rounded-lg border border-emerald-300 px-3 py-2 bg-white text-slate-800 font-mono text-[11px]" />
-          <p class="text-[11px] text-slate-600">เมื่อใส่ลิงก์นี้ ระบบจะดึงแถวข้อมูลจากแท็บ <strong>ผู้มีสุขภาวะพึ่งพิง</strong> ของคุณมาปักหมุดพร้อมรูป Google Drive อัตโนมัติ</p>
+          <label for="cfgAppsScriptUrlInput" class="block font-medium text-slate-500">Google Apps Script Web App URL:</label>
+          <input id="cfgAppsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
         </div>
 
-        <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 space-y-2.5">
-          <div class="font-bold text-indigo-950 flex items-center justify-between">
-            <span>ส่วนที่ 2: เชื่อมต่อฐานข้อมูล Supabase (PostgreSQL + Realtime)</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-200 text-indigo-900 font-bold">สำหรับเก็บ Vital Signs 6 แถว</span>
+        <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/90 space-y-2.5">
+          <div class="font-semibold text-slate-800 flex items-center justify-between">
+            <span>ส่วนที่ 2: เชื่อมต่อฐานข้อมูล Supabase (PostgreSQL)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200/80 font-medium">REST API</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label for="cfgSupabaseUrlInput" class="block font-semibold text-slate-700 mb-1">Supabase Project URL:</label>
-              <input id="cfgSupabaseUrlInput" type="url" placeholder="https://uvtjjhvvtaswzhwhowlj.supabase.co" class="w-full rounded-lg border border-indigo-300 px-3 py-2 bg-white text-slate-800 font-mono text-[11px]" />
+              <label for="cfgSupabaseUrlInput" class="block font-medium text-slate-500 mb-1">Supabase Project URL:</label>
+              <input id="cfgSupabaseUrlInput" type="url" placeholder="https://uvtjjhvvtaswzhwhowlj.supabase.co" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
             </div>
             <div>
-              <label for="cfgSupabaseKeyInput" class="block font-semibold text-slate-700 mb-1">Supabase Anon Public Key:</label>
-              <input id="cfgSupabaseKeyInput" type="text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full rounded-lg border border-indigo-300 px-3 py-2 bg-white text-slate-800 font-mono text-[11px]" />
+              <label for="cfgSupabaseKeyInput" class="block font-medium text-slate-500 mb-1">Supabase Anon Public Key:</label>
+              <input id="cfgSupabaseKeyInput" type="text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
             </div>
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200/80">
           <div class="flex flex-wrap items-center gap-2">
-            <button id="testFetchCloudBtn" type="button" class="px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-sm">
-              🔄 ดึงข้อมูลสดจาก Supabase / Sheets
+            <button id="testFetchCloudBtn" type="button" class="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 font-medium transition">
+              ดึงข้อมูลสดจากฐานข้อมูล
             </button>
-            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm">
-              ☁️ ส่งข้อมูลผู้ป่วยขึ้นตาราง Supabase ทันที
+            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 font-medium transition">
+              ส่งข้อมูลขึ้นตาราง Supabase
             </button>
           </div>
           <div class="flex items-center gap-2">
-            <button id="cancelCloudConfigBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">ปิด</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow">บันทึกการตั้งค่า & ซิงค์</button>
+            <button id="cancelCloudConfigBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-200/90 text-slate-600 font-medium hover:bg-slate-50">ยกเลิก</button>
+            <button type="submit" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium">บันทึกและซิงค์</button>
           </div>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 text-xs font-medium flex items-center gap-2.5 max-w-md">
-    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+  <!-- Minimal Toast Notification -->
+  <div id="toastBanner" class="hidden fixed bottom-5 right-5 z-50 bg-white text-slate-800 px-4 py-3 rounded-xl shadow-lg border border-slate-200/90 text-xs font-medium flex items-center gap-2.5 max-w-md">
+    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
     <span id="toastMessage">บันทึกข้อมูลสำเร็จ</span>
   </div>
 
-  
-<script>
+  <script>
     // ============================================================================
     // 1. REALISTIC DATASET FOR BO LUANG SUBDISTRICT MUNICIPALITY (ทต.บ่อหลวง อ.ฮอด จ.เชียงใหม่)
     // Includes 12 Villages along Highway 108 & Highland Mountains + Exact Benchmark Patients from Images 1 & 2
@@ -1341,7 +1440,7 @@
           const p = (feature && feature.properties) ? feature.properties : {};
           if (isTambon) {
             const tamName = p.TAM_NAM_T || p.TAMBON_T || p.NAME || 'ตำบลบ่อหลวง (13 หมู่บ้าน)';
-            layer.bindPopup(formatGeoPropertiesPopup(p, `🗺️ ขอบเขตตำบล: ${tamName}`));
+            layer.bindPopup(formatGeoPropertiesPopup(p, `ขอบเขตตำบล: ${tamName}`));
             return;
           }
 
@@ -1376,7 +1475,7 @@
             'ประชากร (คน)': officialMeta.pop ? officialMeta.pop.toLocaleString() : '-'
           }, p);
 
-          layer.bindPopup(formatGeoPropertiesPopup(enrichedProps, `🏡 ${fullTitle}`));
+          layer.bindPopup(formatGeoPropertiesPopup(enrichedProps, `${fullTitle}`));
           layer.bindTooltip(`ม.${mooNum} ${officialMeta.name}`, {
             sticky: true,
             direction: 'center',
@@ -1489,12 +1588,12 @@
 
     function getRiskBadgeMeta(risk) {
       if (risk === 'DANGER') {
-        return { label: 'เกณฑ์สุขภาพอันตราย', short: 'อันตราย', colorHex: '#dc2626', bgClass: 'bg-rose-100 text-rose-800 border-rose-300' };
+        return { label: 'เกณฑ์สุขภาพอันตราย', short: 'อันตราย', colorHex: '#e11d48', bgClass: 'bg-rose-50 text-rose-700 border-rose-200' };
       }
       if (risk === 'RISK') {
-        return { label: 'เกณฑ์สุขภาพมีความเสี่ยง', short: 'มีความเสี่ยง', colorHex: '#f59e0b', bgClass: 'bg-amber-100 text-amber-800 border-amber-300' };
+        return { label: 'เกณฑ์สุขภาพมีความเสี่ยง', short: 'มีความเสี่ยง', colorHex: '#d97706', bgClass: 'bg-amber-50 text-amber-700 border-amber-200' };
       }
-      return { label: 'เกณฑ์สุขภาพเหมาะสม', short: 'เหมาะสม', colorHex: '#16a34a', bgClass: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
+      return { label: 'เกณฑ์สุขภาพเหมาะสม', short: 'เหมาะสม', colorHex: '#059669', bgClass: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
     }
 
     function getFilteredPatients() {
@@ -1542,9 +1641,9 @@
       document.querySelectorAll('.kpi-card').forEach((btn) => {
         const filterKey = btn.getAttribute('data-risk-filter');
         if (filterKey === appState.riskFilter) {
-          btn.classList.add('ring-2', 'ring-indigo-600', 'border-indigo-600');
+          btn.classList.add('bg-slate-50/90', 'ring-1', 'ring-slate-400');
         } else {
-          btn.classList.remove('ring-2', 'ring-indigo-600', 'border-indigo-600');
+          btn.classList.remove('bg-slate-50/90', 'ring-1', 'ring-slate-400');
         }
       });
     }
@@ -1556,15 +1655,15 @@
         const track = btn.querySelector('.toggle-track');
         const thumb = btn.querySelector('.toggle-thumb');
         if (isActive) {
-          track.classList.remove('bg-slate-300');
-          track.classList.add('bg-rose-500');
+          track.classList.remove('bg-slate-200', 'border-slate-300');
+          track.classList.add('bg-slate-800', 'border-slate-800');
           thumb.classList.remove('translate-x-0');
-          thumb.classList.add('translate-x-6');
+          thumb.classList.add('translate-x-5');
         } else {
-          track.classList.add('bg-slate-300');
-          track.classList.remove('bg-rose-500');
+          track.classList.add('bg-slate-200', 'border-slate-300');
+          track.classList.remove('bg-slate-800', 'border-slate-800');
           thumb.classList.add('translate-x-0');
-          thumb.classList.remove('translate-x-6');
+          thumb.classList.remove('translate-x-5');
         }
       });
     }
@@ -1758,12 +1857,12 @@
       const riskDot = document.getElementById('modalRiskDot');
       const riskTitle = document.getElementById('modalRiskTitle');
 
-      headerBanner.className = 'px-5 py-3 flex items-center justify-between border-b ' +
-        (p.risk === 'DANGER' ? 'bg-rose-100 border-rose-200' : p.risk === 'RISK' ? 'bg-amber-100 border-amber-200' : 'bg-emerald-100 border-emerald-200');
-      riskDot.className = 'w-3 h-3 rounded-full ' +
-        (p.risk === 'DANGER' ? 'bg-rose-600' : p.risk === 'RISK' ? 'bg-amber-500' : 'bg-emerald-600');
+      headerBanner.className = 'px-6 py-4 flex items-center justify-between border-b ' +
+        (p.risk === 'DANGER' ? 'bg-rose-50/70 border-rose-200/80' : p.risk === 'RISK' ? 'bg-amber-50/70 border-amber-200/80' : 'bg-emerald-50/70 border-emerald-200/80');
+      riskDot.className = 'w-2.5 h-2.5 rounded-full ' +
+        (p.risk === 'DANGER' ? 'bg-rose-500' : p.risk === 'RISK' ? 'bg-amber-500' : 'bg-emerald-500');
       riskTitle.textContent = meta.label;
-      riskTitle.className = 'text-base font-extrabold ' +
+      riskTitle.className = 'text-sm font-bold tracking-tight ' +
         (p.risk === 'DANGER' ? 'text-rose-900' : p.risk === 'RISK' ? 'text-amber-900' : 'text-emerald-900');
 
       document.getElementById('modalGroupBadge').textContent = p.group;
@@ -1919,7 +2018,7 @@
       if (dashBtn && dashSub) {
         dashBtn.addEventListener('click', () => {
           const isHidden = dashSub.classList.toggle('hidden');
-          if (dashArr) dashArr.textContent = isHidden ? '▸' : '▾';
+          if (dashArr) dashArr.style.transform = isHidden ? 'rotate(-90deg)' : 'rotate(0deg)';
         });
       }
 
@@ -1929,7 +2028,7 @@
       if (setBtn && setSub) {
         setBtn.addEventListener('click', () => {
           const isHidden = setSub.classList.toggle('hidden');
-          if (setArr) setArr.textContent = isHidden ? '▸' : '▾';
+          if (setArr) setArr.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(90deg)';
         });
       }
 
@@ -1944,9 +2043,11 @@
           appState.activeNav = target;
 
           document.querySelectorAll('.nav-tab-btn').forEach((b) => {
-            b.classList.remove('bg-purple-200/70', 'text-[#4c2882]', 'font-bold');
+            b.classList.remove('bg-slate-100', 'text-slate-900', 'font-semibold', 'border-slate-200');
+            b.classList.add('text-slate-600', 'border-transparent');
           });
-          btn.classList.add('bg-purple-200/70', 'text-[#4c2882]', 'font-bold');
+          btn.classList.remove('text-slate-600', 'border-transparent');
+          btn.classList.add('bg-slate-100', 'text-slate-900', 'font-semibold', 'border-slate-200');
 
           const mapSec = document.getElementById('viewMapSection');
           const sumSec = document.getElementById('viewSummarySection');
@@ -2078,9 +2179,9 @@
           appState.mapMode = mode;
 
           document.querySelectorAll('.map-mode-btn').forEach((b) => {
-            b.className = 'map-mode-btn px-4 py-1.5 text-xs font-medium bg-white text-slate-600 hover:bg-slate-50 transition';
+            b.className = 'map-mode-btn px-3.5 py-1.5 text-xs font-medium bg-white text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition';
           });
-          btn.className = 'map-mode-btn px-4 py-1.5 text-xs font-bold bg-white text-slate-900 hover:bg-slate-50 transition';
+          btn.className = 'map-mode-btn px-3.5 py-1.5 text-xs font-semibold bg-slate-100/90 text-slate-900 transition';
 
           const leafletDiv = document.getElementById('leafletMapContainer');
           const tacticalDiv = document.getElementById('tacticalSvgContainer');
