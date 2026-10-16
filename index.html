@@ -161,21 +161,21 @@
             </div>
           </div>
 
-          <!-- Group 2: ตั้งค่า -->
+          <!-- Group 2: ตั้งค่าระบบ (Clean Production Menu) -->
           <div>
             <button type="button" id="toggleSettingsMenuBtn" class="w-full px-4 py-3 bg-[#e6dff2] hover:bg-[#d9d0ea] flex items-center gap-2 font-bold text-slate-800 text-xs transition">
               <span id="settingsMenuArrow">▸</span>
               <span>ตั้งค่า</span>
             </button>
             <div id="settingsSubmenu" class="hidden bg-[#f2eef9] p-3 space-y-2 border-t border-purple-200/60 text-xs">
-              <button type="button" data-nav="sheets" id="openSheetsTabBtn" class="nav-tab-btn w-full text-left px-2.5 py-2 rounded-lg font-semibold text-emerald-900 bg-emerald-100/80 hover:bg-emerald-200/80 transition block">
-                🔗 เชื่อม Google Sheets / โค้ด
+              <button type="button" id="quickPullSupabaseBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-emerald-900 bg-emerald-100 hover:bg-emerald-200 transition block">
+                🔄 ซิงค์ข้อมูลล่าสุดเดี๋ยวนี้
               </button>
-              <button type="button" data-nav="architecture" class="nav-tab-btn w-full text-left px-2.5 py-2 rounded-lg font-semibold text-indigo-900 bg-indigo-100/70 hover:bg-indigo-200/70 transition block">
-                📐 พิมพ์เขียวสถาปัตยกรรม
+              <button type="button" id="quickOpenConfigBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-indigo-900 bg-indigo-100/80 hover:bg-indigo-200 transition block">
+                🔌 ตั้งค่าฐานข้อมูล Cloud
               </button>
               <button type="button" id="uploadGeoJsonBtn" class="w-full text-left px-2.5 py-2 rounded-lg font-semibold text-amber-950 bg-amber-100 hover:bg-amber-200 transition block">
-                📂 โหลดไฟล์ JSON ขอบเขต
+                📂 อัปเดตไฟล์แผนที่ JSON
               </button>
               <input type="file" id="geoJsonFileInput" accept=".json,.geojson" multiple class="hidden" />
             </div>
@@ -368,51 +368,17 @@
         </div>
       </section>
 
-      <!-- VIEW 4: Architecture Blueprint -->
-      <section id="viewArchitectureSection" class="hidden m-4 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <h3 class="text-base font-bold text-slate-900">สถาปัตยกรรมระบบ "บ่อหลวง Health Care" (เทศบาลตำบลบ่อหลวง อ.ฮอด จ.เชียงใหม่)</h3>
-        <p class="text-xs text-slate-600">ออกแบบตามโครงสร้าง BearCON Care พร้อมเชื่อมฐานข้อมูล Supabase PostgreSQL, Google Sheets และแสดงขอบเขตตำบล/หมู่บ้าน (GeoJSON)</p>
-      </section>
-
-      <!-- VIEW 5: Google Sheets & Code Pack (Hidden by default; opens when clicking "เชื่อม Google Sheets / โค้ด" in ตั้งค่า) -->
-      <section id="viewSheetsSection" class="hidden m-4 bg-white rounded-2xl border border-emerald-300 p-5 shadow-sm space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3">
-          <div>
-            <h3 class="text-base font-bold text-slate-900">ตั้งค่าการเชื่อมต่อ Google Sheets ("ระบบบันทึกพิกัด") และ Supabase</h3>
-            <p class="text-xs text-slate-600">จัดการซิงค์ข้อมูลผู้มีภาวะพึ่งพิงและชุดโค้ด SQL / Google Apps Script</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="quickPushSupabaseBtn" type="button" class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold shadow">☁️ ส่งข้อมูลขึ้นตาราง Supabase</button>
-            <button id="quickPullSupabaseBtn" type="button" class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow">🔄 ดึงข้อมูลสดจาก Supabase</button>
-            <button type="button" id="focusDoiPupengBtn" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow">📍 ดูหมุด: นายโด่ย ปู่เป็ง</button>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 space-y-2">
-            <h4 class="text-xs font-bold text-emerald-950">วางข้อมูลแถวจาก Google Sheets (วันเวลา | ชื่อ-สกุล | ที่อยู่ | ละติจูด | ลองจิจูด | ลิงก์รูปภาพ)</h4>
-            <textarea id="sheetPasteInput" rows="3" class="w-full rounded-xl border border-emerald-300 bg-white p-2 text-xs font-mono text-slate-800">10/15/2026 10:20:00	แม่อุ๊ยจันทร์แก้ว ปัญญา	142 หมู่ 7 บ้านพุย	18.0428500	98.3041200	https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk</textarea>
-            <button type="button" id="importSheetRowsBtn" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold">+ นำเข้าแถวลงแผนที่</button>
-          </div>
-          <div class="space-y-2">
-            <div class="flex gap-2">
-              <button type="button" id="copySqlCodeBtn" class="px-3 py-1.5 rounded bg-slate-800 text-white text-xs font-semibold">คัดลอก SQL</button>
-              <button type="button" id="copyGasCodeBtn" class="px-3 py-1.5 rounded bg-indigo-700 text-white text-xs font-semibold">คัดลอก Apps Script</button>
-            </div>
-            <pre id="sqlCodeBlock" class="p-2.5 rounded-xl bg-slate-900 text-emerald-300 text-[10px] font-mono overflow-x-auto h-28">CREATE TABLE IF NOT EXISTS public.patients_visits (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  visited_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  full_name TEXT UNIQUE NOT NULL,
-  address TEXT NOT NULL,
-  village_moo INT DEFAULT 7,
-  latitude DOUBLE PRECISION NOT NULL,
-  longitude DOUBLE PRECISION NOT NULL,
-  drive_image_url TEXT
-);</pre>
-            <pre id="gasCodeBlock" class="hidden">syncSheetToSupabase()</pre>
-          </div>
-        </div>
-      </section>
-
+      <!-- Hidden compatibility stubs (Blueprint & Schema removed for clean production UI) -->
+      <div id="viewArchitectureSection" class="hidden"></div>
+      <div id="viewSheetsSection" class="hidden">
+        <button id="focusDoiPupengBtn" type="button" class="hidden"></button>
+        <textarea id="sheetPasteInput" class="hidden"></textarea>
+        <button id="importSheetRowsBtn" type="button" class="hidden"></button>
+        <button id="copySqlCodeBtn" type="button" class="hidden"></button>
+        <button id="copyGasCodeBtn" type="button" class="hidden"></button>
+        <pre id="sqlCodeBlock" class="hidden"></pre>
+        <pre id="gasCodeBlock" class="hidden"></pre>
+      </div>
     </main>
   </div>
 
