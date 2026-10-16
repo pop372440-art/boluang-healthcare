@@ -92,7 +92,7 @@
           <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
           </svg>
-          <span id="cloudStatusBtnLabel">ตั้งค่า Supabase / Sheets</span>
+          <span id="cloudStatusBtnLabel">เชื่อมต่อ Supabase แล้ว (ตั้งค่า/ซิงค์)</span>
         </button>
 
                 <button id="openAddCheckupBtn" type="button" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white text-indigo-900 hover:bg-indigo-50 shadow-sm transition">
@@ -105,6 +105,30 @@
     </div>
   </header>
 
+  <!-- Prominent Supabase & Google Sheets Live Sync Bar -->
+  <div class="bg-emerald-900 text-white border-b border-emerald-700 px-4 py-2 shadow-sm">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/30 border border-emerald-400/50 font-bold text-emerald-100">
+          <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+          เชื่อมต่อ Supabase แล้ว: boluang-platform (uvtjjhvvtaswzhwhowlj)
+        </span>
+        <span class="text-emerald-200 hidden md:inline">• พร้อมซิงค์กับ Google Sheets (แท็บ &quot;ผู้มีสุขภาวะพึ่งพิง&quot;)</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="quickPushSupabaseBtn" type="button" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold shadow transition">
+          ☁️ 1. ส่งข้อมูลผู้ป่วยขึ้นตาราง Supabase ทันที
+        </button>
+        <button id="quickPullSupabaseBtn" type="button" class="px-3 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-white border border-white/30 font-bold transition">
+          🔄 2. ดึงข้อมูลสดจาก Supabase
+        </button>
+        <button id="quickOpenConfigBtn" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-emerald-100 border border-emerald-500 font-semibold transition">
+          ⚙️ ดูค่า URL / Key
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Layout Container -->
   <div class="flex-1 max-w-[1600px] w-full mx-auto flex flex-col lg:flex-row gap-4 p-3 sm:p-4">
 
@@ -113,19 +137,22 @@
       <div>
         <!-- Municipality Emblem & Title -->
         <div class="flex flex-col items-center text-center pb-4 border-b border-indigo-200/80">
-          <div class="w-24 h-24 rounded-full bg-white shadow-md border-4 border-indigo-300 flex items-center justify-center p-2 mb-2.5 relative">
-            <!-- Custom SVG Emblem for Bo Luang Municipality (Pine trees, Highland Mountains, Hot District) -->
-            <svg viewBox="0 0 100 100" class="w-full h-full">
+          <div id="logoContainerBox" title="คลิกเพื่อเปลี่ยนรูปโลโก้เทศบาลตำบลบ่อหลวง" class="group cursor-pointer w-24 h-24 rounded-full bg-white shadow-md border-4 border-indigo-300 flex items-center justify-center p-1.5 mb-2.5 relative overflow-visible">
+            <input type="file" id="logoFileInput" accept="image/*" class="hidden" />
+            <img id="customLogoImg" src="./logo.png" alt="โลโก้เทศบาลตำบลบ่อหลวง" class="hidden w-full h-full object-contain rounded-full" onerror="this.classList.add('hidden'); document.getElementById('defaultLogoSvg').classList.remove('hidden');" onload="this.classList.remove('hidden'); document.getElementById('defaultLogoSvg').classList.add('hidden');" />
+            <svg id="defaultLogoSvg" viewBox="0 0 100 100" class="w-full h-full">
               <circle cx="50" cy="50" r="46" fill="#e0f2fe" stroke="#1e3a8a" stroke-width="3"/>
               <path d="M12 68 L35 38 L55 62 L72 42 L88 68 Z" fill="#15803d" opacity="0.85"/>
               <path d="M24 68 L48 32 L74 68 Z" fill="#166534"/>
               <circle cx="68" cy="28" r="8" fill="#f59e0b"/>
-              <!-- Pine trees of Bo Luang -->
               <polygon points="28,50 22,66 34,66" fill="#064e3b"/>
               <polygon points="75,50 69,66 81,66" fill="#064e3b"/>
               <path d="M8 68 Q50 62 92 68 L92 85 Q50 95 8 85 Z" fill="#0284c7"/>
               <text x="50" y="82" text-anchor="middle" fill="#ffffff" font-size="8.5" font-weight="bold">ทต.บ่อหลวง</text>
             </svg>
+            <div class="absolute inset-0 rounded-full bg-indigo-950/60 text-white text-[10px] font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+              🖼️ เปลี่ยนโลโก้
+            </div>
             <span class="absolute -bottom-1 right-0 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">1,300m MSL</span>
           </div>
           <h2 class="font-bold text-indigo-950 text-sm leading-snug">เทศบาลตำบลบ่อหลวง</h2>
@@ -365,7 +392,19 @@
             <span class="text-xs text-slate-500 ml-2 hidden sm:inline">กำลังแสดงพิกัดหลังคาเรือน: <strong id="visiblePinCount" class="text-slate-800">0</strong> ราย</span>
           </div>
 
-          <div class="flex items-center gap-3 text-xs">
+          <div class="flex flex-wrap items-center gap-2 text-xs">
+            <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 font-semibold cursor-pointer">
+              <input type="checkbox" id="toggleTambonBoundaryChk" checked class="rounded text-indigo-600 focus:ring-0" />
+              <span>ขอบเขตตำบล (boluang.json)</span>
+            </label>
+            <label class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold cursor-pointer">
+              <input type="checkbox" id="toggleVillageBoundaryChk" checked class="rounded text-emerald-600 focus:ring-0" />
+              <span>ขอบเขตหมู่บ้าน (block.json)</span>
+            </label>
+            <button id="uploadGeoJsonBtn" type="button" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-sm transition">
+              📂 โหลดไฟล์ JSON ขอบเขต
+            </button>
+            <input type="file" id="geoJsonFileInput" accept=".json,.geojson" multiple class="hidden" />
             <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-600 inline-block"></span> อันตราย</span>
             <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> มีความเสี่ยง</span>
             <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span> เหมาะสม</span>
@@ -623,14 +662,12 @@
               <span class="text-xs font-bold text-slate-800">โค้ดที่ 1: SQL สร้างตารางบน Supabase (รองรับพิกัด + รูป Drive + สัญญาณชีพ)</span>
               <button type="button" id="copySqlCodeBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-semibold">คัดลอก SQL</button>
             </div>
-            <pre id="sqlCodeBlock" class="p-3 rounded-xl bg-slate-900 text-emerald-300 text-[11px] font-mono overflow-x-auto h-52 leading-relaxed">CREATE TABLE public.patients_visits (
+            <pre id="sqlCodeBlock" class="p-3 rounded-xl bg-slate-900 text-emerald-300 text-[11px] font-mono overflow-x-auto h-52 leading-relaxed">CREATE TABLE IF NOT EXISTS public.patients_visits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  visited_at TIMESTAMPTZ NOT NULL,
-  full_name TEXT NOT NULL,
+  visited_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  full_name TEXT UNIQUE NOT NULL,
   address TEXT NOT NULL,
-  village_moo INT GENERATED ALWAYS AS (
-    COALESCE(NULLIF(regexp_replace(address, '.*หมู่ที่?\s*([0-9]+).*', '\1'), address)::INT, 7)
-  ) STORED,
+  village_moo INT DEFAULT 7,
   latitude DOUBLE PRECISION NOT NULL,
   longitude DOUBLE PRECISION NOT NULL,
   drive_image_url TEXT,
@@ -638,9 +675,14 @@
   risk_level TEXT DEFAULT 'DANGER',
   bp_sys INT, bp_dia INT, pulse INT,
   spo2 INT, pi_pct NUMERIC(4,1), blood_sugar NUMERIC(5,1),
-  temp_c NUMERIC(4,1), weight_kg NUMERIC(5,1), height_cm INT,
+  temp_c NUMERIC(4,1), weight_kg NUMERIC(4,1), height_cm INT,
   care_project TEXT DEFAULT 'โครงการสนับสนุนผ้าอ้อมผู้ใหญ่สำหรับบุคคลที่มีภาวะพึ่งพิง'
-);</pre>
+);
+
+ALTER TABLE public.patients_visits ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read and upsert" ON public.patients_visits
+  FOR ALL USING (true) WITH CHECK (true);</pre>
           </div>
 
           <div class="space-y-1.5">
@@ -660,8 +702,8 @@
  *    if (e &amp;&amp; e.parameter &amp;&amp; e.parameter.mode === 'api') return getPatientsJsonApi();
  */
 
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_OR_SERVICE_ROLE_KEY';
+const SUPABASE_URL = 'https://uvtjjhvvtaswzhwhowlj.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dGpqaHZ2dGFzd3pod2hvd2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDA3NjcsImV4cCI6MjA5MjExNjc2N30.Jjqi1LWgxEgpT2nBdjuNyoLxEP_VQcKf3GEbIYKPI8Y';
 
 // 1. สร้างเมนูบนหัวตาราง Google Sheets ให้เจ้าหน้าที่กดซิงค์ได้ในคลิกเดียว
 function onOpen() {
@@ -748,7 +790,10 @@ function syncSheetToSupabase() {
     count++;
   });
 
-  SpreadsheetApp.getUi().alert('ซิงค์ข้อมูลเข้าสู่ระบบ บ่อหลวง Health Care สำเร็จ ' + count + ' รายการ');
+  Logger.log('ซิงค์ข้อมูลเข้าสู่ระบบ บ่อหลวง Health Care สำเร็จ ' + count + ' รายการ');
+  try {
+    SpreadsheetApp.getUi().alert('ซิงค์ข้อมูลเข้าสู่ระบบ บ่อหลวง Health Care สำเร็จ ' + count + ' รายการ');
+  } catch (e) {}
 }</pre>
           </div>
         </div>
@@ -965,7 +1010,7 @@ function syncSheetToSupabase() {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label for="cfgSupabaseUrlInput" class="block font-semibold text-slate-700 mb-1">Supabase Project URL:</label>
-              <input id="cfgSupabaseUrlInput" type="url" placeholder="https://xyzcompany.supabase.co" class="w-full rounded-lg border border-indigo-300 px-3 py-2 bg-white text-slate-800 font-mono text-[11px]" />
+              <input id="cfgSupabaseUrlInput" type="url" placeholder="https://uvtjjhvvtaswzhwhowlj.supabase.co" class="w-full rounded-lg border border-indigo-300 px-3 py-2 bg-white text-slate-800 font-mono text-[11px]" />
             </div>
             <div>
               <label for="cfgSupabaseKeyInput" class="block font-semibold text-slate-700 mb-1">Supabase Anon Public Key:</label>
@@ -975,9 +1020,14 @@ function syncSheetToSupabase() {
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200">
-          <button id="testFetchCloudBtn" type="button" class="px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-sm">
-            🔄 ทดสอบดึงข้อมูลสดเดี๋ยวนี้
-          </button>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="testFetchCloudBtn" type="button" class="px-3.5 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-sm">
+              🔄 ดึงข้อมูลสดจาก Supabase / Sheets
+            </button>
+            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-sm">
+              ☁️ ส่งข้อมูลผู้ป่วยขึ้นตาราง Supabase ทันที
+            </button>
+          </div>
           <div class="flex items-center gap-2">
             <button id="cancelCloudConfigBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100">ปิด</button>
             <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow">บันทึกการตั้งค่า & ซิงค์</button>
@@ -1496,6 +1546,8 @@ function syncSheetToSupabase() {
     let streetLayer = null;
     let satelliteLayer = null;
     let markersLayerGroup = null;
+    let tambonBoundaryLayer = null;
+    let villageBoundaryLayer = null;
 
     function initMap() {
       const container = document.getElementById('leafletMapContainer');
@@ -1518,7 +1570,80 @@ function syncSheetToSupabase() {
       });
 
       streetLayer.addTo(mapInstance);
+      tambonBoundaryLayer = L.layerGroup().addTo(mapInstance);
+      villageBoundaryLayer = L.layerGroup().addTo(mapInstance);
       markersLayerGroup = L.layerGroup().addTo(mapInstance);
+
+      // โหลดไฟล์ขอบเขตตำบล (boluang.json) และขอบเขตหมู่บ้าน (block.json) อัตโนมัติเมื่อวางไว้ในโฟลเดอร์เดียวกัน
+      loadGeoJsonFromUrl('./boluang.json', 'tambon');
+      loadGeoJsonFromUrl('./block.json', 'village');
+    }
+
+    function formatGeoPropertiesPopup(props, titlePrefix) {
+      if (!props || typeof props !== 'object') return `<div class="text-xs font-bold">${titlePrefix}</div>`;
+      const rows = Object.entries(props)
+        .filter(([k, v]) => v !== null && v !== undefined && String(v).trim() !== '')
+        .slice(0, 8)
+        .map(([k, v]) => `<tr><td class="pr-2 py-0.5 font-semibold text-slate-600">${k}:</td><td class="py-0.5 text-slate-900 font-bold">${v}</td></tr>`)
+        .join('');
+      return `<div class="text-xs space-y-1"><div class="font-bold text-indigo-900 border-b border-slate-200 pb-1">${titlePrefix}</div><table>${rows}</table></div>`;
+    }
+
+    function renderGeoJsonLayer(geojsonData, layerType, fitMap) {
+      if (!mapInstance || !geojsonData) return;
+      const isTambon = layerType === 'tambon';
+      const targetGroup = isTambon ? tambonBoundaryLayer : villageBoundaryLayer;
+      if (!targetGroup) return;
+
+      targetGroup.clearLayers();
+      const palette = ['#10b981', '#0ea5e9', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1'];
+      let featureIndex = 0;
+
+      const geoLayer = L.geoJSON(geojsonData, {
+        style: () => {
+          if (isTambon) {
+            return {
+              color: '#312e81',
+              weight: 3.5,
+              dashArray: '8, 4',
+              fillColor: '#4f46e5',
+              fillOpacity: 0.05
+            };
+          }
+          const c = palette[featureIndex++ % palette.length];
+          return {
+            color: c,
+            weight: 2,
+            fillColor: c,
+            fillOpacity: 0.14
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const p = (feature && feature.properties) ? feature.properties : {};
+          const labelName = p.VILL_NAME || p.VILLAGE || p.NAME || p.TAM_NAM_T || p.TAMBON_T || p.BLK_NAME || p.moo || p.MOO || (isTambon ? 'เขตตำบลบ่อหลวง' : 'ขอบเขตหมู่บ้าน');
+          layer.bindPopup(formatGeoPropertiesPopup(p, isTambon ? `🗺️ ขอบเขตตำบล: ${labelName}` : `🏡 ขอบเขตหมู่บ้าน: ${labelName}`));
+          if (!isTambon && labelName) {
+            layer.bindTooltip(String(labelName), { sticky: true, direction: 'center', className: 'text-[11px] font-bold' });
+          }
+        }
+      });
+
+      targetGroup.addLayer(geoLayer);
+      if (fitMap) {
+        try {
+          const b = geoLayer.getBounds();
+          if (b && b.isValid()) mapInstance.fitBounds(b, { padding: [20, 20] });
+        } catch (e) {}
+      }
+    }
+
+    async function loadGeoJsonFromUrl(url, layerType) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        renderGeoJsonLayer(data, layerType, layerType === 'tambon');
+      } catch (e) {}
     }
 
     function getRiskBadgeMeta(risk) {
@@ -2098,6 +2223,77 @@ function syncSheetToSupabase() {
         });
       });
 
+      // เปิด-ปิด เลเยอร์ขอบเขตตำบล (boluang.json) และขอบเขตหมู่บ้าน (block.json)
+      document.getElementById('toggleTambonBoundaryChk').addEventListener('change', (e) => {
+        if (!mapInstance || !tambonBoundaryLayer) return;
+        if (e.target.checked) mapInstance.addLayer(tambonBoundaryLayer);
+        else mapInstance.removeLayer(tambonBoundaryLayer);
+      });
+      document.getElementById('toggleVillageBoundaryChk').addEventListener('change', (e) => {
+        if (!mapInstance || !villageBoundaryLayer) return;
+        if (e.target.checked) mapInstance.addLayer(villageBoundaryLayer);
+        else mapInstance.removeLayer(villageBoundaryLayer);
+      });
+
+      // ปุ่มเลือกไฟล์ boluang.json / block.json จากเครื่องคอมพิวเตอร์เพื่อแสดงผลทันที
+      const geoInput = document.getElementById('geoJsonFileInput');
+      document.getElementById('uploadGeoJsonBtn').addEventListener('click', () => {
+        geoInput.click();
+      });
+      geoInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const json = JSON.parse(ev.target.result);
+              const fname = file.name.toLowerCase();
+              const isTambon = fname.includes('boluang') || fname.includes('tambon');
+              renderGeoJsonLayer(json, isTambon ? 'tambon' : 'village', true);
+              showToast(`แสดงเส้นขอบเขตจากไฟล์ ${file.name} บนแผนที่สำเร็จ!`);
+            } catch (err) {
+              showToast(`ไฟล์ ${file.name} ไม่ใช่รูปแบบ GeoJSON ที่ถูกต้อง`);
+            }
+          };
+          reader.readAsText(file);
+        });
+      });
+
+      // คลิกที่โลโก้เพื่ออัปโหลดเปลี่ยนโลโก้เทศบาลตำบลบ่อหลวงได้ทันที
+      const logoBox = document.getElementById('logoContainerBox');
+      const logoInput = document.getElementById('logoFileInput');
+      const customLogoImg = document.getElementById('customLogoImg');
+      const defaultLogoSvg = document.getElementById('defaultLogoSvg');
+
+      try {
+        const savedLogo = localStorage.getItem('boluang_custom_logo');
+        if (savedLogo) {
+          customLogoImg.src = savedLogo;
+          customLogoImg.classList.remove('hidden');
+          defaultLogoSvg.classList.add('hidden');
+        }
+      } catch (e) {}
+
+      logoBox.addEventListener('click', () => {
+        logoInput.click();
+      });
+      logoInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const dataUrl = ev.target.result;
+          customLogoImg.src = dataUrl;
+          customLogoImg.classList.remove('hidden');
+          defaultLogoSvg.classList.add('hidden');
+          try {
+            localStorage.setItem('boluang_custom_logo', dataUrl);
+          } catch (err) {}
+          showToast('เปลี่ยนโลโก้เทศบาลตำบลบ่อหลวงเรียบร้อยแล้ว!');
+        };
+        reader.readAsDataURL(file);
+      });
+
       document.getElementById('resetMapCenterBtn').addEventListener('click', () => {
         if (mapInstance && appState.mapMode !== 'tactical') {
           mapInstance.setView([18.1680, 98.3550], 13, { animate: true });
@@ -2271,10 +2467,43 @@ function syncSheetToSupabase() {
           document.getElementById('offlineQueueCount').textContent = String(appState.offlineQueue);
         }
 
+        if (appState.isOnline && cloudConfig.supabaseUrl && cloudConfig.supabaseKey) {
+          const cleanUrl = cloudConfig.supabaseUrl.replace(/\/+$/, '');
+          const endpoint = new URL('/rest/v1/patients_visits?on_conflict=full_name', cleanUrl).href;
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': cloudConfig.supabaseKey,
+              'Authorization': `Bearer ${cloudConfig.supabaseKey}`,
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+              full_name: p.name,
+              address: p.address,
+              village_moo: Number(p.moo || 7),
+              latitude: Number(p.lat),
+              longitude: Number(p.lng),
+              drive_image_url: p.driveUrl || null,
+              target_group: p.group,
+              risk_level: p.risk,
+              bp_sys: sys,
+              bp_dia: dia,
+              pulse: pulse,
+              spo2: spo2,
+              pi_pct: Number(p.pi),
+              blood_sugar: sugar,
+              temp_c: temp,
+              weight_kg: weight,
+              height_cm: Number(p.height)
+            })
+          }).catch(() => {});
+        }
+
         addModal.classList.add('hidden');
         refreshAllViews();
         openPatientModal(p.id);
-        showToast(`บันทึกชุดตรวจ IoT 6 รายการของ ${p.name} สำเร็จ!`);
+        showToast(`บันทึกชุดตรวจ IoT 6 รายการของ ${p.name} และซิงค์ขึ้น Supabase สำเร็จ!`);
       });
 
       // Focus on นายโด่ย ปู่เป็ง (from user's Google Sheet)
@@ -2396,17 +2625,17 @@ function syncSheetToSupabase() {
       // ============================================================================
       const cloudConfig = {
         appsScriptUrl: 'https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec?mode=api',
-        supabaseUrl: '',
-        supabaseKey: ''
+        supabaseUrl: 'https://uvtjjhvvtaswzhwhowlj.supabase.co',
+        supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2dGpqaHZ2dGFzd3pod2hvd2xqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDA3NjcsImV4cCI6MjA5MjExNjc2N30.Jjqi1LWgxEgpT2nBdjuNyoLxEP_VQcKf3GEbIYKPI8Y'
       };
 
       try {
         const savedCfg = localStorage.getItem('boluang_cloud_cfg');
         if (savedCfg) {
           const parsed = JSON.parse(savedCfg);
-          cloudConfig.appsScriptUrl = parsed.appsScriptUrl || '';
-          cloudConfig.supabaseUrl = parsed.supabaseUrl || '';
-          cloudConfig.supabaseKey = parsed.supabaseKey || '';
+          cloudConfig.appsScriptUrl = parsed.appsScriptUrl || cloudConfig.appsScriptUrl;
+          cloudConfig.supabaseUrl = parsed.supabaseUrl || cloudConfig.supabaseUrl;
+          cloudConfig.supabaseKey = parsed.supabaseKey || cloudConfig.supabaseKey;
         }
       } catch (e) {}
 
@@ -2571,6 +2800,56 @@ function syncSheetToSupabase() {
         cloudModal.classList.add('hidden');
       });
 
+            document.getElementById('seedSupabaseBtn').addEventListener('click', async () => {
+        const cleanUrl = (document.getElementById('cfgSupabaseUrlInput').value.trim() || cloudConfig.supabaseUrl).replace(/\/+$/, '');
+        const key = document.getElementById('cfgSupabaseKeyInput').value.trim() || cloudConfig.supabaseKey;
+        if (!cleanUrl || !key) {
+          showToast('กรุณาตรวจสอบ Supabase URL และ Key');
+          return;
+        }
+        try {
+          const payload = patientsData.map((p) => ({
+            full_name: p.name,
+            address: p.address,
+            village_moo: Number(p.moo || 7),
+            latitude: Number(p.lat),
+            longitude: Number(p.lng),
+            drive_image_url: p.driveUrl || null,
+            target_group: p.group,
+            risk_level: p.risk,
+            bp_sys: Number(p.sys),
+            bp_dia: Number(p.dia),
+            pulse: Number(p.pulse),
+            spo2: Number(p.spo2),
+            pi_pct: Number(p.pi),
+            blood_sugar: Number(p.sugar),
+            temp_c: Number(p.temp),
+            weight_kg: Number(p.weight),
+            height_cm: Number(p.height)
+          }));
+          const endpoint = new URL('/rest/v1/patients_visits?on_conflict=full_name', cleanUrl).href;
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': key,
+              'Authorization': `Bearer ${key}`,
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify(payload)
+          });
+          if (res.ok) {
+            showToast(`ส่งข้อมูลผู้ป่วยทั้ง ${payload.length} ราย ขึ้นตาราง patients_visits บน Supabase สำเร็จ!`);
+          } else {
+            const errText = await res.text();
+            showToast(`ยังส่งไม่สำเร็จ (${res.status}): กรุณารันโค้ด SQL สร้างตาราง patients_visits ใน SQL Editor ก่อนครับ`);
+            console.warn(errText);
+          }
+        } catch (err) {
+          showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ Supabase');
+        }
+      });
+
       document.getElementById('testFetchCloudBtn').addEventListener('click', () => {
         cloudConfig.appsScriptUrl = document.getElementById('cfgAppsScriptUrlInput').value.trim();
         cloudConfig.supabaseUrl = document.getElementById('cfgSupabaseUrlInput').value.trim();
@@ -2590,6 +2869,25 @@ function syncSheetToSupabase() {
         cloudModal.classList.add('hidden');
         syncFromLiveCloud(false);
       });
+
+            const qPush = document.getElementById('quickPushSupabaseBtn');
+      if (qPush) {
+        qPush.addEventListener('click', () => {
+          document.getElementById('seedSupabaseBtn').click();
+        });
+      }
+      const qPull = document.getElementById('quickPullSupabaseBtn');
+      if (qPull) {
+        qPull.addEventListener('click', () => {
+          syncFromLiveCloud(false);
+        });
+      }
+      const qCfg = document.getElementById('quickOpenConfigBtn');
+      if (qCfg) {
+        qCfg.addEventListener('click', () => {
+          document.getElementById('openCloudConfigBtn').click();
+        });
+      }
 
       if (cloudConfig.appsScriptUrl || (cloudConfig.supabaseUrl && cloudConfig.supabaseKey)) {
         syncFromLiveCloud(true);
