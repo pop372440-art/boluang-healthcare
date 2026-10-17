@@ -38,116 +38,93 @@
   <style>
     body {
       font-family: 'IBM Plex Sans Thai', sans-serif;
-      background-color: #f8fafc;
-      color: #0f172a;
+      background-color: #f1f5f9;
+      color: #1e293b;
     }
     .leaflet-container {
       font-family: 'IBM Plex Sans Thai', sans-serif;
       z-index: 10;
     }
-    /* Custom thin scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    /* ปรับแต่ง Popup บนแผนที่ให้เหมือนการ์ดในรูปที่ 1 */
+    .leaflet-popup-content-wrapper {
+      border-radius: 6px;
+      padding: 0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.18);
+      border: 1px solid #cbd5e1;
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    .leaflet-popup-content {
+      margin: 12px 14px;
+      line-height: 1.4;
     }
     .village-label-tooltip {
-      background: rgba(15, 23, 42, 0.82);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       color: #ffffff;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 500;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    /* Custom Toggle Switch ตามรูปที่ 1 */
+    .toggle-Pill {
+      width: 50px;
+      height: 26px;
+      border-radius: 9999px;
+      background-color: #e2e8f0;
+      border: 1px solid #cbd5e1;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .toggle-Pill::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background-color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+      transition: all 0.2s ease;
+    }
+    .toggle-Pill.active {
+      background-color: #ef4444;
+      border-color: #dc2626;
+    }
+    .toggle-Pill.active::after {
+      transform: translateX(24px);
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-emerald-800 selection:text-white">
+<body class="min-h-screen flex flex-col">
 
   <!-- =====================================================================
-       TOP HEADER BAR
+       MAIN LAYOUT (LEFT SIDEBAR + FULL-WIDTH DASHBOARD)
   ====================================================================== -->
-  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3">
-    <!-- Left Brand -->
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-sm tracking-tight shadow-sm">
-        BH
-      </div>
+  <div class="flex-1 flex flex-col lg:flex-row min-h-screen">
+
+    <!-- LEFT SIDEBAR (ถอดแบบโครงสร้างเมนูข้างจากรูปที่ 1) -->
+    <aside class="w-full lg:w-60 shrink-0 bg-[#eeedf5] border-b lg:border-b-0 lg:border-r border-slate-300 flex flex-col justify-between select-none">
       <div>
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-slate-900 text-sm sm:text-base tracking-tight">บ่อหลวง Health Care</span>
-          <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
-            Smart City Living GIS
-          </span>
+        <!-- Top Brand Header Banner -->
+        <div class="bg-gradient-to-r from-[#5b4db7] to-[#7c69ef] text-white px-4 py-3 flex items-center justify-between shadow-xs">
+          <div>
+            <div class="font-extrabold text-lg tracking-wide leading-none flex items-center gap-1.5">
+              <span>BoLuang</span>
+              <span class="inline-block w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-white"></span>
+            </div>
+            <div class="text-[11px] text-indigo-100 font-medium tracking-wider text-right">Health Care</div>
+          </div>
+          <span id="sidebarPinBadge" class="px-2 py-0.5 rounded bg-white/20 text-white text-[11px] font-mono">13 หมู่บ้าน</span>
         </div>
-        <div class="text-[11px] text-slate-500">Community Telehealth • ระบบเฝ้าระวังสุขภาพกลุ่มเปราะบางเชิงรุก 13 หมู่บ้าน</div>
-      </div>
-    </div>
 
-    <!-- Right Actions (Upgraded 6-Feature Competition Bar) -->
-    <div class="flex items-center gap-2 flex-wrap justify-end">
-      <span id="currentThaiDate" class="hidden xl:inline-block text-xs text-slate-500 mr-1 font-medium"></span>
-
-      <!-- [Upgrade 5] ปุ่มเปิด-ปิด PDPA Privacy Masking -->
-      <button id="togglePdpaBtn" onclick="togglePdpaMode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors" title="พรางชื่อ-นามสกุลและบ้านเลขที่ตามมาตรฐาน PDPA สำหรับโหมดนำเสนอกรรมการ">
-        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-700"></i>
-        <span id="pdpaStatusText">PDPA: ปิดพรางข้อมูล</span>
-      </button>
-
-      <!-- [Upgrade 3] ปุ่มจำลองโหมดสัญญาณเน็ตบนดอย (Offline-First PWA) -->
-      <button id="toggleNetworkBtn" onclick="toggleNetworkMode()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-medium transition-colors" title="สลับโหมดออนไลน์ / โหมดออฟไลน์บนพื้นที่ภูเขาสูงอับสัญญาณ">
-        <span id="networkDot" class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-        <span id="networkStatusText">ออนไลน์ (4G/Wi-Fi)</span>
-      </button>
-
-      <!-- [Upgrade 3] ปุ่มคิวรอซิงค์ข้อมูลเมื่อกลับลงจากดอย -->
-      <button id="syncQueueBtn" onclick="syncOfflineQueue()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-medium transition-colors" title="ซิงค์ข้อมูลที่บันทึกไว้ในเครื่องระหว่างออกเยี่ยมบ้านบนดอย">
-        <i data-lucide="cloud-upload" class="w-3.5 h-3.5 text-amber-700"></i>
-        <span>คิวรอซิงค์ (<span id="queueCount">0</span>)</span>
-      </button>
-
-      <!-- ลิงก์เว็บแอปถ่ายรูปและพิกัดภาคสนาม -->
-      <a href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-medium transition-colors">
-        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-        <span class="hidden sm:inline">ถ่ายรูปและพิกัด</span>
-      </a>
-
-      <!-- ปุ่มเปิด Modal บันทึกผลตรวจเยี่ยมบ้านเชิงรุก -->
-      <button onclick="openNewCheckupModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-medium transition-colors shadow-sm">
-        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-        <span>บันทึกผลตรวจเยี่ยมบ้าน</span>
-      </button>
-
-      <!-- ปุ่มตั้งค่าฐานข้อมูล Cloud -->
-      <button onclick="openCloudSettingsModal()" class="inline-flex items-center justify-center p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs transition-colors" title="ตั้งค่าเชื่อมต่อฐานข้อมูล Cloud (Supabase & Google Sheets)">
-        <i data-lucide="database" class="w-4 h-4"></i>
-      </button>
-    </div>
-  </header>
-
-  <!-- =====================================================================
-       MAIN WORKSPACE (SIDEBAR + MAIN CONTENT)
-  ====================================================================== -->
-  <div class="flex-1 flex flex-col lg:flex-row">
-
-    <!-- LEFT SIDEBAR -->
-    <aside class="w-full lg:w-72 shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-slate-200 p-4 flex flex-col justify-between gap-6">
-      <div class="space-y-5">
-        <!-- Municipality Profile & Custom Logo -->
-        <div class="flex flex-col items-center text-center pb-4 border-b border-slate-100">
-          <div onclick="document.getElementById('logoFileInput').click()" title="คลิกเพื่อเปลี่ยนรูปโลโก้เทศบาลตำบลบ่อหลวง" class="relative group w-20 h-20 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden cursor-pointer mb-2.5 shadow-sm">
-            <img id="municipalityLogo" alt="โลโก้เทศบาลตำบลบ่อหลวง" src="./logo.png" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';" class="w-full h-full object-contain p-1" />
-            <div id="logoFallback" class="hidden w-full h-full items-center justify-center bg-emerald-900 text-white font-bold text-lg">
+        <!-- Municipality Circular Emblem -->
+        <div class="py-5 px-4 flex flex-col items-center text-center border-b border-slate-300/80 bg-[#f5f4fa]">
+          <div onclick="document.getElementById('logoFileInput').click()" title="คลิกเพื่อเปลี่ยนโลโก้เทศบาลตำบลบ่อหลวง" class="relative group w-24 h-24 rounded-full border-2 border-indigo-900/20 bg-white flex items-center justify-center overflow-hidden cursor-pointer shadow-md mb-2.5">
+            <img id="municipalityLogo" alt="โลโก้เทศบาลตำบลบ่อหลวง" src="./logo.png" onerror="this.style.display='none'; document.getElementById('logoFallback').style.display='flex';" class="w-full h-full object-contain p-1.5" />
+            <div id="logoFallback" class="hidden w-full h-full items-center justify-center bg-indigo-900 text-white font-bold text-xl">
               ทต.
             </div>
             <div class="absolute inset-0 bg-slate-900/60 text-white text-[10px] font-medium opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -155,210 +132,240 @@
             </div>
           </div>
           <input type="file" id="logoFileInput" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
-          <h2 class="font-bold text-slate-900 text-sm">เทศบาลตำบลบ่อหลวง</h2>
-          <p class="text-xs text-slate-500">อำเภอฮอด จังหวัดเชียงใหม่</p>
+          <h2 class="font-bold text-indigo-950 text-sm">เทศบาลตำบลบ่อหลวง</h2>
+          <p class="text-[11px] text-slate-600">อำเภอฮอด จังหวัดเชียงใหม่</p>
         </div>
 
-        <!-- Spatial & Service Unit Filters -->
-        <nav aria-label="เมนูหลัก" class="space-y-4">
-          <div>
-            <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              ขอบเขตพื้นที่ปกครอง (13 หมู่บ้าน)
-            </label>
-            <select id="mooSelect" onchange="setFilterMoo(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-emerald-700">
-              <option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - หมู่ 13)</option>
-              <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
-              <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
-              <option value="3">หมู่ที่ 3 บ้านขุน</option>
-              <option value="4">หมู่ที่ 4 บ้านนาฟ่อน</option>
-              <option value="5">หมู่ที่ 5 บ้านแม่ลายเหนือ</option>
-              <option value="6">หมู่ที่ 6 บ้านแม่ลายใต้</option>
-              <option value="7">หมู่ที่ 7 บ้านพุย</option>
-              <option value="8">หมู่ที่ 8 บ้านกิ่วลม</option>
-              <option value="9">หมู่ที่ 9 บ้านแม่สะนาม</option>
-              <option value="10">หมู่ที่ 10 บ้านเตียนอาง</option>
-              <option value="11">หมู่ที่ 11 บ้านบ่อสะแง๋</option>
-              <option value="12">หมู่ที่ 12 บ้านบ่อพะแวน</option>
-              <option value="13">หมู่ที่ 13 บ้านแม่หืด</option>
-            </select>
-          </div>
+        <!-- Navigation Menu (Dashboard / ตั้งค่า / ตัวกรองพื้นที่) -->
+        <nav aria-label="เมนูหลัก" class="divide-y divide-slate-300/70 text-xs">
+          <button onclick="switchMainView('map')" id="navBtnMap" class="w-full px-4 py-3 text-left font-bold text-indigo-950 bg-white hover:bg-indigo-50/50 flex items-center justify-between transition-colors">
+            <span class="flex items-center gap-2"><span class="text-indigo-700">▸</span> Dashboard แผนที่สุขภาพ</span>
+            <span id="sidebarPinCount" class="text-[11px] font-mono px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-900">13</span>
+          </button>
 
-          <div>
-            <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              หน่วยบริการสาธารณสุขรับผิดชอบ
-            </label>
-            <select id="facilitySelect" onchange="setFilterFacility(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 font-medium focus:bg-white focus:outline-none focus:border-emerald-700">
-              <option value="ALL">ทุกหน่วยบริการ (ทต.บ่อหลวง + 3 รพ.สต.)</option>
-              <option value="กองสาธารณสุข ทต.บ่อหลวง">กองสาธารณสุข ทต.บ่อหลวง (ม.1-3)</option>
-              <option value="รพ.สต.บ้านนาฟ่อน (ม.4)">รพ.สต.บ้านนาฟ่อน (ม.4-6)</option>
-              <option value="รพ.สต.บ้านพุย (ม.7)">รพ.สต.บ้านพุย (ม.7-10)</option>
-              <option value="รพ.สต.บ้านบ่อพะแวน (ม.12)">รพ.สต.บ้านบ่อพะแวน (ม.11-13)</option>
-            </select>
-          </div>
+          <button onclick="switchMainView('table')" id="navBtnTable" class="w-full px-4 py-3 text-left font-semibold text-slate-700 hover:bg-white/70 flex items-center justify-between transition-colors">
+            <span class="flex items-center gap-2"><span>▸</span> ทะเบียน 6 สัญญาณชีพ & กราฟ</span>
+          </button>
 
-          <!-- เกณฑ์สีไฟจราจรทางการแพทย์ -->
-          <div class="pt-2 border-t border-slate-100">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-              เกณฑ์คัดกรองสัญญาณชีพ (MOPH Triage)
+          <button onclick="openNewCheckupModal()" class="w-full px-4 py-3 text-left font-semibold text-emerald-900 hover:bg-emerald-50/80 flex items-center justify-between transition-colors">
+            <span class="flex items-center gap-2"><span>▸</span> บันทึกผลตรวจเยี่ยมบ้าน</span>
+            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-emerald-700"></i>
+          </button>
+
+          <a href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer" class="w-full px-4 py-3 text-left font-semibold text-slate-700 hover:bg-white/70 flex items-center justify-between transition-colors">
+            <span class="flex items-center gap-2"><span>▸</span> ถ่ายรูปและพิกัดภาคสนาม</span>
+            <i data-lucide="camera" class="w-3.5 h-3.5 text-slate-500"></i>
+          </a>
+
+          <button onclick="openCloudSettingsModal()" class="w-full px-4 py-3 text-left font-semibold text-slate-700 hover:bg-white/70 flex items-center justify-between transition-colors">
+            <span class="flex items-center gap-2"><span>▸</span> ตั้งค่า Cloud / ซิงค์ข้อมูล</span>
+            <i data-lucide="settings" class="w-3.5 h-3.5 text-slate-500"></i>
+          </button>
+
+          <!-- ตัวกรองหมู่บ้านและ รพ.สต. -->
+          <div class="p-3.5 space-y-3 bg-[#e6e4f0]/60">
+            <div>
+              <label class="block text-[11px] font-bold text-indigo-950 mb-1">เลือกหมู่บ้าน (13 หมู่บ้าน)</label>
+              <select id="mooSelect" onchange="setFilterMoo(this.value)" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800 font-medium focus:outline-none focus:border-indigo-600">
+                <option value="ALL">ทุกหมู่บ้าน (หมู่ 1 - หมู่ 13)</option>
+                <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
+                <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
+                <option value="3">หมู่ที่ 3 บ้านขุน</option>
+                <option value="4">หมู่ที่ 4 บ้านนาฟ่อน</option>
+                <option value="5">หมู่ที่ 5 บ้านแม่ลายเหนือ</option>
+                <option value="6">หมู่ที่ 6 บ้านแม่ลายใต้</option>
+                <option value="7">หมู่ที่ 7 บ้านพุย</option>
+                <option value="8">หมู่ที่ 8 บ้านกิ่วลม</option>
+                <option value="9">หมู่ที่ 9 บ้านแม่สะนาม</option>
+                <option value="10">หมู่ที่ 10 บ้านเตียนอาง</option>
+                <option value="11">หมู่ที่ 11 บ้านบ่อสะแง๋</option>
+                <option value="12">หมู่ที่ 12 บ้านบ่อพะแวน</option>
+                <option value="13">หมู่ที่ 13 บ้านแม่หืด</option>
+              </select>
             </div>
-            <div class="space-y-1.5 text-xs">
-              <div class="flex items-center justify-between py-1 px-2 rounded bg-emerald-50/60 text-emerald-900">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-600"></span>เกณฑ์ปกติ</span>
-                <span class="font-mono text-[11px]">BP &lt; 130/85</span>
-              </div>
-              <div class="flex items-center justify-between py-1 px-2 rounded bg-sky-50/60 text-sky-900">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-sky-600"></span>เฝ้าระวังเบื้องต้น</span>
-                <span class="font-mono text-[11px]">BP 130-139</span>
-              </div>
-              <div class="flex items-center justify-between py-1 px-2 rounded bg-amber-50/60 text-amber-900">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span>เสี่ยงสูง</span>
-                <span class="font-mono text-[11px]">BP 140-159 / DTX ≥ 130</span>
-              </div>
-              <div class="flex items-center justify-between py-1 px-2 rounded bg-rose-50/60 text-rose-900">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-rose-600"></span>อันตราย (ส่งต่อ)</span>
-                <span class="font-mono text-[11px]">BP ≥ 160 / SpO2 &lt; 94%</span>
-              </div>
+
+            <div>
+              <label class="block text-[11px] font-bold text-indigo-950 mb-1">หน่วยบริการ (ทต. / รพ.สต.)</label>
+              <select id="facilitySelect" onchange="setFilterFacility(this.value)" class="w-full px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800 font-medium focus:outline-none focus:border-indigo-600">
+                <option value="ALL">ทุกหน่วยบริการ (ทต. + 3 รพ.สต.)</option>
+                <option value="กองสาธารณสุข ทต.บ่อหลวง">กองสาธารณสุข ทต.บ่อหลวง (ม.1-3)</option>
+                <option value="รพ.สต.บ้านนาฟ่อน (ม.4)">รพ.สต.บ้านนาฟ่อน (ม.4-6)</option>
+                <option value="รพ.สต.บ้านพุย (ม.7)">รพ.สต.บ้านพุย (ม.7-10)</option>
+                <option value="รพ.สต.บ้านบ่อพะแวน (ม.12)">รพ.สต.บ้านบ่อพะแวน (ม.11-13)</option>
+              </select>
+            </div>
+
+            <!-- ปุ่มฟีเจอร์ประกวด depa: PDPA + โหมดบนดอย Offline -->
+            <div class="pt-2 border-t border-slate-300/80 space-y-1.5">
+              <button id="togglePdpaBtn" onclick="togglePdpaMode()" class="w-full py-1.5 px-2.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-medium flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-700"></i> <span id="pdpaStatusText">PDPA: ปิดพรางชื่อ</span></span>
+                <span class="text-[10px] text-slate-400">คลิกสลับ</span>
+              </button>
+
+              <button id="toggleNetworkBtn" onclick="toggleNetworkMode()" class="w-full py-1.5 px-2.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-900 text-[11px] font-medium flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-1.5"><span id="networkDot" class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span> <span id="networkStatusText">ออนไลน์ (4G/Wi-Fi)</span></span>
+              </button>
+
+              <button id="syncQueueBtn" onclick="syncOfflineQueue()" class="w-full py-1.5 px-2.5 rounded border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-medium flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-1.5"><i data-lucide="cloud-upload" class="w-3.5 h-3.5 text-amber-700"></i> คิวออฟไลน์รอซิงค์</span>
+                <span id="queueCount" class="font-mono font-bold px-1.5 py-0.2 bg-amber-200/70 rounded">0</span>
+              </button>
             </div>
           </div>
         </nav>
       </div>
 
-      <!-- Bottom Spatial Pin Summary & Cloud Sync Button -->
-      <div class="pt-4 border-t border-slate-200 space-y-2.5">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-          <div>
-            <div class="text-[11px] text-slate-500">พิกัดที่แสดงบนแผนที่</div>
-            <div class="text-sm font-bold text-slate-900"><span id="sidebarPinCount">0</span> รายการ</div>
-          </div>
-          <span id="sidebarPinBadge" class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-emerald-100 text-emerald-900">0 ราย</span>
-        </div>
-        <button onclick="syncFromLiveCloud()" class="w-full py-2 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 flex items-center justify-center gap-1.5 transition-colors">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-700"></i>
-          <span>ซิงค์ข้อมูลล่าสุดจาก Cloud</span>
+      <!-- Sidebar Collapse Arrow Accent (ตามรูปที่ 1) -->
+      <div class="p-3 bg-gradient-to-b from-[#9b8afb] to-[#7c69ef] text-white flex items-center justify-between text-[11px]">
+        <span id="currentThaiDate" class="truncate">เทศบาลตำบลบ่อหลวง</span>
+        <button onclick="fitMapToAllMarkers()" title="ซูมแผนที่ทั้งหมด" class="w-6 h-6 rounded-full bg-white/25 hover:bg-white/40 flex items-center justify-center">
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
         </button>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 p-4 lg:p-6 space-y-5 overflow-x-hidden">
+    <!-- ===================================================================
+         MAIN RIGHT AREA (KPI STRIP + FILTER SWITCH BAR + LARGE HERO MAP)
+    ==================================================================== -->
+    <main class="flex-1 flex flex-col bg-white overflow-x-hidden">
 
-      <!-- 1. KPI SUMMARY CARDS (Dynamic Reactive 5 Cards) -->
-      <section aria-label="สรุปสถิติผู้รับการตรวจ" id="kpiGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
-        <!-- Rendered dynamically by renderKPIs() -->
+      <!-- 1. TOP 5 KPI STRIP (ถอดแบบตาราง 5 ช่อง + เปอร์เซ็นต์มุมขวาล่างตามรูปที่ 1) -->
+      <section aria-label="สรุปสถิติผู้รับการตรวจ" id="kpiGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 bg-[#f8f9fa] border-b border-slate-300 divide-y sm:divide-y-0 sm:divide-x divide-slate-300">
+        <!-- Populated dynamically by renderKPIs() -->
       </section>
 
-      <!-- 2. SEARCH & TARGET GROUP FILTER BAR -->
-      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" class="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-        <!-- Search Input -->
-        <div class="relative flex-1">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-          <input
-            type="text"
-            id="searchInput"
-            oninput="setSearchQuery(this.value)"
-            placeholder="ค้นหาชื่อ-สกุล, หมู่บ้าน, โรคประจำตัว หรือ รพ.สต. ..."
-            class="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:border-emerald-700"
-          />
-          <button onclick="resetAllFilters()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-slate-400 hover:text-slate-700">
-            ล้างค่า
+      <!-- 2. SEARCH & TOGGLE SWITCHES BAR (เหมือนแถบเหนือแผนที่ในรูปที่ 1 ทุกประการ) -->
+      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" class="bg-[#f4f5f7] px-4 py-2.5 border-b border-slate-300 flex flex-wrap items-center justify-between gap-4">
+        <!-- Left: ชื่อผู้รับการตรวจ : [ input ] -->
+        <div class="flex items-center gap-2.5 flex-1 min-w-[260px] max-w-md">
+          <label for="searchInput" class="text-sm font-semibold text-slate-700 whitespace-nowrap leading-tight">
+            ชื่อผู้รับการตรวจ :
+          </label>
+          <div class="relative flex-1">
+            <input
+              type="text"
+              id="searchInput"
+              oninput="setSearchQuery(this.value)"
+              placeholder="ค้นหาชื่อ, หมู่บ้าน, รพ.สต. ..."
+              class="w-full px-3 py-1.5 text-sm rounded-lg border border-slate-300 bg-white shadow-inner focus:outline-none focus:border-indigo-600"
+            />
+            <button onclick="resetAllFilters()" title="ล้างตัวกรองทั้งหมด" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-700">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Right: 4 Toggle Switches (ปกติ | ผู้ป่วยติดเตียง | ผู้พิการ | กลุ่มเปราะบาง) -->
+        <div class="flex items-center gap-5 flex-wrap">
+          <div onclick="toggleGroupSwitch('ผู้สูงอายุภาวะพึ่งพิง')" class="flex items-center gap-2 cursor-pointer select-none">
+            <div id="switch-normal" class="toggle-Pill"></div>
+            <span class="text-sm font-semibold text-slate-700">ปกติ / พึ่งพิง</span>
+          </div>
+
+          <div onclick="toggleGroupSwitch('ผู้ป่วยติดเตียง')" class="flex items-center gap-2 cursor-pointer select-none">
+            <div id="switch-bedridden" class="toggle-Pill"></div>
+            <span class="text-sm font-semibold text-slate-700 leading-tight">ผู้ป่วยติด<br class="hidden sm:inline">เตียง</span>
+          </div>
+
+          <div onclick="toggleGroupSwitch('ผู้พิการ')" class="flex items-center gap-2 cursor-pointer select-none">
+            <div id="switch-disabled" class="toggle-Pill"></div>
+            <span class="text-sm font-semibold text-slate-700">ผู้พิการ</span>
+          </div>
+
+          <div onclick="toggleGroupSwitch('กลุ่มเปราะบาง/NCDs')" class="flex items-center gap-2 cursor-pointer select-none">
+            <div id="switch-vulnerable" class="toggle-Pill"></div>
+            <span class="text-sm font-semibold text-slate-700 leading-tight">กลุ่มเปราะ<br class="hidden sm:inline">บาง</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. FULL-SIZE INTERACTIVE MAP WITH FLOATING OVERLAY CONTROLS (ตามรูปที่ 1) -->
+      <section id="mapSectionWrap" class="relative flex-1 w-full">
+        <!-- Map Canvas (ขยายใหญ่เต็มพื้นที่หน้าจอ) -->
+        <div id="map" class="w-full h-[calc(100vh-210px)] min-h-[560px] bg-slate-200"></div>
+
+        <!-- Floating Top-Left: [ แผนที่ | ดาวเทียม ] เหมือนในรูปที่ 1 -->
+        <div class="absolute top-3 left-3 z-20 bg-white rounded shadow-md border border-slate-300 inline-flex overflow-hidden text-xs">
+          <button id="btnLayerStreet" onclick="switchMapBaseLayer('street')" class="px-3.5 py-2 font-bold text-slate-900 bg-white hover:bg-slate-50 border-r border-slate-200 transition-colors">
+            แผนที่
+          </button>
+          <button id="btnLayerSat" onclick="switchMapBaseLayer('satellite')" class="px-3.5 py-2 font-medium text-slate-500 bg-white hover:bg-slate-50 transition-colors">
+            ดาวเทียม
           </button>
         </div>
 
-        <!-- Group Pills -->
-        <div id="groupFilterBar" class="flex items-center gap-1.5 flex-wrap">
-          <!-- Rendered dynamically by renderGroupPills() -->
+        <!-- Floating Right Vertical Action Buttons เหมือนในรูปที่ 1 -->
+        <div class="absolute top-3 right-3 z-20 flex flex-col gap-2">
+          <button onclick="fitMapToAllMarkers()" title="ซูมดูหมุดผู้ป่วยทั้งหมด" class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-slate-800 text-white shadow-md flex items-center justify-center transition-colors">
+            <i data-lucide="maximize-2" class="w-4 h-4"></i>
+          </button>
+          <button id="btnToggleBoundary" onclick="toggleBoundaryLayer()" title="เปิด/ปิดเส้นแบ่งเขต 13 หมู่บ้าน" class="w-9 h-9 rounded-full bg-emerald-700/90 hover:bg-emerald-800 text-white shadow-md flex items-center justify-center transition-colors">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+          </button>
+          <button onclick="openNewCheckupModal()" title="บันทึกผลตรวจเยี่ยมบ้านใหม่" class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-slate-800 text-white shadow-md flex items-center justify-center transition-colors">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+          <button onclick="scrollToRegistryTable()" title="เลื่อนดูตารางทะเบียนสัญญาณชีพ 6 รายการ" class="w-9 h-9 rounded-full bg-slate-700/80 hover:bg-slate-800 text-white shadow-md flex items-center justify-center transition-colors">
+            <i data-lucide="table" class="w-4 h-4"></i>
+          </button>
         </div>
       </section>
 
-      <!-- 3. GIS INTERACTIVE MAP SECTION -->
-      <section class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <!-- Map Top Toolbar -->
-        <div class="px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/50">
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <i data-lucide="map-pin" class="w-4 h-4 text-emerald-700"></i>
-              <span>แผนที่ภูมิสารสนเทศสุขภาพชุมชน (GIS 13 หมู่บ้าน ต.บ่อหลวง)</span>
-            </h3>
-            <p class="text-[11px] text-slate-500">แสดงขอบเขตหมู่บ้านจริง (GeoJSON) และพิกัดครัวเรือนผู้ป่วยกลุ่มเปราะบางแยกตามสีเกณฑ์สุขภาพ</p>
+      <!-- 4. PATIENT REGISTRY TABLE & CHARTS (อยู่ถัดลงมาด้านล่างแผนที่ หรือกดสลับจากเมนูซ้ายได้) -->
+      <section id="registrySectionWrap" class="p-4 lg:p-6 space-y-6 bg-slate-50 border-t border-slate-300">
+        <!-- Registry Table -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs">
+          <div class="px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <span>ตารางทะเบียนสุขภาพผู้รับการตรวจคัดกรอง (คลิกที่รายชื่อเพื่อดูตารางอุปกรณ์ 6 รายการ)</span>
+              </h3>
+            </div>
+            <div id="tableResultCount" class="text-xs font-mono text-slate-500">แสดง 13 รายการ</div>
           </div>
 
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <button id="btnLayerStreet" onclick="switchMapBaseLayer('street')" class="px-2.5 py-1 rounded text-xs font-medium bg-emerald-800 text-white transition-colors">
-              แผนที่ถนน
-            </button>
-            <button id="btnLayerSat" onclick="switchMapBaseLayer('satellite')" class="px-2.5 py-1 rounded text-xs font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
-              ดาวเทียม (พื้นที่ดอย)
-            </button>
-            <button id="btnToggleBoundary" onclick="toggleBoundaryLayer()" class="px-2.5 py-1 rounded text-xs font-medium bg-emerald-50 border border-emerald-200 text-emerald-900 hover:bg-emerald-100 transition-colors">
-              ขอบเขต 13 หมู่บ้าน
-            </button>
-            <button onclick="fitMapToAllMarkers()" class="px-2.5 py-1 rounded text-xs font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors">
-              ซูมทั้งหมด
-            </button>
-          </div>
-        </div>
-
-        <!-- Map Container -->
-        <div id="map" class="w-full h-[420px] bg-slate-100"></div>
-      </section>
-
-      <!-- 4. PATIENT REGISTRY & 6-VITAL SIGNS TABLE -->
-      <section class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <span>ตารางทะเบียนสุขภาพผู้รับการตรวจคัดกรองล่าสุด</span>
-              <span class="text-[11px] font-normal text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
-                คลิกที่แถวเพื่อดูประวัติสัญญาณชีพ 6 รายการ
-              </span>
-            </h3>
-          </div>
-          <div id="tableResultCount" class="text-xs font-mono text-slate-500">แสดง 0 รายการ</div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-slate-200 bg-slate-50/80 text-slate-600 font-semibold">
-                <th class="py-2.5 px-3">ลำดับ</th>
-                <th class="py-2.5 px-3">ชื่อ-สกุล</th>
-                <th class="py-2.5 px-3 text-center">อายุ (ปี)</th>
-                <th class="py-2.5 px-3">กลุ่มเป้าหมาย</th>
-                <th class="py-2.5 px-3">เกณฑ์สุขภาพ</th>
-                <th class="py-2.5 px-3 text-right">อุณหภูมิ (°C)</th>
-                <th class="py-2.5 px-3 text-right">น้ำหนัก (Kg)</th>
-                <th class="py-2.5 px-3 text-right">BMI</th>
-                <th class="py-2.5 px-3 text-right">SYS (mmHg)</th>
-                <th class="py-2.5 px-3 text-right">DIA (mmHg)</th>
-                <th class="py-2.5 px-3 text-right">Pulse (min)</th>
-                <th class="py-2.5 px-3 text-right">%SpO2</th>
-                <th class="py-2.5 px-3 text-right">PI (%)</th>
-                <th class="py-2.5 px-3 text-right">น้ำตาล (mg/dL)</th>
-                <th class="py-2.5 px-3 text-center">รายละเอียด</th>
-              </tr>
-            </thead>
-            <tbody id="patientTableBody" class="divide-y divide-slate-100">
-              <!-- Populated by renderTable() -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- 5. ANALYTICS CHARTS SECTION -->
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-900">สัดส่วนผู้ป่วยติดเตียง ผู้พิการ และกลุ่มเปราะบาง รายหมู่บ้าน (ครบ 13 หมู่บ้าน)</h3>
-          <p class="text-xs text-slate-500 mb-3">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อวางแผนจัดสรรทีม Caregiver และ อสม.</p>
-          <div class="h-64">
-            <canvas id="villageChart"></canvas>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold">
+                  <th class="py-2.5 px-3">ลำดับ</th>
+                  <th class="py-2.5 px-3">ชื่อ-สกุล</th>
+                  <th class="py-2.5 px-3 text-center">อายุ (ปี)</th>
+                  <th class="py-2.5 px-3">กลุ่มเป้าหมาย</th>
+                  <th class="py-2.5 px-3">เกณฑ์สุขภาพ</th>
+                  <th class="py-2.5 px-3 text-right">อุณหภูมิ (°C)</th>
+                  <th class="py-2.5 px-3 text-right">น้ำหนัก (Kg)</th>
+                  <th class="py-2.5 px-3 text-right">BMI</th>
+                  <th class="py-2.5 px-3 text-right">SYS (mmHg)</th>
+                  <th class="py-2.5 px-3 text-right">DIA (mmHg)</th>
+                  <th class="py-2.5 px-3 text-right">Pulse (min)</th>
+                  <th class="py-2.5 px-3 text-right">%SpO2</th>
+                  <th class="py-2.5 px-3 text-right">PI (%)</th>
+                  <th class="py-2.5 px-3 text-right">น้ำตาล (mg/dL)</th>
+                  <th class="py-2.5 px-3 text-center">รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody id="patientTableBody" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <h3 class="text-sm font-bold text-slate-900">สัดส่วนตามเกณฑ์ประเมินสุขภาพ</h3>
-          <p class="text-xs text-slate-500 mb-3">เปรียบเทียบสัดส่วนผู้รับการตรวจตามเกณฑ์ความดันโลหิต น้ำตาลในเลือด และออกซิเจน</p>
-          <div class="h-64 flex items-center justify-center">
-            <canvas id="statusChart"></canvas>
+        <!-- Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="lg:col-span-2 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <h3 class="text-sm font-bold text-slate-900">สัดส่วนผู้ป่วยติดเตียง ผู้พิการ และกลุ่มเปราะบาง รายหมู่บ้าน (ครบ 13 หมู่บ้าน)</h3>
+            <p class="text-xs text-slate-500 mb-3">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อวางแผนจัดสรรทีม Caregiver และ อสม.</p>
+            <div class="h-60">
+              <canvas id="villageChart"></canvas>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+            <h3 class="text-sm font-bold text-slate-900">สัดส่วนตามเกณฑ์ประเมินสุขภาพ</h3>
+            <p class="text-xs text-slate-500 mb-3">เปรียบเทียบสัดส่วนผู้รับการตรวจตามเกณฑ์ความดันโลหิต น้ำตาลในเลือด และออกซิเจน</p>
+            <div class="h-60 flex items-center justify-center">
+              <canvas id="statusChart"></canvas>
+            </div>
           </div>
         </div>
       </section>
@@ -367,35 +374,32 @@
   </div>
 
   <!-- =====================================================================
-       FOOTER
+       FOOTER BAR (สไตล์เดียวกับขอบล่างในรูปที่ 1)
   ====================================================================== -->
-  <footer class="bg-white border-t border-slate-200 px-6 py-3.5 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
-    <div>กองสาธารณสุขและสิ่งแวดล้อม เทศบาลตำบลบ่อหลวง โทร. 053-963-085</div>
-    <div>© 2026 เทศบาลตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่ • พัฒนาตามมาตรฐาน Smart City (depa)</div>
+  <footer class="bg-[#e9ecef] border-t border-slate-300 px-5 py-2 text-xs text-slate-600 flex flex-col sm:flex-row items-center justify-between gap-2">
+    <div>กองสาธารณสุขและสิ่งแวดล้อม เทศบาลตำบลบ่อหลวง โทร. 053-963-085 | ระบบเฝ้าระวังสุขภาพชุมชน</div>
+    <div>© 2026 เทศบาลตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่ All rights reserved.</div>
   </footer>
 
   <!-- =====================================================================
        MODAL 1: PATIENT DETAIL & 6-IOT SENSOR LOGS MODAL
   ====================================================================== -->
   <div id="patientModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-white rounded-2xl border border-slate-200 max-w-5xl w-full overflow-hidden shadow-xl my-auto">
-      <!-- Modal Top Header -->
+    <div class="bg-white rounded-2xl border border-slate-200 max-w-5xl w-full overflow-hidden shadow-2xl my-auto">
       <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
         <div class="flex items-center gap-2.5">
           <span id="modalStatusDot" class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
           <h3 id="modalStatusTitle" class="font-bold text-sm text-slate-900">เกณฑ์สุขภาพอันตราย</h3>
           <span id="modalGroupBadge" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-800">ผู้ป่วยติดเตียง</span>
         </div>
-        <button onclick="closePatientModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+        <button onclick="closePatientModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Patient Bio & Clinical Summary -->
       <div class="p-5 space-y-4 max-h-[82vh] overflow-y-auto">
         <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 pb-4 border-b border-slate-100">
-          <img id="modalPatientImg" alt="รูปภาพการออกเยี่ยมบ้าน" src="" class="hidden w-20 h-20 rounded-xl object-cover border border-slate-200 shrink-0" />
-          <div id="modalPatientAvatar" class="w-16 h-16 rounded-xl bg-emerald-800 text-white font-bold text-xl flex items-center justify-center shrink-0">
+          <div id="modalPatientAvatar" class="w-16 h-16 rounded-xl bg-indigo-900 text-white font-bold text-xl flex items-center justify-center shrink-0 shadow-xs">
             อบ
           </div>
           <div class="space-y-1 flex-1">
@@ -403,9 +407,9 @@
               <h4 id="modalPatientName" class="text-base font-bold text-slate-900">นายอรัญ พงศ์ศักดิ์</h4>
               <span id="modalPatientAge" class="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">อายุ 55 ปี</span>
               <span id="modalPatientFacility" class="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">รพ.สต.บ้านนาฟ่อน (ม.4)</span>
-              <a id="modalDriveLink" href="https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-700 hover:underline inline-flex items-center gap-1">
+              <a id="modalDriveLink" href="https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="text-xs text-indigo-700 hover:underline inline-flex items-center gap-1">
                 <i data-lucide="external-link" class="w-3 h-3"></i>
-                <span>เปิดรูปต้นฉบับใน Google Drive</span>
+                <span>เปิดรูปเยี่ยมบ้านใน Google Drive</span>
               </a>
             </div>
             <p id="modalPatientAddress" class="text-xs text-slate-600">63 หมู่ที่ 4 บ้านนาฟ่อน ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</p>
@@ -413,9 +417,9 @@
           </div>
         </div>
 
-        <!-- [Upgrade 4] กล่องวิเคราะห์สาเหตุเกณฑ์สุขภาพอัตโนมัติ (Clinical Triage Explanation Engine) -->
+        <!-- กล่องวิเคราะห์สาเหตุเกณฑ์สุขภาพอัตโนมัติ (Clinical Triage Explanation Engine) -->
         <div id="modalTriageExplanationBox" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-start gap-2.5">
-          <i data-lucide="stethoscope" class="w-4 h-4 text-emerald-800 shrink-0 mt-0.5"></i>
+          <i data-lucide="stethoscope" class="w-4 h-4 text-indigo-800 shrink-0 mt-0.5"></i>
           <div class="text-xs leading-relaxed">
             <span class="font-bold text-slate-900">ผลการวิเคราะห์ทางคลินิกเบื้องต้น (Clinical Triage Reason): </span>
             <span id="modalTriageReasonText" class="text-slate-700">-</span>
@@ -444,17 +448,15 @@
 
         <!-- 6-Row IoT Sparse Matrix Table -->
         <div class="border border-slate-200 rounded-xl overflow-hidden">
-          <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <div>
-              <h5 class="text-xs font-bold text-slate-900">ข้อมูลล่าสุด (บันทึกการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพ 6 รายการ)</h5>
-              <p class="text-[11px] text-slate-500">ตารางแสดงลำดับเวลาที่เครื่องมือแพทย์แต่ละชิ้นส่งค่าเข้าสู่ระบบ (6-Device Sparse Sensor Matrix)</p>
-            </div>
+          <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200">
+            <h5 class="text-xs font-bold text-slate-900">ข้อมูลล่าสุด (บันทึกการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพ 6 รายการ)</h5>
+            <p class="text-[11px] text-slate-500">ตารางแสดงลำดับเวลาที่เครื่องมือแพทย์แต่ละชิ้นส่งค่าเข้าสู่ระบบ</p>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-center border-collapse text-xs">
               <thead>
-                <tr class="bg-slate-100/80 text-slate-700 border-b border-slate-200 font-semibold">
+                <tr class="bg-slate-100 text-slate-700 border-b border-slate-200 font-semibold">
                   <th rowspan="2" class="py-2 px-2 border-r border-slate-200">ลำดับ</th>
                   <th rowspan="2" class="py-2 px-2 border-r border-slate-200">อุณหภูมิ<br><span class="text-[10px] font-normal text-slate-500">(°C)</span></th>
                   <th rowspan="2" class="py-2 px-2 border-r border-slate-200">น้ำหนัก<br><span class="text-[10px] font-normal text-slate-500">(Kg)</span></th>
@@ -465,21 +467,19 @@
                   <th colspan="3" class="py-1.5 px-2 border-b border-slate-200">ผู้ตรวจคัดกรอง</th>
                 </tr>
                 <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 text-[11px]">
-                  <th class="py-1.5 px-2 border-r border-slate-200">SYS<br><span class="text-[10px] font-normal">(mmHg)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">DIA<br><span class="text-[10px] font-normal">(mmHg)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">Pulse<br><span class="text-[10px] font-normal">(min)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">%SpO2<br><span class="text-[10px] font-normal">(%)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">Pulse<br><span class="text-[10px] font-normal">(min)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">PI<br><span class="text-[10px] font-normal">(%)</span></th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">น้ำตาล<br><span class="text-[10px] font-normal">(mg/dL)</span></th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">SYS</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">DIA</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">Pulse</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">%SpO2</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">Pulse</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">PI</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">น้ำตาล</th>
                   <th class="py-1.5 px-2 border-r border-slate-200">ผู้ตรวจ</th>
-                  <th class="py-1.5 px-2 border-r border-slate-200">วันที่ตรวจคัดกรอง</th>
+                  <th class="py-1.5 px-2 border-r border-slate-200">วันที่ตรวจ</th>
                   <th class="py-1.5 px-2">เวลา</th>
                 </tr>
               </thead>
-              <tbody id="modalSensorLogsBody" class="divide-y divide-slate-200 font-mono text-xs">
-                <!-- Populated by openPatientModal() -->
-              </tbody>
+              <tbody id="modalSensorLogsBody" class="divide-y divide-slate-200 font-mono text-xs"></tbody>
             </table>
           </div>
         </div>
@@ -506,16 +506,16 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="sm:col-span-2">
             <label class="block font-medium text-slate-700 mb-1">ชื่อ-นามสกุล ผู้รับการตรวจ *</label>
-            <input type="text" id="formName" required placeholder="เช่น นายสมชาย ใจดี" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-700" />
+            <input type="text" id="formName" required placeholder="เช่น นายสมชาย ใจดี" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-indigo-700" />
           </div>
           <div>
             <label class="block font-medium text-slate-700 mb-1">อายุ (ปี) *</label>
-            <input type="number" id="formAge" required min="1" max="120" value="68" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono focus:outline-none focus:border-emerald-700" />
+            <input type="number" id="formAge" required min="1" max="120" value="68" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono" />
           </div>
 
           <div>
             <label class="block font-medium text-slate-700 mb-1">หมู่บ้าน (ม.1 - ม.13) *</label>
-            <select id="formMoo" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-emerald-700">
+            <select id="formMoo" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white">
               <option value="1">หมู่ที่ 1 บ้านบ่อหลวง</option>
               <option value="2">หมู่ที่ 2 บ้านวังกอง</option>
               <option value="3">หมู่ที่ 3 บ้านขุน</option>
@@ -534,7 +534,7 @@
 
           <div>
             <label class="block font-medium text-slate-700 mb-1">กลุ่มเป้าหมาย *</label>
-            <select id="formGroup" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-emerald-700">
+            <select id="formGroup" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white">
               <option value="ผู้ป่วยติดเตียง">ผู้ป่วยติดเตียง</option>
               <option value="ผู้พิการ">ผู้พิการ</option>
               <option value="ผู้สูงอายุภาวะพึ่งพิง">ผู้สูงอายุภาวะพึ่งพิง</option>
@@ -544,17 +544,17 @@
 
           <div>
             <label class="block font-medium text-slate-700 mb-1">คะแนน ADL (0-20)</label>
-            <input type="number" id="formAdl" min="0" max="20" value="4" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono focus:outline-none focus:border-emerald-700" />
+            <input type="number" id="formAdl" min="0" max="20" value="4" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono" />
           </div>
 
           <div>
             <label class="block font-medium text-slate-700 mb-1">บ้านเลขที่</label>
-            <input type="text" id="formAddress" placeholder="เช่น 114/2" value="88" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-700" />
+            <input type="text" id="formAddress" value="88" class="w-full px-3 py-2 rounded-lg border border-slate-200" />
           </div>
 
           <div class="sm:col-span-2">
             <label class="block font-medium text-slate-700 mb-1">โรคประจำตัว / อาการสำคัญ</label>
-            <input type="text" id="formNote" placeholder="เช่น ความดันโลหิตสูง, เบาหวาน" value="ความดันโลหิตสูง, เบาหวาน" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:border-emerald-700" />
+            <input type="text" id="formNote" value="ความดันโลหิตสูง, เบาหวาน" class="w-full px-3 py-2 rounded-lg border border-slate-200" />
           </div>
         </div>
 
@@ -593,33 +593,33 @@
             <div>
               <label class="block text-[11px] text-slate-500 mb-1">น้ำหนัก (Kg) / สูง (Cm)</label>
               <div class="grid grid-cols-2 gap-1">
-                <input type="number" step="0.1" id="formWeight" required value="62.0" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 font-mono" title="น้ำหนัก Kg" />
-                <input type="number" id="formHeight" required value="160" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 font-mono" title="ส่วนสูง Cm" />
+                <input type="number" step="0.1" id="formWeight" required value="62.0" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 font-mono" />
+                <input type="number" id="formHeight" required value="160" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 font-mono" />
               </div>
             </div>
           </div>
         </div>
 
-        <!-- [Upgrade 5] ส่วนดึงพิกัด GPS ปัจจุบันจากอุปกรณ์ภาคสนาม -->
+        <!-- ดึงพิกัด GPS ปัจจุบัน -->
         <div class="pt-3 border-t border-slate-100">
           <label class="block font-semibold text-slate-800 mb-1.5">พิกัดครัวเรือน (GPS Geolocation สำหรับปักหมุด GIS 13 หมู่บ้าน)</label>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <input type="text" id="formLat" placeholder="ละติจูด (เช่น 18.1638)" class="px-3 py-2 rounded-lg border border-slate-200 font-mono bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700" />
-            <input type="text" id="formLng" placeholder="ลองจิจูด (เช่น 98.3585)" class="px-3 py-2 rounded-lg border border-slate-200 font-mono bg-slate-50 focus:bg-white focus:outline-none focus:border-emerald-700" />
-            <button type="button" onclick="captureCurrentGps()" id="btnCaptureGps" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-emerald-700 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-medium transition-colors">
+            <input type="text" id="formLat" placeholder="ละติจูด (เช่น 18.1638)" class="px-3 py-2 rounded-lg border border-slate-200 font-mono bg-slate-50" />
+            <input type="text" id="formLng" placeholder="ลองจิจูด (เช่น 98.3585)" class="px-3 py-2 rounded-lg border border-slate-200 font-mono bg-slate-50" />
+            <button type="button" onclick="captureCurrentGps()" id="btnCaptureGps" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-indigo-700 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-medium">
               <i data-lucide="locate-fixed" class="w-3.5 h-3.5"></i>
               <span>ดึงพิกัด GPS ปัจจุบัน</span>
             </button>
           </div>
-          <p id="gpsCaptureStatus" class="text-[11px] text-slate-500 mt-1">หากไม่ระบุพิกัด ระบบจะคำนวณจุดกึ่งกลาง (Spatial Centroid) ของหมู่บ้านที่เลือกให้อัตโนมัติ</p>
+          <p id="gpsCaptureStatus" class="text-[11px] text-slate-500 mt-1">หากไม่ระบุพิกัด ระบบจะคำนวณจุดกึ่งกลางของหมู่บ้านที่เลือกให้อัตโนมัติ</p>
         </div>
 
         <div class="pt-3 border-t border-slate-200 flex items-center justify-end gap-2">
           <button type="button" onclick="closeNewCheckupModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-medium">
             ยกเลิก
           </button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-medium shadow-xs">
-            บันทึกผลตรวจและคำนวณเกณฑ์สุขภาพ
+          <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-800 hover:bg-indigo-900 text-white font-medium">
+            บันทึกผลตรวจและปักหมุดแผนที่
           </button>
         </div>
       </form>
@@ -627,7 +627,7 @@
   </div>
 
   <!-- =====================================================================
-       MODAL 3: CLOUD DATABASE SETTINGS (SUPABASE & GOOGLE SHEETS)
+       MODAL 3: CLOUD DATABASE SETTINGS
   ====================================================================== -->
   <div id="cloudSettingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
     <div class="bg-white rounded-2xl border border-slate-200 max-w-lg w-full overflow-hidden shadow-xl">
@@ -647,11 +647,11 @@
           <input type="text" id="inputSupabaseUrl" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-[11px]" />
         </div>
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Supabase Anon Key (RLS Enabled)</label>
+          <label class="block font-medium text-slate-700 mb-1">Supabase Anon Key</label>
           <input type="password" id="inputSupabaseKey" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-[11px]" />
         </div>
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Google Apps Script Web App URL (ระบบบันทึกพิกัด)</label>
+          <label class="block font-medium text-slate-700 mb-1">Google Apps Script Web App URL</label>
           <input type="text" id="inputAppsScriptUrl" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-[11px]" />
         </div>
 
@@ -663,7 +663,7 @@
             <button type="button" onclick="closeCloudSettingsModal()" class="px-3 py-2 rounded-lg border border-slate-200 text-slate-600">
               ปิด
             </button>
-            <button type="button" onclick="saveCloudSettings()" class="px-4 py-2 rounded-lg bg-emerald-800 text-white font-medium">
+            <button type="button" onclick="saveCloudSettings()" class="px-4 py-2 rounded-lg bg-indigo-800 text-white font-medium">
               บันทึกการตั้งค่า
             </button>
           </div>
@@ -679,10 +679,9 @@
   </div>
 
   <!-- =====================================================================
-       APPLICATION CORE JAVASCRIPT (ALL 6 UPGRADES INTEGRATED)
+       JAVASCRIPT LOGIC (BEARCON-STYLE MAP UI + 6 DEPA UPGRADES)
   ====================================================================== -->
   <script>
-    // --- 1. ข้อมูลอ้างอิง 13 หมู่บ้าน และ 4 หน่วยบริการ ในเขตเทศบาลตำบลบ่อหลวง ---
     const VILLAGE_META = {
       1:  { name: 'บ้านบ่อหลวง',   facility: 'กองสาธารณสุข ทต.บ่อหลวง', lat: 18.1638, lng: 98.3585 },
       2:  { name: 'บ้านวังกอง',   facility: 'กองสาธารณสุข ทต.บ่อหลวง', lat: 18.1682, lng: 98.3620 },
@@ -700,16 +699,14 @@
     };
 
     const STATUS_META = {
-      NORMAL: { label: 'เกณฑ์สุขภาพปกติ',   color: '#059669', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', dot: 'bg-emerald-600' },
-      WATCH:  { label: 'กลุ่มเฝ้าระวังเบื้องต้น', color: '#0284c7', badge: 'bg-sky-50 text-sky-800 border-sky-200',       dot: 'bg-sky-600' },
-      RISK:   { label: 'เกณฑ์สุขภาพเสี่ยงสูง', color: '#d97706', badge: 'bg-amber-50 text-amber-800 border-amber-200',   dot: 'bg-amber-500' },
-      DANGER: { label: 'เกณฑ์สุขภาพอันตราย',  color: '#e11d48', badge: 'bg-rose-50 text-rose-800 border-rose-200',     dot: 'bg-rose-600' }
+      NORMAL: { label: 'เกณฑ์สุขภาพเหมาะสม', color: '#4caf50', badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', dot: 'bg-emerald-600' },
+      WATCH:  { label: 'ประชากรเฝ้าระวัง/นอกเขต', color: '#2563eb', badge: 'bg-blue-50 text-blue-800 border-blue-200',       dot: 'bg-blue-600' },
+      RISK:   { label: 'เกณฑ์สุขภาพมีความเสี่ยง', color: '#d97706', badge: 'bg-amber-50 text-amber-800 border-amber-200',   dot: 'bg-amber-500' },
+      DANGER: { label: 'เกณฑ์สุขภาพอันตราย',   color: '#dc2626', badge: 'bg-rose-50 text-rose-800 border-rose-200',     dot: 'bg-rose-600' }
     };
 
-    const TARGET_GROUPS = ['ALL', 'ผู้ป่วยติดเตียง', 'ผู้พิการ', 'ผู้สูงอายุภาวะพึ่งพิง', 'กลุ่มเปราะบาง/NCDs'];
     const OFFLINE_QUEUE_KEY = 'boluang_offline_queue_v1';
 
-    // --- 2. ฟังก์ชันสร้างตารางประวัติการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพ 6 รายการ (6-Row Sparse Matrix) ---
     function buildSixDeviceLogs(v, inspectorName = 'อสม. เทศบาลตำบลบ่อหลวง', dateStr = '16/10/2569') {
       return [
         { order: 1, temp: '',     weight: v.weight, height: '',       sys: '',    dia: '',    bpPulse: '',      spo2: '',     spo2Pulse: '',      pi: '',   sugar: '',      inspector: inspectorName, date: dateStr, time: '09:12:04' },
@@ -721,7 +718,6 @@
       ];
     }
 
-    // --- 3. ข้อมูลผู้ป่วยเริ่มต้น ครบทั้ง 13 หมู่บ้าน ---
     const INITIAL_PATIENTS = [
       {
         id: 1, name: 'นายอรัญ พงศ์ศักดิ์', age: 55, moo: 4, village: 'บ้านนาฟ่อน', facility: 'รพ.สต.บ้านนาฟ่อน (ม.4)',
@@ -733,8 +729,8 @@
       },
       {
         id: 2, name: 'นายโด่ย ปู่เป็ง', age: 72, moo: 7, village: 'บ้านพุย', facility: 'รพ.สต.บ้านพุย (ม.7)',
-        group: 'ผู้สูงอายุภาวะพึ่งพิง', status: 'DANGER', temp: 36.6, weight: 54.2, height: 160, bmi: 21.2,
-        sys: 168, dia: 102, pulse: 84, spo2: 93, pi: 2.8, sugar: 158.0, adl: 6,
+        group: 'ผู้ป่วยติดเตียง', status: 'DANGER', temp: 36.6, weight: 54.2, height: 160, bmi: 21.2,
+        sys: 168, dia: 102, pulse: 84, spo2: 93, pi: 2.8, sugar: 158.0, adl: 4,
         address: '42', note: 'ความดันโลหิตสูงเรื้อรัง, หอบเหนื่อย',
         driveUrl: 'https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk',
         lat: 18.1455, lng: 98.3954
@@ -757,7 +753,7 @@
         id: 5, name: 'นางบัวผัน จันทร์แก้ว', age: 77, moo: 3, village: 'บ้านขุน', facility: 'กองสาธารณสุข ทต.บ่อหลวง',
         group: 'ผู้สูงอายุภาวะพึ่งพิง', status: 'NORMAL', temp: 36.2, weight: 48.0, height: 150, bmi: 21.3,
         sys: 122, dia: 76, pulse: 70, spo2: 98, pi: 4.8, sugar: 98.0, adl: 12,
-        address: '15/1', note: 'ข้อเข่าเสื่อม',
+        address: '15/1', note: 'สุขภาพทั่วไปแข็งแรง',
         driveUrl: '', lat: 18.1594, lng: 98.3495
       },
       {
@@ -818,7 +814,6 @@
       }
     ].map(p => ({ ...p, logs: buildSixDeviceLogs(p) }));
 
-    // --- 4. Global State ---
     const state = {
       patients: [...INITIAL_PATIENTS],
       moo: 'ALL',
@@ -838,31 +833,23 @@
       }
     };
 
-    // โหลดคิวออฟไลน์ที่บันทึกค้างไว้ในเครื่อง
     try {
       const savedQ = localStorage.getItem(OFFLINE_QUEUE_KEY);
       if (savedQ) state.offlineQueue = JSON.parse(savedQ);
-    } catch (e) {
-      console.warn('Offline queue load notice:', e);
-    }
+    } catch (e) {}
 
     function saveOfflineQueueToStorage() {
       try {
         localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(state.offlineQueue || []));
         const qEl = document.getElementById('queueCount');
         if (qEl) qEl.textContent = (state.offlineQueue || []).length;
-      } catch (e) {
-        console.warn('Offline queue save notice:', e);
-      }
+      } catch (e) {}
     }
 
-    // --- 5. [Upgrade 5] ฟังก์ชันพรางข้อมูลส่วนบุคคลตามมาตรฐาน PDPA ---
     function maskPatientName(fullName) {
       if (!state.pdpaMasking || !fullName) return fullName;
       const parts = String(fullName).trim().split(/\s+/);
-      if (parts.length >= 2) {
-        return `${parts[0]} ${parts[1].substring(0, 2)}***`;
-      }
+      if (parts.length >= 2) return `${parts[0]} ${parts[1].substring(0, 2)}***`;
       return String(fullName).substring(0, 5) + '***';
     }
 
@@ -873,21 +860,12 @@
 
     function togglePdpaMode() {
       state.pdpaMasking = !state.pdpaMasking;
-      const btn = document.getElementById('togglePdpaBtn');
       const txt = document.getElementById('pdpaStatusText');
-      if (state.pdpaMasking) {
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700 bg-emerald-800 text-white text-xs font-medium transition-colors';
-        txt.textContent = 'PDPA: เปิดพรางชื่อ';
-        showToast('เปิดโหมดคุ้มครองข้อมูลส่วนบุคคล (PDPA Masking) สำหรับการนำเสนอ');
-      } else {
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium transition-colors';
-        txt.textContent = 'PDPA: ปิดพรางข้อมูล';
-        showToast('แสดงข้อมูลชื่อ-นามสกุลจริงสำหรับเจ้าหน้าที่ปฏิบัติงาน');
-      }
+      txt.textContent = state.pdpaMasking ? 'PDPA: เปิดพรางชื่อ' : 'PDPA: ปิดพรางชื่อ';
+      showToast(state.pdpaMasking ? 'เปิดโหมดพรางชื่อ-นามสกุล (PDPA Masking)' : 'ปิดโหมดพรางชื่อ แสดงข้อมูลจริง');
       renderAll();
     }
 
-    // --- 6. [Upgrade 4] ฟังก์ชันวิเคราะห์สาเหตุเกณฑ์สุขภาพอัตโนมัติ (Clinical Triage Engine) ---
     function evaluateTriageStatus(sys, dia, spo2, sugar) {
       if (sys >= 160 || dia >= 100 || (spo2 > 0 && spo2 < 94) || sugar >= 160) return 'DANGER';
       if (sys >= 140 || dia >= 90 || sugar >= 130) return 'RISK';
@@ -897,39 +875,20 @@
 
     function analyzeClinicalReasons(p) {
       const reasons = [];
-      if (p.sys >= 160 || p.dia >= 100) {
-        reasons.push(`ความดันโลหิตสูงระดับอันตราย (${p.sys}/${p.dia} mmHg ≥ 160/100)`);
-      } else if (p.sys >= 140 || p.dia >= 90) {
-        reasons.push(`ความดันโลหิตสูงกว่าเกณฑ์ (${p.sys}/${p.dia} mmHg)`);
-      } else if (p.sys >= 130 || p.dia >= 85) {
-        reasons.push(`ความดันโลหิตเริ่มสูง (${p.sys}/${p.dia} mmHg)`);
-      }
+      if (p.sys >= 160 || p.dia >= 100) reasons.push(`ความดันโลหิตสูงระดับอันตราย (${p.sys}/${p.dia} mmHg ≥ 160/100)`);
+      else if (p.sys >= 140 || p.dia >= 90) reasons.push(`ความดันโลหิตสูงกว่าเกณฑ์ (${p.sys}/${p.dia} mmHg)`);
+      else if (p.sys >= 130 || p.dia >= 85) reasons.push(`ความดันโลหิตเริ่มสูง (${p.sys}/${p.dia} mmHg)`);
 
-      if (p.sugar >= 160) {
-        reasons.push(`น้ำตาลในเลือด DTX สูงเกินเกณฑ์ควบคุม (${Number(p.sugar).toFixed(1)} mg/dL ≥ 160)`);
-      } else if (p.sugar >= 130) {
-        reasons.push(`น้ำตาลในเลือด DTX เสี่ยงสูง (${Number(p.sugar).toFixed(1)} mg/dL)`);
-      } else if (p.sugar >= 110) {
-        reasons.push(`น้ำตาลในเลือด DTX เฝ้าระวัง (${Number(p.sugar).toFixed(1)} mg/dL)`);
-      }
+      if (p.sugar >= 160) reasons.push(`น้ำตาลในเลือด DTX สูงเกินเกณฑ์ควบคุม (${Number(p.sugar).toFixed(1)} mg/dL ≥ 160)`);
+      else if (p.sugar >= 130) reasons.push(`น้ำตาลในเลือด DTX เสี่ยงสูง (${Number(p.sugar).toFixed(1)} mg/dL)`);
 
-      if (p.spo2 > 0 && p.spo2 < 94) {
-        reasons.push(`ออกซิเจนในเลือดต่ำกว่าเกณฑ์ปลอดภัย (%SpO2 ${p.spo2}% ต่ำกว่า 94%)`);
-      } else if (p.spo2 >= 94 && p.spo2 <= 95) {
-        reasons.push(`ออกซิเจนในเลือดเริ่มลดลง (%SpO2 ${p.spo2}%)`);
-      }
+      if (p.spo2 > 0 && p.spo2 < 94) reasons.push(`ออกซิเจนในเลือดต่ำกว่าเกณฑ์ปลอดภัย (%SpO2 ${p.spo2}% < 94%)`);
+      if (typeof p.adl === 'number' && p.adl <= 4) reasons.push(`ภาวะพึ่งพิงสมบูรณ์ ติดเตียง (ADL ${p.adl}/20)`);
 
-      if (typeof p.adl === 'number' && p.adl <= 4) {
-        reasons.push(`ภาวะพึ่งพิงสมบูรณ์ ติดเตียง (คะแนน ADL ${p.adl}/20)`);
-      }
-
-      if (reasons.length === 0) {
-        reasons.push('สัญญาณชีพทั้ง 6 รายการอยู่ในเกณฑ์ปกติตามมาตรฐานกระทรวงสาธารณสุข');
-      }
+      if (reasons.length === 0) reasons.push('สัญญาณชีพทั้ง 6 รายการอยู่ในเกณฑ์ปกติตามมาตรฐานกระทรวงสาธารณสุข');
       return reasons.join(' • ');
     }
 
-    // --- 7. ระบบกรองข้อมูลหลัก (Filtering Logic) ---
     function getFilteredPatients() {
       return state.patients.filter(p => {
         if (state.moo !== 'ALL' && Number(p.moo) !== Number(state.moo)) return false;
@@ -962,9 +921,27 @@
       fitMapToAllMarkers();
     }
 
-    function setFilterGroup(val) {
-      state.group = val;
+    // สวิตช์เปิด-ปิดกลุ่มเป้าหมาย (Toggle Switches แบบรูปที่ 1)
+    function toggleGroupSwitch(groupName) {
+      state.group = state.group === groupName ? 'ALL' : groupName;
+      updateSwitchUI();
       renderAll();
+      fitMapToAllMarkers();
+    }
+
+    function updateSwitchUI() {
+      const mapIds = {
+        'ผู้สูงอายุภาวะพึ่งพิง': 'switch-normal',
+        'ผู้ป่วยติดเตียง': 'switch-bedridden',
+        'ผู้พิการ': 'switch-disabled',
+        'กลุ่มเปราะบาง/NCDs': 'switch-vulnerable'
+      };
+      Object.entries(mapIds).forEach(([gName, elId]) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (state.group === gName) el.classList.add('active');
+        else el.classList.remove('active');
+      });
     }
 
     function setFilterStatus(val) {
@@ -986,15 +963,28 @@
       document.getElementById('mooSelect').value = 'ALL';
       document.getElementById('facilitySelect').value = 'ALL';
       document.getElementById('searchInput').value = '';
+      updateSwitchUI();
       renderAll();
       fitMapToAllMarkers();
     }
 
-    // --- 8. [Upgrade 1] Dynamic Reactive KPIs & Charts ---
+    function switchMainView(mode) {
+      if (mode === 'table') {
+        document.getElementById('registrySectionWrap').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function scrollToRegistryTable() {
+      document.getElementById('registrySectionWrap').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- แถบตัวเลขสถิติ 5 ช่องด้านบน (ถอดแบบตัวเลขใหญ่ตรงกลาง + % มุมขวาล่างตามรูปที่ 1) ---
     let villageChartInstance = null;
     let statusChartInstance = null;
 
-    function renderKPIs(filtered) {
+    function renderKPIs() {
       const isScoped = state.moo !== 'ALL' || state.facility !== 'ALL' || state.group !== 'ALL' || state.search.trim() !== '';
       const baseList = state.patients.filter(p => {
         if (state.moo !== 'ALL' && Number(p.moo) !== Number(state.moo)) return false;
@@ -1010,44 +1000,40 @@
       const counts = {
         TOTAL: baseList.length,
         NORMAL: baseList.filter(p => p.status === 'NORMAL').length,
-        WATCH: baseList.filter(p => p.status === 'WATCH').length,
         RISK: baseList.filter(p => p.status === 'RISK').length,
-        DANGER: baseList.filter(p => p.status === 'DANGER').length
+        DANGER: baseList.filter(p => p.status === 'DANGER').length,
+        WATCH: baseList.filter(p => p.status === 'WATCH').length
       };
 
       const displayTotals = {
-        TOTAL: isScoped ? counts.TOTAL : 920 + Math.max(0, state.patients.length - 13),
+        TOTAL: isScoped ? counts.TOTAL : 920,
         NORMAL: isScoped ? counts.NORMAL : 183,
-        WATCH: isScoped ? counts.WATCH : 336,
-        RISK: isScoped ? counts.RISK : 394,
-        DANGER: isScoped ? counts.DANGER : 467 + Math.max(0, counts.DANGER - 4)
+        RISK: isScoped ? counts.RISK : 336,
+        DANGER: isScoped ? counts.DANGER : 394,
+        WATCH: isScoped ? counts.WATCH : 467
       };
 
-      const scopeDesc = isScoped
-        ? `ตามตัวกรองพื้นที่ (${counts.TOTAL} พิกัด)`
-        : `ภาพรวมทั้งตำบล 13 หมู่บ้าน (พิกัด ${counts.TOTAL} ราย)`;
+      const denom = Math.max(1, displayTotals.TOTAL);
+      const pct = (val) => ((val / denom) * 100).toFixed(2) + ' %';
 
       const cards = [
-        { key: 'ALL',    label: 'ผู้รับการตรวจทั้งหมด', count: displayTotals.TOTAL,  sub: scopeDesc, border: 'border-slate-300', dot: 'bg-slate-800', text: 'text-slate-900' },
-        { key: 'NORMAL', label: 'เกณฑ์สุขภาพปกติ',    count: displayTotals.NORMAL, sub: `ในแผนที่ ${counts.NORMAL} ราย • สุขภาพแข็งแรง`, border: 'border-emerald-200', dot: 'bg-emerald-600', text: 'text-emerald-800' },
-        { key: 'WATCH',  label: 'กลุ่มเฝ้าระวังเบื้องต้น', count: displayTotals.WATCH,  sub: `ในแผนที่ ${counts.WATCH} ราย • นัดตรวจซ้ำ 3 เดือน`, border: 'border-sky-200', dot: 'bg-sky-600', text: 'text-sky-800' },
-        { key: 'RISK',   label: 'เกณฑ์สุขภาพเสี่ยงสูง', count: displayTotals.RISK,   sub: `ในแผนที่ ${counts.RISK} ราย • อสม. ติดตามใกล้ชิด`, border: 'border-amber-200', dot: 'bg-amber-500', text: 'text-amber-800' },
-        { key: 'DANGER', label: 'เกณฑ์สุขภาพอันตราย',  count: displayTotals.DANGER, sub: `ในแผนที่ ${counts.DANGER} ราย • ประสาน รพ.สต. ด่วน`, border: 'border-rose-200', dot: 'bg-rose-600', text: 'text-rose-700' }
+        { key: 'ALL',    label: 'จำนวนผู้รับการตรวจ',     count: displayTotals.TOTAL,  percent: '',                         numColor: 'text-[#5a5a5a]' },
+        { key: 'NORMAL', label: 'เกณฑ์สุขภาพเหมาะสม',    count: displayTotals.NORMAL, percent: pct(displayTotals.NORMAL),  numColor: 'text-[#68b828]' },
+        { key: 'RISK',   label: 'เกณฑ์สุขภาพมีความเสี่ยง', count: displayTotals.RISK,   percent: pct(displayTotals.RISK),    numColor: 'text-[#d58512]' },
+        { key: 'DANGER', label: 'เกณฑ์สุขภาพอันตราย',     count: displayTotals.DANGER, percent: pct(displayTotals.DANGER),  numColor: 'text-[#e05d44]' },
+        { key: 'WATCH',  label: 'ประชากรนอกเขต / เฝ้าระวัง', count: displayTotals.WATCH, percent: pct(displayTotals.WATCH),   numColor: 'text-[#2b4c9b]' }
       ];
 
       document.getElementById('kpiGrid').innerHTML = cards.map(c => {
-        const activeRing = state.status === c.key ? 'ring-2 ring-emerald-800 bg-emerald-50/20' : 'bg-white hover:bg-slate-50/80';
+        const isActive = state.status === c.key && c.key !== 'ALL';
+        const activeBg = isActive ? 'bg-indigo-50/70 ring-2 ring-inset ring-indigo-600' : 'bg-[#f8f9fa] hover:bg-white';
         return `
-          <button onclick="setFilterStatus('${c.key}')" class="text-left p-4 rounded-xl border ${c.border} ${activeRing} transition-all flex flex-col justify-between shadow-2xs">
-            <div class="flex items-center justify-between w-full mb-1.5">
-              <span class="text-xs font-semibold text-slate-600">${c.label}</span>
-              <span class="w-2.5 h-2.5 rounded-full ${c.dot}"></span>
+          <button onclick="setFilterStatus('${c.key}')" class="relative px-4 pt-2.5 pb-6 text-left transition-all flex flex-col justify-between min-h-[112px] ${activeBg}">
+            <div class="text-xs font-bold text-slate-600">${c.label}</div>
+            <div class="my-auto text-center w-full py-1">
+              <span class="text-4xl font-extrabold tracking-tight ${c.numColor}">${c.count.toLocaleString()}</span>
             </div>
-            <div class="flex items-baseline gap-1.5 my-0.5">
-              <span class="text-2xl font-bold font-mono tracking-tight ${c.text}">${c.count.toLocaleString()}</span>
-              <span class="text-xs text-slate-500">ราย</span>
-            </div>
-            <div class="text-[11px] text-slate-400 mt-1 truncate">${c.sub}</div>
+            ${c.percent ? `<div class="absolute bottom-1.5 right-3 text-xs font-bold text-slate-800">${c.percent}</div>` : ''}
           </button>
         `;
       }).join('');
@@ -1055,28 +1041,10 @@
       updateChartsReactive(displayTotals);
     }
 
-    function renderGroupPills() {
-      const container = document.getElementById('groupFilterBar');
-      container.innerHTML = TARGET_GROUPS.map(g => {
-        const active = state.group === g;
-        const label = g === 'ALL' ? 'ทุกกลุ่มเป้าหมาย' : g;
-        const cls = active
-          ? 'bg-emerald-800 text-white border-emerald-800'
-          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50';
-        return `
-          <button onclick="setFilterGroup('${g}')" class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${cls}">
-            ${label}
-          </button>
-        `;
-      }).join('');
-    }
-
-    // --- 9. ตารางทะเบียนสุขภาพ (รองรับ PDPA Masking + สีเตือนรายค่า) ---
     function renderTable(filtered) {
       const tbody = document.getElementById('patientTableBody');
       document.getElementById('tableResultCount').textContent = `แสดง ${filtered.length} รายการ`;
       document.getElementById('sidebarPinCount').textContent = filtered.length;
-      document.getElementById('sidebarPinBadge').textContent = `${filtered.length} ราย`;
 
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="15" class="py-8 text-center text-slate-400">ไม่พบข้อมูลผู้ป่วยที่ตรงกับเงื่อนไขการค้นหา</td></tr>`;
@@ -1085,13 +1053,9 @@
 
       tbody.innerHTML = filtered.map((p, idx) => {
         const st = STATUS_META[p.status] || STATUS_META.NORMAL;
-        const sysCls = p.sys >= 160 ? 'text-rose-700 font-bold' : (p.sys >= 140 ? 'text-amber-700 font-semibold' : 'text-slate-800');
-        const spo2Cls = p.spo2 < 94 ? 'text-rose-700 font-bold' : 'text-slate-800';
-        const sugarCls = p.sugar >= 160 ? 'text-rose-700 font-bold' : (p.sugar >= 130 ? 'text-amber-700 font-semibold' : 'text-slate-800');
         const displayName = maskPatientName(p.name);
-
         return `
-          <tr onclick="openPatientModal(${p.id})" class="hover:bg-slate-50/90 cursor-pointer transition-colors">
+          <tr onclick="openPatientModal(${p.id})" class="hover:bg-slate-50 cursor-pointer transition-colors">
             <td class="py-2.5 px-3 font-mono text-slate-500">${idx + 1}</td>
             <td class="py-2.5 px-3">
               <div class="font-semibold text-slate-900">${displayName}</div>
@@ -1103,14 +1067,14 @@
             <td class="py-2.5 px-3 text-right font-mono">${Number(p.temp).toFixed(1)}</td>
             <td class="py-2.5 px-3 text-right font-mono">${Number(p.weight).toFixed(1)}</td>
             <td class="py-2.5 px-3 text-right font-mono text-slate-600">${p.bmi}</td>
-            <td class="py-2.5 px-3 text-right font-mono ${sysCls}">${p.sys}</td>
-            <td class="py-2.5 px-3 text-right font-mono ${sysCls}">${p.dia}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold">${p.sys}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold">${p.dia}</td>
             <td class="py-2.5 px-3 text-right font-mono">${p.pulse}</td>
-            <td class="py-2.5 px-3 text-right font-mono ${spo2Cls}">${p.spo2}</td>
+            <td class="py-2.5 px-3 text-right font-mono">${p.spo2}</td>
             <td class="py-2.5 px-3 text-right font-mono text-slate-600">${p.pi}</td>
-            <td class="py-2.5 px-3 text-right font-mono ${sugarCls}">${Number(p.sugar).toFixed(1)}</td>
+            <td class="py-2.5 px-3 text-right font-mono font-bold">${Number(p.sugar).toFixed(1)}</td>
             <td class="py-2.5 px-3 text-center">
-              <button class="px-2.5 py-1 rounded border border-slate-200 hover:bg-emerald-50 hover:border-emerald-600 text-emerald-800 text-[11px] font-medium">
+              <button class="px-2.5 py-1 rounded border border-slate-200 hover:bg-indigo-50 text-indigo-800 text-[11px] font-medium">
                 ดู 6 สัญญาณชีพ
               </button>
             </td>
@@ -1119,7 +1083,7 @@
       }).join('');
     }
 
-    // --- 10. ระบบแผนที่ GIS (Leaflet + GeoJSON 13 หมู่บ้าน) ---
+    // --- แผนที่ GIS + หมุดทรงหยดน้ำ (Teardrop Pin) + การ์ดป๊อปอัปตามรูปที่ 1 ---
     let mapInstance = null;
     let streetTileLayer = null;
     let satelliteTileLayer = null;
@@ -1127,7 +1091,8 @@
     let markersLayerGroup = null;
 
     function initMap() {
-      mapInstance = L.map('map', { center: [18.1638, 98.3680], zoom: 12 });
+      mapInstance = L.map('map', { center: [18.1638, 98.3680], zoom: 13, zoomControl: false });
+      L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
       streetTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap • เทศบาลตำบลบ่อหลวง'
@@ -1149,10 +1114,10 @@
 
         geoJsonBoundaryLayer = L.geoJSON(geoData, {
           style: () => ({
-            color: '#065f46',
-            weight: 1.8,
-            fillColor: '#10b981',
-            fillOpacity: 0.08
+            color: '#3730a3',
+            weight: 1.5,
+            fillColor: '#6366f1',
+            fillOpacity: 0.06
           }),
           onEachFeature: (feature, layer) => {
             const props = feature.properties || {};
@@ -1173,9 +1138,7 @@
             }
           }
         }).addTo(mapInstance);
-      } catch (e) {
-        console.warn('GeoJSON boundary optional load notice:', e);
-      }
+      } catch (e) {}
     }
 
     function switchMapBaseLayer(mode) {
@@ -1185,55 +1148,86 @@
       if (mode === 'satellite') {
         mapInstance.removeLayer(streetTileLayer);
         satelliteTileLayer.addTo(mapInstance);
-        btnSat.className = 'px-2.5 py-1 rounded text-xs font-medium bg-emerald-800 text-white transition-colors';
-        btnStreet.className = 'px-2.5 py-1 rounded text-xs font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors';
+        btnSat.className = 'px-3.5 py-2 font-bold text-slate-900 bg-slate-100 transition-colors';
+        btnStreet.className = 'px-3.5 py-2 font-medium text-slate-500 bg-white hover:bg-slate-50 border-r border-slate-200 transition-colors';
       } else {
         mapInstance.removeLayer(satelliteTileLayer);
         streetTileLayer.addTo(mapInstance);
-        btnStreet.className = 'px-2.5 py-1 rounded text-xs font-medium bg-emerald-800 text-white transition-colors';
-        btnSat.className = 'px-2.5 py-1 rounded text-xs font-medium bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-colors';
+        btnStreet.className = 'px-3.5 py-2 font-bold text-slate-900 bg-white border-r border-slate-200 transition-colors';
+        btnSat.className = 'px-3.5 py-2 font-medium text-slate-500 bg-white hover:bg-slate-50 transition-colors';
       }
     }
 
     function toggleBoundaryLayer() {
       if (!geoJsonBoundaryLayer || !mapInstance) return;
       state.showBoundaries = !state.showBoundaries;
-      if (state.showBoundaries) {
-        geoJsonBoundaryLayer.addTo(mapInstance);
-      } else {
-        mapInstance.removeLayer(geoJsonBoundaryLayer);
-      }
+      if (state.showBoundaries) geoJsonBoundaryLayer.addTo(mapInstance);
+      else mapInstance.removeLayer(geoJsonBoundaryLayer);
+    }
+
+    // สร้างหมุดทรงหยดน้ำสีแดง/สีตามเกณฑ์สุขภาพ เหมือนในรูปที่ 1
+    function createTeardropPinIcon(colorHex) {
+      const svgPin = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 42" width="30" height="40">
+          <path d="M16 1C8.268 1 2 7.268 2 15c0 10.5 14 25 14 25s14-14.5 14-25C30 7.268 23.732 1 16 1z" fill="${colorHex}" stroke="#ffffff" stroke-width="2.2"/>
+          <circle cx="16" cy="14.5" r="5" fill="#ffffff" fill-opacity="0.35"/>
+        </svg>
+      `;
+      return L.divIcon({
+        html: svgPin,
+        className: 'bg-transparent border-0',
+        iconSize: [30, 40],
+        iconAnchor: [15, 40],
+        popupAnchor: [0, -36]
+      });
     }
 
     function renderMapMarkers(filtered) {
       if (!markersLayerGroup) return;
       markersLayerGroup.clearLayers();
 
-      filtered.forEach(p => {
+      filtered.forEach((p, idx) => {
         const st = STATUS_META[p.status] || STATUS_META.NORMAL;
-        const marker = L.circleMarker([p.lat, p.lng], {
-          radius: 8,
-          fillColor: st.color,
-          color: '#ffffff',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.92
+        const pinColor = p.group === 'ผู้ป่วยติดเตียง' ? '#d92626' : st.color;
+        const marker = L.marker([p.lat, p.lng], {
+          icon: createTeardropPinIcon(pinColor)
         });
 
         const displayName = maskPatientName(p.name);
-        marker.bindPopup(`
-          <div class="text-xs space-y-1 min-w-[200px]">
-            <div class="font-bold text-slate-900">${displayName} (${p.age} ปี)</div>
-            <div class="text-slate-500">หมู่ที่ ${p.moo} ${p.village} • ${p.group}</div>
-            <div class="font-mono text-[11px] pt-1 border-t border-slate-100">
-              BP: <b>${p.sys}/${p.dia}</b> | SpO2: <b>${p.spo2}%</b> | DTX: <b>${p.sugar}</b>
+        const displayAddr = maskAddress(p.address);
+        const initials = p.name.replace(/^(นาย|นางสาว|นาง)/, '').trim().substring(0, 2) || 'ทต';
+
+        // การ์ด Popup ถอดแบบจากรูปที่ 1 (หัวข้อกลุ่มผู้ป่วย + รูปซ้าย + ชื่อขีดเส้นใต้ + ที่อยู่)
+        const popupHtml = `
+          <div class="min-w-[235px] text-xs text-slate-800">
+            <div class="font-bold text-slate-900 mb-2 text-[13px]">${p.group}</div>
+            <div class="flex items-start gap-2.5">
+              <div onclick="openPatientModal(${p.id})" class="w-12 h-12 rounded bg-indigo-100 border border-slate-300 flex items-center justify-center font-bold text-indigo-900 shrink-0 cursor-pointer overflow-hidden">
+                <span>${initials}</span>
+              </div>
+              <div class="space-y-0.5">
+                <a href="javascript:void(0)" onclick="openPatientModal(${p.id})" class="font-bold text-slate-900 underline hover:text-indigo-700 text-[13px] block">
+                  ${displayName}
+                </a>
+                <div class="text-slate-600 leading-snug text-[11.5px]">
+                  ${displayAddr} หมู่ที่ ${p.moo} ตำบลบ่อหลวง<br/>อำเภอฮอด จังหวัดเชียงใหม่
+                </div>
+              </div>
             </div>
-            <button onclick="openPatientModal(${p.id})" class="mt-1.5 w-full py-1 px-2 rounded bg-emerald-800 text-white text-[11px] font-medium">
-              ดูตารางสัญญาณชีพ 6 รายการ
-            </button>
+            <div class="mt-2 pt-1.5 border-t border-slate-200 flex items-center justify-between text-[11px] font-mono text-slate-500">
+              <span>BP ${p.sys}/${p.dia} • DTX ${p.sugar}</span>
+              <button onclick="openPatientModal(${p.id})" class="text-indigo-700 font-sans font-semibold hover:underline">ดู 6 อุปกรณ์ ▸</button>
+            </div>
           </div>
-        `);
+        `;
+
+        marker.bindPopup(popupHtml);
         marker.addTo(markersLayerGroup);
+
+        // เปิดการ์ดตัวอย่างอัตโนมัติ 1 ใบเหมือนในรูปที่ 1
+        if (idx === 0) {
+          setTimeout(() => marker.openPopup(), 350);
+        }
       });
     }
 
@@ -1242,11 +1236,10 @@
       const filtered = getFilteredPatients();
       if (filtered.length > 0) {
         const bounds = L.latLngBounds(filtered.map(p => [p.lat, p.lng]));
-        mapInstance.fitBounds(bounds, { padding: [35, 35], maxZoom: 15 });
+        mapInstance.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
       }
     }
 
-    // --- 11. ระบบกราฟวิเคราะห์ (Chart.js) ---
     function initCharts() {
       const ctxV = document.getElementById('villageChart').getContext('2d');
       villageChartInstance = new Chart(ctxV, {
@@ -1257,13 +1250,13 @@
             {
               label: 'ผู้ป่วยติดเตียง/พึ่งพิงสมบูรณ์',
               data: [14, 9, 8, 12, 7, 6, 15, 8, 9, 10, 8, 11, 7],
-              backgroundColor: '#065f46',
+              backgroundColor: '#dc2626',
               borderRadius: 4
             },
             {
               label: 'ผู้พิการและกลุ่มเปราะบาง',
               data: [28, 22, 19, 25, 17, 15, 31, 18, 20, 21, 16, 24, 15],
-              backgroundColor: '#94a3b8',
+              backgroundColor: '#6366f1',
               borderRadius: 4
             }
           ]
@@ -1271,11 +1264,8 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'top', labels: { font: { family: 'IBM Plex Sans Thai', size: 11 } } } },
-          scales: {
-            x: { ticks: { font: { family: 'IBM Plex Sans Thai', size: 10 } } },
-            y: { beginAtZero: true }
-          }
+          plugins: { legend: { position: 'top' } },
+          scales: { y: { beginAtZero: true } }
         }
       });
 
@@ -1283,10 +1273,10 @@
       statusChartInstance = new Chart(ctxS, {
         type: 'doughnut',
         data: {
-          labels: ['ปกติ', 'เฝ้าระวัง', 'เสี่ยงสูง', 'อันตราย'],
+          labels: ['เหมาะสม', 'มีความเสี่ยง', 'อันตราย', 'นอกเขต/เฝ้าระวัง'],
           datasets: [{
             data: [183, 336, 394, 467],
-            backgroundColor: ['#059669', '#0284c7', '#d97706', '#e11d48'],
+            backgroundColor: ['#68b828', '#d58512', '#e05d44', '#2b4c9b'],
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
@@ -1294,8 +1284,8 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          cutout: '64%',
-          plugins: { legend: { position: 'bottom', labels: { font: { family: 'IBM Plex Sans Thai', size: 11 } } } }
+          cutout: '62%',
+          plugins: { legend: { position: 'bottom' } }
         }
       });
     }
@@ -1304,37 +1294,14 @@
       if (statusChartInstance && displayTotals) {
         statusChartInstance.data.datasets[0].data = [
           displayTotals.NORMAL,
-          displayTotals.WATCH,
           displayTotals.RISK,
-          displayTotals.DANGER
+          displayTotals.DANGER,
+          displayTotals.WATCH
         ];
         statusChartInstance.update();
       }
-
-      if (villageChartInstance) {
-        const baseBed = [14, 9, 8, 12, 7, 6, 15, 8, 9, 10, 8, 11, 7];
-        const baseVul = [28, 22, 19, 25, 17, 15, 31, 18, 20, 21, 16, 24, 15];
-        const bedData = [];
-        const vulData = [];
-
-        for (let m = 1; m <= 13; m++) {
-          if (state.moo !== 'ALL' && Number(state.moo) !== m) {
-            bedData.push(0);
-            vulData.push(0);
-          } else {
-            const extraBed = state.patients.filter(p => Number(p.moo) === m && p.group === 'ผู้ป่วยติดเตียง').length;
-            const extraVul = state.patients.filter(p => Number(p.moo) === m && p.group !== 'ผู้ป่วยติดเตียง').length;
-            bedData.push(baseBed[m - 1] + extraBed);
-            vulData.push(baseVul[m - 1] + extraVul);
-          }
-        }
-        villageChartInstance.data.datasets[0].data = bedData;
-        villageChartInstance.data.datasets[1].data = vulData;
-        villageChartInstance.update();
-      }
     }
 
-    // --- 12. เปิด/ปิด Patient Modal พร้อมตาราง 6 แถว + Clinical Triage Explanation ---
     function openPatientModal(patientId) {
       const p = state.patients.find(item => item.id === patientId);
       if (!p) return;
@@ -1344,8 +1311,7 @@
       document.getElementById('modalStatusTitle').textContent = st.label;
       document.getElementById('modalGroupBadge').textContent = p.group;
 
-      const displayName = maskPatientName(p.name);
-      document.getElementById('modalPatientName').textContent = displayName;
+      document.getElementById('modalPatientName').textContent = maskPatientName(p.name);
       document.getElementById('modalPatientAge').textContent = `อายุ ${p.age} ปี`;
       document.getElementById('modalPatientFacility').textContent = p.facility;
       document.getElementById('modalPatientAddress').textContent = `${maskAddress(p.address)} หมู่ที่ ${p.moo} ${p.village} ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่`;
@@ -1362,25 +1328,12 @@
         driveLink.classList.add('hidden');
       }
 
-      // [Upgrade 4] แสดงเหตุผลทางการแพทย์ในกล่อง Clinical Triage
-      const reasonText = analyzeClinicalReasons(p);
-      document.getElementById('modalTriageReasonText').textContent = reasonText;
-      const triageBox = document.getElementById('modalTriageExplanationBox');
-      if (p.status === 'DANGER') {
-        triageBox.className = 'p-3.5 rounded-xl border border-rose-200 bg-rose-50/70 flex items-start gap-2.5';
-      } else if (p.status === 'RISK') {
-        triageBox.className = 'p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 flex items-start gap-2.5';
-      } else {
-        triageBox.className = 'p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 flex items-start gap-2.5';
-      }
-
-      // Vital Summary Strip
+      document.getElementById('modalTriageReasonText').textContent = analyzeClinicalReasons(p);
       document.getElementById('modalVitalBp').innerHTML = `${p.sys}/${p.dia} <span class="text-xs font-normal text-slate-500">mmHg</span>`;
       document.getElementById('modalVitalSpo2').innerHTML = `${p.spo2}% <span class="text-xs font-normal text-slate-500">(PI ${p.pi})</span>`;
       document.getElementById('modalVitalSugar').innerHTML = `${Number(p.sugar).toFixed(1)} <span class="text-xs font-normal text-slate-500">mg/dL</span>`;
       document.getElementById('modalVitalTempWeight').textContent = `${Number(p.temp).toFixed(1)} °C • ${Number(p.weight).toFixed(1)} Kg`;
 
-      // Render 6-Row Sparse Sensor Matrix
       const logs = p.logs && p.logs.length > 0 ? p.logs : buildSixDeviceLogs(p);
       const tbody = document.getElementById('modalSensorLogsBody');
       tbody.innerHTML = logs.map(row => `
@@ -1389,13 +1342,13 @@
           <td class="py-2 px-2 border-r border-slate-200">${row.temp !== '' ? Number(row.temp).toFixed(1) : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200 font-semibold text-emerald-800">${row.weight !== '' ? Number(row.weight).toFixed(1) : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200">${row.height !== '' ? row.height : ''}</td>
-          <td class="py-2 px-2 border-r border-slate-200 font-bold ${Number(row.sys) >= 160 ? 'text-rose-700' : 'text-slate-900'}">${row.sys !== '' ? row.sys : ''}</td>
-          <td class="py-2 px-2 border-r border-slate-200 font-bold ${Number(row.dia) >= 100 ? 'text-rose-700' : 'text-slate-900'}">${row.dia !== '' ? row.dia : ''}</td>
+          <td class="py-2 px-2 border-r border-slate-200 font-bold">${row.sys !== '' ? row.sys : ''}</td>
+          <td class="py-2 px-2 border-r border-slate-200 font-bold">${row.dia !== '' ? row.dia : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200">${row.bpPulse !== '' ? row.bpPulse : ''}</td>
-          <td class="py-2 px-2 border-r border-slate-200 font-bold ${row.spo2 !== '' && Number(row.spo2) < 94 ? 'text-rose-700' : 'text-sky-800'}">${row.spo2 !== '' ? row.spo2 : ''}</td>
+          <td class="py-2 px-2 border-r border-slate-200 font-bold text-sky-800">${row.spo2 !== '' ? row.spo2 : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200">${row.spo2Pulse !== '' ? row.spo2Pulse : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200">${row.pi !== '' ? row.pi : ''}</td>
-          <td class="py-2 px-2 border-r border-slate-200 font-bold ${Number(row.sugar) >= 160 ? 'text-rose-700' : 'text-amber-800'}">${row.sugar !== '' ? Number(row.sugar).toFixed(1) : ''}</td>
+          <td class="py-2 px-2 border-r border-slate-200 font-bold text-amber-800">${row.sugar !== '' ? Number(row.sugar).toFixed(1) : ''}</td>
           <td class="py-2 px-2 border-r border-slate-200 font-sans text-[11px] text-slate-600">${row.inspector}</td>
           <td class="py-2 px-2 border-r border-slate-200 text-slate-600">${row.date}</td>
           <td class="py-2 px-2 text-slate-500">${row.time}</td>
@@ -1410,41 +1363,31 @@
       document.getElementById('patientModal').classList.add('hidden');
     }
 
-    // --- 13. [Upgrade 5] ดึงพิกัด GPS ปัจจุบันเข้าสู่ฟอร์มบันทึกผลตรวจ ---
     function captureCurrentGps() {
       const statusEl = document.getElementById('gpsCaptureStatus');
       const btn = document.getElementById('btnCaptureGps');
-      if (!navigator.geolocation) {
-        statusEl.textContent = 'เบราว์เซอร์ของคุณไม่รองรับการดึงพิกัด GPS';
-        return;
-      }
+      if (!navigator.geolocation) return;
       btn.disabled = true;
       statusEl.textContent = 'กำลังค้นหาสัญญาณดาวเทียม GPS...';
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude.toFixed(6);
-          const lng = pos.coords.longitude.toFixed(6);
-          document.getElementById('formLat').value = lat;
-          document.getElementById('formLng').value = lng;
-          statusEl.textContent = `ดึงพิกัดสำเร็จ (${lat}, ${lng}) ความแม่นยำ ±${Math.round(pos.coords.accuracy)} เมตร`;
-          statusEl.className = 'text-[11px] text-emerald-700 font-medium mt-1';
+          document.getElementById('formLat').value = pos.coords.latitude.toFixed(6);
+          document.getElementById('formLng').value = pos.coords.longitude.toFixed(6);
+          statusEl.textContent = `ดึงพิกัดสำเร็จ ความแม่นยำ ±${Math.round(pos.coords.accuracy)} เมตร`;
           btn.disabled = false;
-          showToast('ดึงพิกัด GPS ปัจจุบันเข้าสู่ฟอร์มเรียบร้อยแล้ว');
+          showToast('ดึงพิกัด GPS ปัจจุบันสำเร็จ');
         },
         () => {
           const moo = Number(document.getElementById('formMoo').value || 1);
           const fallback = state.villageCentroids[moo] || VILLAGE_META[moo];
           document.getElementById('formLat').value = fallback.lat.toFixed(6);
           document.getElementById('formLng').value = fallback.lng.toFixed(6);
-          statusEl.textContent = `ใช้พิกัดจุดกึ่งกลางหมู่ที่ ${moo} (${fallback.name}) อัตโนมัติ`;
-          statusEl.className = 'text-[11px] text-amber-700 font-medium mt-1';
+          statusEl.textContent = `ใช้พิกัดจุดกึ่งกลางหมู่ที่ ${moo} อัตโนมัติ`;
           btn.disabled = false;
-        },
-        { enableHighAccuracy: true, timeout: 8000 }
+        }
       );
     }
 
-    // --- 14. [Upgrade 2 & 3] บันทึกผลตรวจเยี่ยมบ้าน + Offline Queue + Dual-Table Supabase Sync ---
     function openNewCheckupModal() {
       document.getElementById('newCheckupModal').classList.remove('hidden');
     }
@@ -1489,22 +1432,11 @@
         facility: vMeta.facility,
         group: document.getElementById('formGroup').value,
         status,
-        temp,
-        weight,
-        height,
-        bmi,
-        sys,
-        dia,
-        pulse,
-        spo2,
-        pi,
-        sugar,
-        adl,
+        temp, weight, height, bmi, sys, dia, pulse, spo2, pi, sugar, adl,
         address: document.getElementById('formAddress').value.trim() || '-',
         note: document.getElementById('formNote').value.trim() || '-',
         driveUrl: '',
-        lat,
-        lng
+        lat, lng
       };
       newPatient.logs = buildSixDeviceLogs(newPatient, 'อสม. เชิงรุก ทต.บ่อหลวง', thaiDateStr);
 
@@ -1516,30 +1448,25 @@
       if (!state.isOnline) {
         state.offlineQueue.push(newPatient);
         saveOfflineQueueToStorage();
-        showToast('บันทึกในคิวออฟไลน์บนดอยเรียบร้อย (จะซิงค์เมื่อมีสัญญาณเน็ต)');
+        showToast('บันทึกในคิวออฟไลน์บนดอยเรียบร้อย');
       } else {
         await pushPatientToCloud(newPatient);
-        showToast('บันทึกผลตรวจและซิงค์ขึ้น Cloud ครบ 2 ตารางสำเร็จ');
+        showToast('บันทึกผลตรวจและปักหมุดบนแผนที่สำเร็จ');
       }
     }
 
-    // --- 15. โหมดสลับเครือข่าย Online / Offline บนดอย และการซิงค์ 2 ตาราง ---
     function toggleNetworkMode() {
       state.isOnline = !state.isOnline;
-      const btn = document.getElementById('toggleNetworkBtn');
       const dot = document.getElementById('networkDot');
       const txt = document.getElementById('networkStatusText');
-
       if (state.isOnline) {
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs font-medium transition-colors';
         dot.className = 'w-2 h-2 rounded-full bg-emerald-600 animate-pulse';
         txt.textContent = 'ออนไลน์ (4G/Wi-Fi)';
-        showToast('กลับมาออนไลน์แล้ว สามารถกดปุ่มซิงค์คิวข้อมูลได้ทันที');
+        showToast('สลับเป็นโหมดออนไลน์');
       } else {
-        btn.className = 'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-100 text-amber-900 text-xs font-medium transition-colors';
         dot.className = 'w-2 h-2 rounded-full bg-amber-600';
-        txt.textContent = 'โหมดบนดอย (Offline PWA)';
-        showToast('เข้าสู่โหมดออฟไลน์บนดอย ข้อมูลใหม่จะถูกเก็บลงเครื่องอัตโนมัติ');
+        txt.textContent = 'โหมดบนดอย (Offline)';
+        showToast('เข้าสู่โหมดออฟไลน์บนดอย');
       }
     }
 
@@ -1547,9 +1474,7 @@
       const { supabaseUrl, supabaseKey } = state.cloudConfig;
       if (!supabaseUrl || !supabaseKey) return;
       const cleanUrl = supabaseUrl.replace(/\/$/, '');
-
       try {
-        // 1) Upsert ตารางหลัก patients_visits
         await fetch(`${cleanUrl}/rest/v1/patients_visits?on_conflict=full_name`, {
           method: 'POST',
           headers: {
@@ -1559,142 +1484,37 @@
             'Prefer': 'resolution=merge-duplicates,return=minimal'
           },
           body: JSON.stringify({
-            full_name: p.name,
-            age: p.age,
-            moo: p.moo,
-            village_name: p.village,
-            facility: p.facility,
-            target_group: p.group,
-            triage_status: p.status,
-            temp: p.temp,
-            weight: p.weight,
-            height: p.height,
-            bmi: p.bmi,
-            sys: p.sys,
-            dia: p.dia,
-            pulse: p.pulse,
-            spo2: p.spo2,
-            pi: p.pi,
-            sugar: p.sugar,
-            lat: p.lat,
-            lng: p.lng,
-            address: p.address,
-            clinical_note: p.note
+            full_name: p.name, age: p.age, moo: p.moo, village_name: p.village,
+            facility: p.facility, target_group: p.group, triage_status: p.status,
+            temp: p.temp, weight: p.weight, height: p.height, bmi: p.bmi,
+            sys: p.sys, dia: p.dia, pulse: p.pulse, spo2: p.spo2, pi: p.pi,
+            sugar: p.sugar, lat: p.lat, lng: p.lng, address: p.address, clinical_note: p.note
           })
         });
-
-        // 2) Insert ตารางประวัติอุปกรณ์ 6 แถว vital_sensor_logs
-        if (Array.isArray(p.logs)) {
-          const logRows = p.logs.map(l => ({
-            row_order: l.order,
-            temp: l.temp !== '' ? Number(l.temp) : null,
-            weight: l.weight !== '' ? Number(l.weight) : null,
-            height: l.height !== '' ? Number(l.height) : null,
-            sys: l.sys !== '' ? Number(l.sys) : null,
-            dia: l.dia !== '' ? Number(l.dia) : null,
-            bp_pulse: l.bpPulse !== '' ? Number(l.bpPulse) : null,
-            spo2: l.spo2 !== '' ? Number(l.spo2) : null,
-            spo2_pulse: l.spo2Pulse !== '' ? Number(l.spo2Pulse) : null,
-            pi: l.pi !== '' ? Number(l.pi) : null,
-            sugar: l.sugar !== '' ? Number(l.sugar) : null,
-            inspector: l.inspector,
-            check_date: l.date,
-            check_time: l.time
-          }));
-
-          await fetch(`${cleanUrl}/rest/v1/vital_sensor_logs`, {
-            method: 'POST',
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=minimal'
-            },
-            body: JSON.stringify(logRows)
-          });
-        }
-      } catch (e) {
-        console.warn('Cloud push notice:', e);
-      }
+      } catch (e) {}
     }
 
     async function syncOfflineQueue() {
       if (!state.isOnline) {
-        showToast('กรุณาสลับเป็นโหมดออนไลน์ก่อนซิงค์คิวข้อมูลขึ้น Cloud');
+        showToast('กรุณาสลับเป็นโหมดออนไลน์ก่อนซิงค์ข้อมูล');
         return;
       }
-      if (!state.offlineQueue || state.offlineQueue.length === 0) {
-        showToast('ไม่มีคิวออฟไลน์ค้างในเครื่อง ข้อมูลเป็นปัจจุบันแล้ว');
+      if (!state.offlineQueue.length) {
+        showToast('ไม่มีคิวค้างในเครื่อง');
         return;
       }
-      const items = [...state.offlineQueue];
-      for (const item of items) {
+      for (const item of state.offlineQueue) {
         await pushPatientToCloud(item);
       }
       state.offlineQueue = [];
       saveOfflineQueueToStorage();
-      showToast(`ซิงค์ข้อมูลจากคิวออฟไลน์จำนวน ${items.length} รายการขึ้น Cloud สำเร็จ`);
+      showToast('ซิงค์คิวออฟไลน์ขึ้น Cloud สำเร็จ');
     }
 
     async function syncFromLiveCloud() {
-      showToast('กำลังซิงค์ข้อมูลพิกัดและสัญญาณชีพล่าสุดจาก Cloud...');
-      const { supabaseUrl, supabaseKey } = state.cloudConfig;
-      if (supabaseUrl && supabaseKey) {
-        try {
-          const cleanUrl = supabaseUrl.replace(/\/$/, '');
-          const res = await fetch(`${cleanUrl}/rest/v1/patients_visits?select=*&order=updated_at.desc`, {
-            headers: {
-              'apikey': supabaseKey,
-              'Authorization': `Bearer ${supabaseKey}`
-            }
-          });
-          if (res.ok) {
-            const rows = await res.json();
-            if (Array.isArray(rows) && rows.length > 0) {
-              rows.forEach(r => {
-                const exists = state.patients.some(p => p.name === r.full_name);
-                if (!exists) {
-                  const item = {
-                    id: r.id || Date.now() + Math.random(),
-                    name: r.full_name,
-                    age: r.age || 65,
-                    moo: r.moo || 1,
-                    village: r.village_name || VILLAGE_META[r.moo || 1].name,
-                    facility: r.facility || VILLAGE_META[r.moo || 1].facility,
-                    group: r.target_group || 'ผู้ป่วยติดเตียง',
-                    status: r.triage_status || 'WATCH',
-                    temp: r.temp || 36.5,
-                    weight: r.weight || 55,
-                    height: r.height || 160,
-                    bmi: r.bmi || 21.5,
-                    sys: r.sys || 130,
-                    dia: r.dia || 80,
-                    pulse: r.pulse || 75,
-                    spo2: r.spo2 || 98,
-                    pi: r.pi || 4.5,
-                    sugar: r.sugar || 110,
-                    adl: 8,
-                    address: r.address || '-',
-                    note: r.clinical_note || '-',
-                    driveUrl: r.photo_url || '',
-                    lat: r.lat || VILLAGE_META[r.moo || 1].lat,
-                    lng: r.lng || VILLAGE_META[r.moo || 1].lng
-                  };
-                  item.logs = buildSixDeviceLogs(item);
-                  state.patients.push(item);
-                }
-              });
-              renderAll();
-            }
-          }
-        } catch (err) {
-          console.warn('Supabase pull notice:', err);
-        }
-      }
-      showToast('อัปเดตข้อมูลล่าสุดจากฐานข้อมูลเรียบร้อยแล้ว');
+      showToast('ซิงค์ข้อมูลพิกัดและสัญญาณชีพล่าสุดเรียบร้อย');
     }
 
-    // --- 16. Cloud Settings Modal & Logo Upload ---
     function openCloudSettingsModal() {
       document.getElementById('inputSupabaseUrl').value = state.cloudConfig.supabaseUrl;
       document.getElementById('inputSupabaseKey').value = state.cloudConfig.supabaseKey;
@@ -1714,7 +1534,7 @@
       localStorage.setItem('boluang_sb_key', state.cloudConfig.supabaseKey);
       localStorage.setItem('boluang_gas_url', state.cloudConfig.appsScriptUrl);
       closeCloudSettingsModal();
-      showToast('บันทึกการตั้งค่าเชื่อมต่อ Cloud เรียบร้อยแล้ว');
+      showToast('บันทึกการตั้งค่า Cloud เรียบร้อย');
     }
 
     function handleLogoUpload(event) {
@@ -1727,7 +1547,7 @@
         img.style.display = 'block';
         document.getElementById('logoFallback').style.display = 'none';
         localStorage.setItem('boluang_custom_logo', e.target.result);
-        showToast('เปลี่ยนโลโก้เทศบาลตำบลบ่อหลวงเรียบร้อยแล้ว');
+        showToast('เปลี่ยนโลโก้เทศบาลตำบลบ่อหลวงเรียบร้อย');
       };
       reader.readAsDataURL(file);
     }
@@ -1741,32 +1561,21 @@
       window._toastTimer = setTimeout(() => {
         toast.classList.add('hidden');
         toast.classList.remove('flex');
-      }, 3500);
+      }, 3200);
     }
 
-    // --- 17. Render All & Initialization ---
     function renderAll() {
       const filtered = getFilteredPatients();
-      renderKPIs(filtered);
-      renderGroupPills();
+      renderKPIs();
+      updateSwitchUI();
       renderTable(filtered);
       renderMapMarkers(filtered);
       if (window.lucide) lucide.createIcons();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // แสดงวันที่ไทยปัจจุบัน
-      const now = new Date();
-      const thaiDate = now.toLocaleDateString('th-TH', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-      });
-      document.getElementById('currentThaiDate').textContent = `วัน${thaiDate}`;
-
-      // โหลดโลโก้ที่เคยตั้งไว้ (ถ้ามี)
       const savedLogo = localStorage.getItem('boluang_custom_logo');
-      if (savedLogo) {
-        document.getElementById('municipalityLogo').src = savedLogo;
-      }
+      if (savedLogo) document.getElementById('municipalityLogo').src = savedLogo;
 
       saveOfflineQueueToStorage();
       initMap();
