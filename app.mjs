@@ -1,3 +1,4 @@
+import {syncStatus} from './lib/telehealth-status.mjs';
 import {groupIsVisible,toggleGroup,patientMapLinks} from './lib/admin-view.mjs';
 import {renderBlueprint} from './lib/blueprint.mjs';
 import {assess, summarize, inBoundary, validCoordinates, thaiTime, validateCheckup} from './lib/health-model.mjs';
@@ -5,7 +6,7 @@ import {toLegacyPatient, toRawPatient, escapeHtml, formatNumber, csvCell} from '
 const patientsData = [];
 let boundaryData = null, cloudSession = null, syncedAt = null, loadingPromise = null;
 let privacyEnabled = true;
-const dataEvidence={phase:'loading',boundary:'loading',authorized:false,masking:true};
+const dataEvidence={source:null,linkage:null,phase:'loading',boundary:'loading',authorized:false,masking:true};
 function refreshBlueprint(){dataEvidence.counts=summarize(getFilteredPatients().map(toRawPatient),boundaryData);dataEvidence.masking=privacyEnabled;dataEvidence.authorized=Boolean(cloudSession);renderBlueprint(document,dataEvidence);}
 function displayPatient(p) { return privacyEnabled ? {...p,name:`ผู้รับบริการ ${String(p.id).slice(0,8)}`,address:'ปกปิดที่อยู่',photoUrl:'',driveUrl:''} : p; }
 async function requestApi(path, options={}) {
@@ -305,6 +306,17 @@ async function requestApi(path, options={}) {
     // ============================================================================
     // 4. RENDER FUNCTIONS (KPIs, Toggles, Map Markers, Tactical SVG, Summary Table)
     // ============================================================================
+    function renderSyncStatus(){
+      let panel=document.getElementById('telehealthSyncStatus');
+      if(!panel){panel=document.createElement('p');panel.id='telehealthSyncStatus';panel.className='px-4 py-2 text-xs text-slate-600 bg-white border-b border-slate-200';panel.setAttribute('role','status');panel.setAttribute('aria-live','polite');document.querySelector('main').prepend(panel);}
+      const summary=summarize(patientsData.map(toRawPatient),boundaryData);
+      panel.textContent=syncStatus({phase:dataEvidence.phase,source:dataEvidence.source,syncedAt,total:patientsData.length,visible:getFilteredPatients().length,unknown:summary.UNKNOWN,unclassified:patientsData.filter(p=>p.group==='ไม่ระบุ').length,linkage:dataEvidence.linkage});
+    }
+    function populateSourceUnits(){
+      const select=document.getElementById('WaitUnitSelect');select.replaceChildren();
+      for(const unit of ['ALL',...new Set(patientsData.map(p=>p.careUnit))]){const option=document.createElement('option');option.value=unit;option.textContent=unit==='ALL'?'ทุกหน่วยบริการ':unit;select.appendChild(option);}
+      if(!Array.from(select.options).some(o=>o.value===appState.careUnitFilter))appState.careUnitFilter='ALL';select.value=appState.careUnitFilter;
+    }
     function renderKPIs() {
       const summary=summarize(getFilteredPatients().map(toRawPatient),boundaryData);
       appState.baseTotals={total:summary.total,normal:summary.NORMAL,risk:summary.RISK,danger:summary.DANGER,outArea:summary.outside,unknown:summary.UNKNOWN};
@@ -559,12 +571,12 @@ async function requestApi(path, options={}) {
       const riskTitle = document.getElementById('modalRiskTitle');
 
       headerBanner.className = 'px-6 py-4 flex items-center justify-between border-b ' +
-        (p.risk === 'DANGER' ? 'bg-rose-50/70 border-rose-200/80' : p.risk === 'RISK' ? 'bg-amber-50/70 border-amber-200/80' : 'bg-emerald-50/70 border-emerald-200/80');
+        (p.risk === 'UNKNOWN' ? 'bg-slate-50 border-slate-200' : p.risk === 'DANGER' ? 'bg-rose-50/70 border-rose-200/80' : p.risk === 'RISK' ? 'bg-amber-50/70 border-amber-200/80' : 'bg-emerald-50/70 border-emerald-200/80');
       riskDot.className = 'w-2.5 h-2.5 rounded-full ' +
-        (p.risk === 'DANGER' ? 'bg-rose-500' : p.risk === 'RISK' ? 'bg-amber-500' : 'bg-emerald-500');
+        (p.risk === 'UNKNOWN' ? 'bg-slate-400' : p.risk === 'DANGER' ? 'bg-rose-500' : p.risk === 'RISK' ? 'bg-amber-500' : 'bg-emerald-500');
       riskTitle.textContent = meta.label;
       riskTitle.className = 'text-sm font-bold tracking-tight ' +
-        (p.risk === 'DANGER' ? 'text-rose-900' : p.risk === 'RISK' ? 'text-amber-900' : 'text-emerald-900');
+        (p.risk === 'UNKNOWN' ? 'text-slate-700' : p.risk === 'DANGER' ? 'text-rose-900' : p.risk === 'RISK' ? 'text-amber-900' : 'text-emerald-900');
 
       document.getElementById('modalGroupBadge').textContent = p.group;
       const photoImgEl = document.getElementById('modalPatientPhotoImg');
@@ -589,7 +601,7 @@ async function requestApi(path, options={}) {
       document.getElementById('modalPatientAge').textContent = `อายุ ${escapeHtml(p.age)} ปี`;
       document.getElementById('modalCareUnitBadge').textContent = p.careUnit;
       document.getElementById('modalPatientAddress').textContent = p.address;
-      document.getElementById('modalPatientCondition').textContent = `ข้อมูลทางคลินิก: ${p.condition}`;
+      document.getElementById('modalPatientCondition').textContent = `ข้อมูลทางคลินิก: ${p.condition||'ยังไม่มีข้อมูลเพียงพอ'} • วันที่ข้อมูล: ${p.lastDate||'—'} ${p.lastTime||''}${p.linkStatus==='linked'?' • ประวัติจาก Supabase':p.linkStatus==='ambiguous'?' • รหัสซ้ำ: ไม่รวมประวัติตรวจ':p.linkStatus==='unmatched'?' • ยังไม่เชื่อมประวัติตรวจ':''}`;
       let locationBox=document.getElementById('adminPatientLocation');
       if(!locationBox){locationBox=document.createElement('div');locationBox.id='adminPatientLocation';locationBox.className='mt-3 flex flex-wrap gap-3 text-sm';document.getElementById('modalPatientAddress').after(locationBox);}
       locationBox.replaceChildren();locationBox.hidden=cloudSession?.role!=='admin'||privacyEnabled;
@@ -608,24 +620,25 @@ async function requestApi(path, options={}) {
       // Populate 6-row sensor table matching Image 2
       const logBody = document.getElementById('modalSensorLogBody');
       logBody.innerHTML = '';
+      if(!p.sensorLogs.length){const empty=document.createElement('tr');const cell=document.createElement('td');cell.colSpan=14;cell.className='py-4 text-center text-slate-500';cell.textContent='ยังไม่มีประวัติผลตรวจในแหล่งข้อมูลที่เชื่อมอยู่';empty.appendChild(cell);logBody.appendChild(empty);}
       p.sensorLogs.forEach((row, index) => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
           <td class="border-r border-slate-200 py-2 px-2 font-semibold text-slate-700">${index + 1}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.temp ? 'text-slate-900 bg-amber-50/40' : 'text-slate-300'}">${escapeHtml(row.temp ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.weight ? 'text-slate-900 bg-indigo-50/40' : 'text-slate-300'}">${escapeHtml(row.weight ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.height ? 'text-slate-900 bg-indigo-50/40' : 'text-slate-300'}">${escapeHtml(row.height ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.sys ? 'text-indigo-950 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.sys ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.dia ? 'text-indigo-950 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.dia ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pulseBp ? 'text-indigo-900 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.pulseBp ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.spo2 ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.spo2 ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pulseOx ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.pulseOx ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pi ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.pi ?? '')}</td>
-          <td class="border-r border-slate-200 py-2 px-2 font-extrabold ${row.sugar ? 'text-rose-700 bg-rose-50/80' : 'text-slate-300'}">${escapeHtml(row.sugar ?? '')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.temp ? 'text-slate-900 bg-amber-50/40' : 'text-slate-300'}">${escapeHtml(row.temp === '' ? '—' : row.temp ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.weight ? 'text-slate-900 bg-indigo-50/40' : 'text-slate-300'}">${escapeHtml(row.weight === '' ? '—' : row.weight ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.height ? 'text-slate-900 bg-indigo-50/40' : 'text-slate-300'}">${escapeHtml(row.height === '' ? '—' : row.height ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.sys ? 'text-indigo-950 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.sys === '' ? '—' : row.sys ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.dia ? 'text-indigo-950 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.dia === '' ? '—' : row.dia ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pulseBp ? 'text-indigo-900 bg-indigo-50/70' : 'text-slate-300'}">${escapeHtml(row.pulseBp === '' ? '—' : row.pulseBp ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-bold ${row.spo2 ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.spo2 === '' ? '—' : row.spo2 ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pulseOx ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.pulseOx === '' ? '—' : row.pulseOx ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-semibold ${row.pi ? 'text-sky-900 bg-sky-50/70' : 'text-slate-300'}">${escapeHtml(row.pi === '' ? '—' : row.pi ?? '—')}</td>
+          <td class="border-r border-slate-200 py-2 px-2 font-extrabold ${row.sugar ? 'text-rose-700 bg-rose-50/80' : 'text-slate-300'}">${escapeHtml(row.sugar === '' ? '—' : row.sugar ?? '—')}</td>
           <td class="border-r border-slate-200 py-2 px-2 text-slate-700 font-medium">${escapeHtml(row.inspector)}</td>
-          <td class="border-r border-slate-200 py-2 px-2 text-slate-700">${escapeHtml(row.date)}</td>
-          <td class="py-2 px-2 text-slate-700 font-mono">${escapeHtml(row.time)}</td>
+          <td class="border-r border-slate-200 py-2 px-2 text-slate-700">${escapeHtml(row.date || '—')}</td>
+          <td class="py-2 px-2 text-slate-700 font-mono">${escapeHtml(row.time || '—')}</td>
         `;
         logBody.appendChild(tr);
       });
@@ -704,6 +717,7 @@ async function requestApi(path, options={}) {
     }
 
     function refreshAllViews() {
+      renderSyncStatus();
       renderKPIs();
       renderGroupToggles();
       renderMapAndSidebar();
@@ -1087,7 +1101,7 @@ async function requestApi(path, options={}) {
          const result=await requestApi('/api/patients');
          const next=result.data.map(row=>toLegacyPatient(row,boundaryData));
          if(!syncedAt){window.BoLuangApp.setPrivacy(cloudSession.role!=='admin');}
-         patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;dataEvidence.phase='ready';
+         patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;dataEvidence.phase='ready';dataEvidence.source=result.source;dataEvidence.linkage=result.linkage||null;populateSourceUnits();
          populateFormSelect();refreshAllViews();updateCloudBadge(result.source==='google_sheets'?'เชื่อมต่อ Google Sheets แล้ว':'เชื่อมต่อฐานข้อมูลแล้ว');
          if(!silent)showToast(`ซิงค์สำเร็จ ${patientsData.length} รายการ • ${thaiTime(syncedAt)}`);
          return true;

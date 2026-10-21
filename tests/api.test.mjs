@@ -6,7 +6,7 @@ process.env.SUPABASE_URL='https://test.supabase.co';process.env.SUPABASE_ANON_KE
 const id='11111111-1111-4111-8111-111111111111';
 function response(){return {headers:{},setHeader(k,v){this.headers[k]=v;},status(s){this.code=s;return this;},json(d){this.body=d;return this;}};}
 const req=(method='GET',body,more={})=>({method,body,headers:{host:'health.example',origin:'https://health.example',cookie:'__Host-bl_access=fake-token'},...more});
-function mock(handler){global.fetch=async(url,options)=>{const data=handler(url,options);return {ok:true,status:200,json:async()=>data};};}
+function mock(handler){global.fetch=async(url,options)=>{const data=handler(url,options);return {ok:true,status:200,headers:{get:key=>key==='content-range'&&Array.isArray(data)?`0-${Math.max(0,data.length-1)}/${data.length}`:null},json:async()=>data};};}
 const user={id:'staff-id',app_metadata:{healthcare_role:'clinician',healthcare_villages:[1,2]}};
 test('API refuses requests without a session before any patient query',async()=>{let called=false;mock(()=>{called=true;return [];});const r=response();await patients(req('GET',null,{headers:{}}),r);assert.equal(r.code,401);assert.equal(called,false);});
 test('account role cannot come from user_metadata',()=>{assert.throws(()=>scopeFor({user_metadata:{healthcare_role:'admin'}}));assert.throws(()=>scopeFor({app_metadata:{healthcare_role:'viewer'}}));assert.deepEqual(scopeFor({app_metadata:{healthcare_role:'viewer',healthcare_villages:[1,'2',15]}}).villages,[1]);});
@@ -21,4 +21,16 @@ test('Google Sheets is returned through authenticated API and village scope is e
  process.env.HEALTHCARE_SOURCE='google_sheets';process.env.GOOGLE_SHEETS_PROVIDER='apps_script';process.env.GOOGLE_SHEETS_BRIDGE_URL='https://script.google.com/macros/s/TEST/exec';process.env.GOOGLE_SHEETS_BRIDGE_TOKEN='synthetic';
  mock(url=>String(url).endsWith('/user')?user:{schema_version:1,spreadsheet_id:'1sMbr_fqnYrvr-8qZFTbBcAJsu_EGLEtFAvUTc4Tx6fw',sheet_name:'ผู้มีสุขภาวะพึ่งพิง',values:[['วันเวลา','ชื่อ-สกุล','ที่อยู่','ละติจูด','ลองจิจูด','ลิงก์รูปภาพ'],['','synthetic A','หมู่ 1',18,98,''],['','synthetic B','หมู่ 7',18,98,'']]});
  try{const r=response();await patients(req(),r);assert.equal(r.code,200);assert.equal(r.body.source,'google_sheets');assert.equal(r.body.data.length,1);assert.equal(r.body.data[0].village_moo,1);assert.equal(r.body.read_only,true);}finally{process.env.HEALTHCARE_SOURCE='supabase';}
+});
+test('clinical enrichment preserves village scope and never joins by name',async()=>{
+ process.env.HEALTHCARE_SOURCE='google_sheets';process.env.GOOGLE_SHEETS_PROVIDER='apps_script';process.env.GOOGLE_SHEETS_BRIDGE_URL='https://script.google.com/macros/s/TEST/exec';process.env.GOOGLE_SHEETS_BRIDGE_TOKEN='synthetic';
+ const queries=[];mock(url=>{
+  if(String(url).endsWith('/user'))return user;
+  if(String(url).includes('/rest/v1/')){queries.push(String(url));return [{id,patient_code:'BL001',village_moo:1,bp_sys:154,visited_at:'2026-02-01T01:00:00Z',sensor_logs:[]}];}
+  return {schema_version:1,spreadsheet_id:'1sMbr_fqnYrvr-8qZFTbBcAJsu_EGLEtFAvUTc4Tx6fw',sheet_name:'ผู้มีสุขภาวะพึ่งพิง',values:[['วันเวลา','ชื่อ-สกุล','ที่อยู่','ละติจูด','ลองจิจูด','ลิงก์รูปภาพ','รหัสผู้รับบริการ'],['','synthetic','หมู่ 1',18,98,'','BL001'],['','synthetic','หมู่ 7',18,98,'','BL007']]};
+ });
+ try{const r=response();await patients(req(),r);assert.equal(r.code,200);assert.equal(r.body.data.length,1);assert.equal(r.body.data[0].bp_sys,154);assert.equal(r.body.data[0].read_only,true);assert.equal(r.body.linkage.linked,1);assert.equal(r.body.quality.missing_patient_code,0);assert.equal(queries.length,1);const query=new URL(queries[0]).searchParams;assert.equal(query.get('village_moo'),'in.(1,2)');assert.doesNotMatch(query.get('patient_code'),/BL007/);assert.doesNotMatch(query.get('select'),/full_name|record_version/);
+ const previousFetch=global.fetch;global.fetch=async(url,options)=>{const response=await previousFetch(url,options);if(String(url).includes('/rest/v1/'))response.headers={get:()=> '0-0/2'};return response;};
+ const partial=response();await patients(req(),partial);assert.equal(partial.body.linkage.status,'unavailable');assert.equal(partial.body.data[0].bp_sys,null);
+ }finally{process.env.HEALTHCARE_SOURCE='supabase';}
 });
