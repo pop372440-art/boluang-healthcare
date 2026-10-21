@@ -1,3 +1,4 @@
+import {enrichRegistry} from '../lib/patient-link.mjs';
 import {readGoogleSheet} from '../lib/google-sheets.mjs';
 import {requireUser,upstream,sameOrigin,safeHeaders,fail} from '../lib/server.mjs';
 import {assess,validateCheckup} from '../lib/health-model.mjs';
@@ -13,7 +14,9 @@ export default async function handler(req,res){
    const result=await readGoogleSheet();
    const data=role==='admin'?result.data:result.data.filter(p=>villages.includes(p.village_moo));
    // Do not expose counts from villages outside this account's authorized scope.
-   return res.status(200).json({data,source:result.source,provider:result.provider,synced_at:result.read_at,read_only:true});
+   const linked=await enrichRegistry(data,{scope,read:async path=>{const page=await upstream(path,{token,headers:{Prefer:'count=exact'},withCount:true});if(!Array.isArray(page.data)||page.total!==page.data.length)throw Error('incomplete clinical page');return page.data;}});
+   const quality={missing_coordinates:linked.data.filter(p=>p.latitude===null||p.longitude===null).length,missing_patient_code:linked.data.filter(p=>!p.patient_code).length};
+   return res.status(200).json({...linked,quality,source:result.source,provider:result.provider,synced_at:result.read_at,read_only:true});
   }
   const rows=[];let offset=0;
   while(true){const batch=await upstream(`/rest/v1/patients_visits?select=${fields}&order=id.asc&limit=500&offset=${offset}${scope}`,{token});rows.push(...batch);if(batch.length<500)break;offset+=500;if(offset>=100000)throw Object.assign(new Error('ข้อมูลมากเกินขอบเขต กรุณาติดต่อผู้ดูแล'),{status:503});}
