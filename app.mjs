@@ -1088,7 +1088,7 @@ async function requestApi(path, options={}) {
        })();return loadingPromise;
       }
       const cloudModal=document.getElementById('cloudConfigModal');
-      document.getElementById('openCloudConfigBtn').addEventListener('click',()=>cloudModal.classList.remove('hidden'));
+      document.getElementById('openCloudConfigBtn').addEventListener('click',()=>{if(!cloudSession){window.location.assign('/login');return;}cloudModal.classList.remove('hidden');});
       for(const id of ['closeCloudConfigModalBtn','cancelCloudConfigBtn'])document.getElementById(id).addEventListener('click',()=>cloudModal.classList.add('hidden'));
       document.getElementById('testFetchCloudBtn').addEventListener('click',()=>syncFromLiveCloud(false));
       document.getElementById('cloudConfigForm').addEventListener('submit',e=>{e.preventDefault();showToast('การเชื่อมต่อใช้ค่าฝั่งเซิร์ฟเวอร์ ไม่บันทึกคีย์ในเบราว์เซอร์');syncFromLiveCloud(false);});
