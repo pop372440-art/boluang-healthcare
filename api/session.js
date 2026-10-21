@@ -8,6 +8,7 @@ export default async function handler(req,res){
    const session=await upstream('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});
    // Check authorization before setting any cookie.
    const {scopeFor}=await import('../lib/server.mjs');const scope=scopeFor(session.user);
+   if(req.body?.adminOnly===true&&scope.role!=='admin')return res.status(403).json({error:'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น'});
    sessionCookie(res,session.access_token,Math.min(session.expires_in||3600,3600));return res.status(200).json(scope);
   }
   if(req.method==='DELETE'){
