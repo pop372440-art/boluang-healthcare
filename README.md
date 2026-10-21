@@ -56,3 +56,7 @@ npm test
 ## Blueprint runtime audit
 
 ดู `docs/depa-blueprint-audit.md` สำหรับผลตรวจเมนูจริงและหลักฐานของแต่ละ layer ใน depa Blueprint สถานะในหน้าเดิมอ่านจาก `lib/blueprint.mjs` ไม่รับรองยอด 920, PDPA, PostGIS SQL หรือ realtime แบบคงที่ กรณียังไม่ล็อกอินแสดง “ยังตรวจไม่ได้” แยกจากศูนย์รายการ เกณฑ์ที่อธิบายอ่านจาก shared thresholds เดียวกับ assessor และมีการตรวจโครงสร้าง Blueprint ว่าไม่เปลี่ยน tags/classes
+
+## Google Sheets connection restored
+
+Default source is now Google Sheets via the authenticated server API, with the private Apps Script bridge or optional readonly service-account transport. Setup and deployment checks are in `docs/google-sheets-connection.md`. The existing photo application uses a separate URL. No UI/CSS was redesigned, spreadsheet cells changed or clinical records upserted by name. Unlinked location-only rows remain read-only and have no fabricated readings.

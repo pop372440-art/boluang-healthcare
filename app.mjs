@@ -702,7 +702,7 @@ async function requestApi(path, options={}) {
     function populateFormSelect() {
       const sel = document.getElementById('formPatientSelect');
       sel.innerHTML = '';
-      patientsData.map(displayPatient).forEach((p) => {
+      patientsData.filter(p=>p.writable).map(displayPatient).forEach((p) => {
         const opt = document.createElement('option');
         opt.value = p.id;
         opt.textContent = `${p.name} (หมู่ ${p.moo} ${p.village} - ${p.group})`;
@@ -1017,6 +1017,7 @@ async function requestApi(path, options={}) {
       const addModal = document.getElementById('addCheckupModal');
       document.getElementById('openAddCheckupBtn').addEventListener('click', () => {
         if(!cloudSession)return showToast('ต้องเข้าสู่ระบบเจ้าหน้าที่ก่อนบันทึก');
+        if(!patientsData.some(p=>p.writable))return showToast('ชีตนี้มีเฉพาะข้อมูลต้นทางที่ยังไม่ผูกกับรหัสทะเบียนสำหรับบันทึกผลตรวจ');
         for(const id of ['Sys','Dia','Pulse','Spo2','Sugar','Temp','Weight'])document.getElementById('form'+id+'Input').value='';
         addModal.classList.remove('hidden');
       });
@@ -1077,8 +1078,9 @@ async function requestApi(path, options={}) {
          cloudSession=await requestApi('/api/session');
          const result=await requestApi('/api/patients');
          const next=result.data.map(row=>toLegacyPatient(row,boundaryData));
+         if(result.source==='google_sheets'&&!syncedAt)appState.selectedGroups.clear();
          patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;dataEvidence.phase='ready';
-         populateFormSelect();refreshAllViews();updateCloudBadge('เชื่อมต่อฐานข้อมูลแล้ว');
+         populateFormSelect();refreshAllViews();updateCloudBadge(result.source==='google_sheets'?'เชื่อมต่อ Google Sheets แล้ว':'เชื่อมต่อฐานข้อมูลแล้ว');
          if(!silent)showToast(`ซิงค์สำเร็จ ${patientsData.length} รายการ • ${thaiTime(syncedAt)}`);
          return true;
         }catch(err){if(err.status!==401&&err.status!==403)dataEvidence.phase=syncedAt?'stale':'error';refreshAllViews();updateCloudBadge(err.status===401?'กรุณาเข้าสู่ระบบ':err.status===403?'บัญชีไม่มีสิทธิ์':'ยังเชื่อมต่อไม่สำเร็จ');showToast(err.message);return false;}

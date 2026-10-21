@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import patients from '../api/patients.js';import session from '../api/session.js';import config from '../api/config.js';import health from '../api/health.js';
 import {scopeFor} from '../lib/server.mjs';
+process.env.HEALTHCARE_SOURCE='supabase';
 process.env.SUPABASE_URL='https://test.supabase.co';process.env.SUPABASE_ANON_KEY='fake-public-key';
 const id='11111111-1111-4111-8111-111111111111';
 function response(){return {headers:{},setHeader(k,v){this.headers[k]=v;},status(s){this.code=s;return this;},json(d){this.body=d;return this;}};}
@@ -16,3 +17,8 @@ test('viewer cannot write and cross-origin changes are blocked',async()=>{mock((
 test('config contains no credentials or public bridge URL',()=>{const r=response();config(req(),r);assert.equal(r.body.authenticationRequired,true);assert.equal(r.body.supabaseAnonKey,undefined);assert.equal(r.body.appsScriptUrl,undefined);});
 test('session login sets HttpOnly Secure cookie only for authorized users',async()=>{mock(()=>({access_token:'synthetic-token',expires_in:3600,user}));const r=response();await session(req('POST',{email:'synthetic@example.invalid',password:'fake'}),r);assert.equal(r.code,200);assert.match(r.headers['Set-Cookie'],/HttpOnly; Secure; SameSite=Strict/);assert.equal(r.body.access_token,undefined);});
 test('health endpoint checks upstream instead of always returning ok',async()=>{global.fetch=async()=>{throw Error('unreachable');};const r=response();await health(req(),r);assert.equal(r.code,500);assert.equal(r.body.status,undefined);});
+test('Google Sheets is returned through authenticated API and village scope is enforced',async()=>{
+ process.env.HEALTHCARE_SOURCE='google_sheets';process.env.GOOGLE_SHEETS_PROVIDER='apps_script';process.env.GOOGLE_SHEETS_BRIDGE_URL='https://script.google.com/macros/s/TEST/exec';process.env.GOOGLE_SHEETS_BRIDGE_TOKEN='synthetic';
+ mock(url=>String(url).endsWith('/user')?user:{schema_version:1,spreadsheet_id:'1sMbr_fqnYrvr-8qZFTbBcAJsu_EGLEtFAvUTc4Tx6fw',sheet_name:'ผู้มีสุขภาวะพึ่งพิง',values:[['วันเวลา','ชื่อ-สกุล','ที่อยู่','ละติจูด','ลองจิจูด','ลิงก์รูปภาพ'],['','synthetic A','หมู่ 1',18,98,''],['','synthetic B','หมู่ 7',18,98,'']]});
+ try{const r=response();await patients(req(),r);assert.equal(r.code,200);assert.equal(r.body.source,'google_sheets');assert.equal(r.body.data.length,1);assert.equal(r.body.data[0].village_moo,1);assert.equal(r.body.read_only,true);}finally{process.env.HEALTHCARE_SOURCE='supabase';}
+});
