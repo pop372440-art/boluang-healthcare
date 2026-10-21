@@ -179,12 +179,10 @@ let pdpaMaskEnabled=true;
     btn.id = 'pdpaToggleBtnBadge';
     btn.title = 'คลิกเพื่อเปิด/ปิดการปกปิดชื่อ-นามสกุลผู้ป่วยตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)';
     btn.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800 border border-purple-200 transition-all cursor-pointer';
-    btn.textContent = 'PDPA: ปกปิดชื่อ (ON)';
-    btn.addEventListener('click', () => {
-      pdpaMaskEnabled = !pdpaMaskEnabled;
-      btn.textContent=pdpaMaskEnabled?'PDPA: ปกปิดชื่อ (ON)':'PDPA: ปกติ (OFF)';
-      window.BoLuangApp?.setPrivacy(pdpaMaskEnabled);
-    });
+    function renderPrivacy(masked){pdpaMaskEnabled=masked;btn.textContent=masked?'ปกปิดข้อมูล: เปิด':'ปกปิดข้อมูล: ปิด';btn.setAttribute('aria-pressed',String(masked));}
+    renderPrivacy(window.BoLuangApp?.getPrivacy()??true);
+    window.addEventListener('boluang:privacy-change',event=>renderPrivacy(event.detail.masked));
+    btn.addEventListener('click',()=>window.BoLuangApp?.setPrivacy(!(window.BoLuangApp?.getPrivacy()??true)));
     headerRight.appendChild(btn);
   }
 
