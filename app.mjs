@@ -6,8 +6,6 @@ import {toLegacyPatient, toRawPatient, escapeHtml, formatNumber, csvCell} from '
 const patientsData = [];
 let boundaryData = null, cloudSession = null, syncedAt = null, loadingPromise = null;
 let privacyEnabled = true;
-const fieldCaptureButton=document.getElementById('openPhotoAppBtn');
-fieldCaptureButton.style.display='none';fieldCaptureButton.title='สำหรับเจ้าหน้าที่เทศบาลที่ออกเก็บข้อมูลตามหมู่บ้านเท่านั้น';fieldCaptureButton.querySelector('span').textContent='ถ่ายรูปและพิกัด (เจ้าหน้าที่)';
 const dataEvidence={source:null,linkage:null,phase:'loading',boundary:'loading',authorized:false,masking:true};
 function refreshBlueprint(){dataEvidence.counts=summarize(getFilteredPatients().map(toRawPatient),boundaryData);dataEvidence.masking=privacyEnabled;dataEvidence.authorized=Boolean(cloudSession);renderBlueprint(document,dataEvidence);}
 function displayPatient(p) { return privacyEnabled ? {...p,name:`ผู้รับบริการ ${String(p.id).slice(0,8)}`,address:'ปกปิดที่อยู่',photoUrl:'',driveUrl:''} : p; }
@@ -15,7 +13,7 @@ async function requestApi(path, options={}) {
  const res=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
  let data;try{data=await res.json();}catch{throw Object.assign(new Error('บริการตอบกลับไม่ใช่ข้อมูลที่ระบบรองรับ'),{status:502});}
  if(!res.ok){
-  if(res.status===401||res.status===403){dataEvidence.phase=res.status===401?'unauthorized':'forbidden';patientsData.splice(0);cloudSession=null;fieldCaptureButton.style.display='none';syncedAt=null;privacyEnabled=true;document.getElementById('patientDetailModal')?.classList.add('hidden');document.getElementById('adminLogoutBtn')?.setAttribute('hidden','');window.dispatchEvent(new CustomEvent('boluang:privacy-change',{detail:{masked:true}}));populateFormSelect();refreshAllViews();}
+  if(res.status===401||res.status===403){dataEvidence.phase=res.status===401?'unauthorized':'forbidden';patientsData.splice(0);cloudSession=null;syncedAt=null;privacyEnabled=true;document.getElementById('patientDetailModal')?.classList.add('hidden');document.getElementById('adminLogoutBtn')?.setAttribute('hidden','');window.dispatchEvent(new CustomEvent('boluang:privacy-change',{detail:{masked:true}}));populateFormSelect();refreshAllViews();}
   throw Object.assign(new Error(data.error||'ไม่สามารถเชื่อมต่อระบบได้'),{status:res.status});
  }
  return data;
@@ -1112,7 +1110,6 @@ async function requestApi(path, options={}) {
        })();return loadingPromise;
       }
       function updateAdminSessionControls(){
-       fieldCaptureButton.style.display=cloudSession?.canCollectFieldData?'':'none';
        let button=document.getElementById('adminLogoutBtn');
        if(!button){button=document.createElement('button');button.id='adminLogoutBtn';button.type='button';button.className='px-3 py-1.5 rounded-lg bg-white text-rose-700 border border-rose-200 font-medium';button.textContent='ออกจากระบบ';
         document.getElementById('openCloudConfigBtn').after(button);
@@ -1129,10 +1126,7 @@ async function requestApi(path, options={}) {
       document.getElementById('quickPushSupabaseBtn')?.addEventListener('click',()=>document.getElementById('seedSupabaseBtn').click());
       document.getElementById('quickPullSupabaseBtn')?.addEventListener('click',()=>syncFromLiveCloud(false));
       document.getElementById('quickOpenConfigBtn')?.addEventListener('click',()=>cloudModal.classList.remove('hidden'));
-      document.getElementById('openPhotoAppBtn').addEventListener('click',async()=>{
-       const photoWindow=window.open('about:blank','_blank','width=600,height=800');if(photoWindow)photoWindow.opener=null;
-       try{const result=await requestApi('/api/photo-app');if(photoWindow)photoWindow.location=result.url;}catch(err){photoWindow?.close();showToast(err.message);}
-      });
+
       window.BoLuangApp={getPrivacy:()=>privacyEnabled,setPrivacy(enabled){privacyEnabled=Boolean(enabled);window.dispatchEvent(new CustomEvent('boluang:privacy-change',{detail:{masked:privacyEnabled}}));populateFormSelect();refreshAllViews();if(appState.activePatientId&&!document.getElementById('patientDetailModal').classList.contains('hidden'))openPatientModal(appState.activePatientId);},sync:()=>syncFromLiveCloud(false)};
       window.addEventListener('boluang:blueprint-ready',refreshBlueprint);
       refreshBlueprint();updateCloudBadge();syncFromLiveCloud(true);

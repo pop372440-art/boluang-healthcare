@@ -12,7 +12,7 @@ The reference photographs establish the interaction pattern: summary cards, targ
 | Authorization | Existing server-verified session and village scope apply before linkage. The database query uses the same user's token and village filter. No service-role key or public patient endpoint is introduced. |
 | History | Actual rows sorted newest first. Empty history is explicit; missing cells show dashes. Incomplete screening uses a neutral banner. |
 | Admin | Existing login, visible logout, default full display and masking controls remain. Login itself does not download patient records. |
-| Diagnostics | Public config exposes safe configuration flags only, explicitly not live verification. Authenticated health checks Sheets and database independently; photo app is only configured/unverified, never claimed reachable from its URL alone. |
+| Diagnostics | Public config exposes safe configuration flags only, explicitly not live verification. Authenticated health checks Sheets and database independently; the external capture application is excluded because it is managed separately with its own email permissions. |
 
 ## Limits and live acceptance
 

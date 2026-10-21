@@ -22,7 +22,7 @@ The default GET /api/patients source is now google_sheets. The old implementatio
 | GOOGLE_SHEETS_ID | Verified spreadsheet ID above; optional because it is the default |
 | GOOGLE_SHEETS_TAB | ผู้มีสุขภาวะพึ่งพิง; optional because it is the default |
 
-APPS_SCRIPT_URL remains reserved for the existing photo application. Do not overwrite it with the bridge URL. No Supabase service-role key is required by this read bridge. Apps Script deployments do not update merely because GitHub code changes; deploy a new version explicitly.
+The photo application is managed separately and no longer launched by this site. APPS_SCRIPT_URL is not used by the Healthcare site. Keep GOOGLE_SHEETS_BRIDGE_URL as the separate read bridge URL. No Supabase service-role key is required by this read bridge. Apps Script deployments do not update merely because GitHub code changes; deploy a new version explicitly.
 
 ## Alternative: Google Sheets API directly from the server
 
