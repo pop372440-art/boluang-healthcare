@@ -1,16 +1,2 @@
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  return res.status(200).json({
-    status: 'ok',
-    service: 'Bo Luang Health Care API (Vercel Serverless)',
-    municipality: 'เทศบาลตำบลบ่อหลวง อ.ฮอด จ.เชียงใหม่',
-    timestamp: new Date().toISOString()
-  });
-}
+import {requireUser,upstream,safeHeaders,fail} from '../lib/server.mjs';
+export default async function handler(req,res){safeHeaders(res);try{const {token}=await requireUser(req);await upstream('/rest/v1/patients_visits?select=id&limit=0',{token});res.status(200).json({status:'ok',database:'reachable',timestamp:new Date().toISOString()});}catch(e){fail(res,e);}}
