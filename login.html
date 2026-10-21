@@ -10,8 +10,8 @@
 <script type="module" src="/login.mjs"></script>
 </head>
 <body><main>
-<div class="brand">บ่อหลวง Health Care</div><h1>เข้าสู่ระบบผู้ดูแล</h1>
-<p>ใช้บัญชีผู้ดูแลระบบสุขภาพเพื่อดึงข้อมูลผู้ป่วย</p>
+<div class="brand">บ่อหลวง Health Care</div><h1 id="loginTitle">เข้าสู่ระบบผู้ดูแล</h1>
+<p id="loginIntro">ใช้บัญชีผู้ดูแลระบบสุขภาพเพื่อดึงข้อมูลผู้ป่วย</p>
 <form id="loginForm">
 <label for="email">อีเมล</label><input id="email" name="email" type="email" autocomplete="username" required maxlength="254">
 <label for="password">รหัสผ่าน</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024">
@@ -22,5 +22,5 @@
 <button id="signOut" type="button" class="secondary">ออกจากระบบ</button>
 </section>
 <p id="message" role="status" aria-live="polite"></p>
-<a href="/">กลับหน้าหลัก</a>
+<a href="/">กลับหน้าหลัก</a> · <a href="/login?mode=field">เจ้าหน้าที่เก็บข้อมูลภาคสนาม</a>
 </main></body></html>
