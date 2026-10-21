@@ -20,7 +20,7 @@ async function requestApi(path, options={}) {
     const appState = {
       activeNav: 'map',
       searchQuery: '',
-      selectedGroups: null,
+      selectedGroups: new Set(['ผู้ป่วยติดเตียง']),
       riskFilter: 'ALL',
       careUnitFilter: 'ALL',
       villageFilter: 'ALL',
@@ -341,6 +341,9 @@ async function requestApi(path, options={}) {
     }
 
     function renderGroupToggles() {
+      const allButton=document.getElementById('showAllGroupsBtn');
+      allButton.setAttribute('aria-pressed',String(appState.selectedGroups===null));
+      allButton.textContent=appState.selectedGroups===null?'แสดงทุกกลุ่ม: เปิด':'แสดงทุกกลุ่ม: ปิด';
       document.querySelectorAll('.group-toggle-btn').forEach((btn) => {
         const groupName = btn.getAttribute('data-group-toggle');
         const isActive = groupIsVisible(appState.selectedGroups,groupName);
@@ -826,7 +829,7 @@ async function requestApi(path, options={}) {
       });
 
       document.getElementById('showAllGroupsBtn').addEventListener('click', () => {
-        appState.selectedGroups = null;
+        appState.selectedGroups = appState.selectedGroups===null?new Set(['ผู้ป่วยติดเตียง']):null;
         appState.searchQuery='';document.getElementById('patientSearchInput').value='';document.getElementById('clearSearchBtn').classList.add('hidden');
         appState.riskFilter = 'ALL';
         appState.careUnitFilter = 'ALL';
@@ -834,7 +837,7 @@ async function requestApi(path, options={}) {
         document.getElementById('WaitUnitSelect').value = 'ALL';
         document.getElementById('villageSelect').value = 'ALL';
         refreshAllViews();
-        showToast('รีเซ็ตตัวกรอง แสดงผู้รับการตรวจทุกกลุ่มเป้าหมายแล้ว');
+        showToast(appState.selectedGroups===null?'แสดงทุกกลุ่มแล้ว':'แสดงเฉพาะผู้ป่วยติดเตียงแล้ว');
       });
 
       // Search Input
@@ -1083,7 +1086,7 @@ async function requestApi(path, options={}) {
          updateAdminSessionControls();
          const result=await requestApi('/api/patients');
          const next=result.data.map(row=>toLegacyPatient(row,boundaryData));
-         if(!syncedAt){appState.selectedGroups=null;window.BoLuangApp.setPrivacy(cloudSession.role!=='admin');}
+         if(!syncedAt){window.BoLuangApp.setPrivacy(cloudSession.role!=='admin');}
          patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;dataEvidence.phase='ready';
          populateFormSelect();refreshAllViews();updateCloudBadge(result.source==='google_sheets'?'เชื่อมต่อ Google Sheets แล้ว':'เชื่อมต่อฐานข้อมูลแล้ว');
          if(!silent)showToast(`ซิงค์สำเร็จ ${patientsData.length} รายการ • ${thaiTime(syncedAt)}`);
