@@ -52,3 +52,7 @@ npm test
 ```
 
 ชุดทดสอบใช้ข้อมูลสังเคราะห์ ครอบคลุมสูตร ค่าว่าง ตัวกรอง GIS API สิทธิ์ ประวัติ การบันทึกพร้อมกัน adapter เดิม และ contract ว่า HTML/CSS ไม่เปลี่ยน
+
+## Blueprint runtime audit
+
+ดู `docs/depa-blueprint-audit.md` สำหรับผลตรวจเมนูจริงและหลักฐานของแต่ละ layer ใน depa Blueprint สถานะในหน้าเดิมอ่านจาก `lib/blueprint.mjs` ไม่รับรองยอด 920, PDPA, PostGIS SQL หรือ realtime แบบคงที่ กรณียังไม่ล็อกอินแสดง “ยังตรวจไม่ได้” แยกจากศูนย์รายการ เกณฑ์ที่อธิบายอ่านจาก shared thresholds เดียวกับ assessor และมีการตรวจโครงสร้าง Blueprint ว่าไม่เปลี่ยน tags/classes

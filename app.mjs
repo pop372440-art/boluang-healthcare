@@ -1,15 +1,18 @@
+import {renderBlueprint} from './lib/blueprint.mjs';
 import {assess, summarize, inBoundary, validCoordinates, thaiTime, validateCheckup} from './lib/health-model.mjs';
 import {toLegacyPatient, toRawPatient, escapeHtml, formatNumber, csvCell} from './lib/legacy-adapter.mjs';
 const patientsData = [];
 let boundaryData = null, cloudSession = null, syncedAt = null, loadingPromise = null;
 let privacyEnabled = true;
+const dataEvidence={phase:'loading',boundary:'loading',authorized:false,masking:true};
+function refreshBlueprint(){dataEvidence.counts=summarize(getFilteredPatients().map(toRawPatient),boundaryData);dataEvidence.masking=privacyEnabled;dataEvidence.authorized=Boolean(cloudSession);renderBlueprint(document,dataEvidence);}
 function displayPatient(p) { return privacyEnabled ? {...p,name:`ผู้รับบริการ ${String(p.id).slice(0,8)}`,address:'ปกปิดที่อยู่',photoUrl:'',driveUrl:''} : p; }
 async function requestApi(path, options={}) {
  const res=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
- const data=await res.json();
+ let data;try{data=await res.json();}catch{throw Object.assign(new Error('บริการตอบกลับไม่ใช่ข้อมูลที่ระบบรองรับ'),{status:502});}
  if(!res.ok){
-  if(res.status===401||res.status===403){patientsData.splice(0);cloudSession=null;populateFormSelect();refreshAllViews();}
-  throw new Error(data.error||'ไม่สามารถเชื่อมต่อระบบได้');
+  if(res.status===401||res.status===403){dataEvidence.phase=res.status===401?'unauthorized':'forbidden';patientsData.splice(0);cloudSession=null;populateFormSelect();refreshAllViews();}
+  throw Object.assign(new Error(data.error||'ไม่สามารถเชื่อมต่อระบบได้'),{status:res.status});
  }
  return data;
 }
@@ -140,7 +143,7 @@ async function requestApi(path, options={}) {
     function renderGeoJsonLayer(geojsonData, layerType, fitMap) {
       if (!mapInstance || !geojsonData) return;
       const isTambon = layerType === 'tambon';
-      if(isTambon){boundaryData=geojsonData;for(const p of patientsData)p.outOfArea=inBoundary(toRawPatient(p),boundaryData)===false;}
+      if(isTambon){dataEvidence.boundary='ready';boundaryData=geojsonData;for(const p of patientsData)p.outOfArea=inBoundary(toRawPatient(p),boundaryData)===false;}
       const targetGroup = isTambon ? tambonBoundaryLayer : villageBoundaryLayer;
       if (!targetGroup) return;
 
@@ -263,7 +266,7 @@ async function requestApi(path, options={}) {
         if(layerType==='tambon'){boundaryData=data;for(const p of patientsData)p.outOfArea=inBoundary(toRawPatient(p),data)===false;}
         renderGeoJsonLayer(data, layerType, true);
         refreshAllViews();
-      } catch (e) {showToast('โหลดขอบเขตแผนที่ไม่สำเร็จ ยังยืนยันพิกัดนอกเขตไม่ได้');}
+      } catch (e) {if(layerType==='tambon'){dataEvidence.boundary='error';refreshBlueprint();}showToast('โหลดขอบเขตแผนที่ไม่สำเร็จ ยังยืนยันพิกัดนอกเขตไม่ได้');}
     }
 
     function getRiskBadgeMeta(risk) {
@@ -321,6 +324,10 @@ async function requestApi(path, options={}) {
       document.getElementById('kpiRiskPct').textContent = ((appState.baseTotals.risk / (appState.baseTotals.total || 1)) * 100).toFixed(2) + ' %';
       document.getElementById('kpiDangerPct').textContent = ((appState.baseTotals.danger / (appState.baseTotals.total || 1)) * 100).toFixed(2) + ' %';
       document.getElementById('kpiOutPct').textContent = ((appState.baseTotals.outArea / (appState.baseTotals.total || 1)) * 100).toFixed(2) + ' %';
+
+      if(!['ready','stale'].includes(dataEvidence.phase)){
+       for(const id of ['kpiTotalCount','kpiNormalCount','kpiRiskCount','kpiDangerCount','kpiOutCount','kpiNormalPct','kpiRiskPct','kpiDangerPct','kpiOutPct'])document.getElementById(id).textContent='—';
+      }
 
       document.querySelectorAll('.kpi-card').forEach((btn) => {
         const filterKey = btn.getAttribute('data-risk-filter');
@@ -689,6 +696,7 @@ async function requestApi(path, options={}) {
       renderMapAndSidebar();
       renderSummaryTable();
       if(villageChartInstance||riskChartInstance)initCharts();
+      refreshBlueprint();
     }
 
     function populateFormSelect() {
@@ -736,6 +744,7 @@ async function requestApi(path, options={}) {
         btn.addEventListener('click', () => {
           const target = btn.getAttribute('data-nav');
           appState.activeNav = target;
+          refreshBlueprint();
 
           document.querySelectorAll('.nav-tab-btn').forEach((b) => {
             b.classList.remove('bg-slate-100', 'text-slate-900', 'font-semibold', 'border-slate-200');
@@ -1063,16 +1072,16 @@ async function requestApi(path, options={}) {
       function syncFromLiveCloud(silent){
        if(loadingPromise)return loadingPromise;
        loadingPromise=(async()=>{
-        updateCloudBadge('กำลังเชื่อมต่อ');
+        dataEvidence.phase=syncedAt?'stale':'loading';refreshAllViews();updateCloudBadge('กำลังเชื่อมต่อ');
         try{
          cloudSession=await requestApi('/api/session');
          const result=await requestApi('/api/patients');
          const next=result.data.map(row=>toLegacyPatient(row,boundaryData));
-         patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;
+         patientsData.splice(0,patientsData.length,...next);syncedAt=result.synced_at;dataEvidence.phase='ready';
          populateFormSelect();refreshAllViews();updateCloudBadge('เชื่อมต่อฐานข้อมูลแล้ว');
          if(!silent)showToast(`ซิงค์สำเร็จ ${patientsData.length} รายการ • ${thaiTime(syncedAt)}`);
          return true;
-        }catch(err){updateCloudBadge('ยังเชื่อมต่อไม่สำเร็จ');showToast(err.message);return false;}
+        }catch(err){if(err.status!==401&&err.status!==403)dataEvidence.phase=syncedAt?'stale':'error';refreshAllViews();updateCloudBadge(err.status===401?'กรุณาเข้าสู่ระบบ':err.status===403?'บัญชีไม่มีสิทธิ์':'ยังเชื่อมต่อไม่สำเร็จ');showToast(err.message);return false;}
         finally{loadingPromise=null;}
        })();return loadingPromise;
       }
@@ -1090,5 +1099,6 @@ async function requestApi(path, options={}) {
        try{const result=await requestApi('/api/photo-app');if(photoWindow)photoWindow.location=result.url;}catch(err){photoWindow?.close();showToast(err.message);}
       });
       window.BoLuangApp={setPrivacy(enabled){privacyEnabled=Boolean(enabled);populateFormSelect();refreshAllViews();if(appState.activePatientId&&!document.getElementById('patientDetailModal').classList.contains('hidden'))openPatientModal(appState.activePatientId);},sync:()=>syncFromLiveCloud(false)};
-      updateCloudBadge();syncFromLiveCloud(true);
+      window.addEventListener('boluang:blueprint-ready',refreshBlueprint);
+      refreshBlueprint();updateCloudBadge();syncFromLiveCloud(true);
     });

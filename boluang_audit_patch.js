@@ -54,8 +54,8 @@ let pdpaMaskEnabled=true;
               <p class="text-xs lg:text-sm text-purple-100 mt-1">เทศบาลตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่ — โครงสร้างพื้นฐานดิจิทัลต้นทุนต่ำสำหรับองค์กรปกครองส่วนท้องถิ่น (Zero-to-Low Cloud Cost Architecture)</p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <span class="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold">✓ PDPA Ready</span>
-              <span class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold">✓ PostGIS Spatial</span>
+              <span class="px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs font-bold" data-blueprint="privacyBadge">ปกปิดข้อมูล: รอตรวจ</span>
+              <span class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold" data-blueprint="spatialBadge">GIS: รอตรวจ</span>
             </div>
           </div>
 
@@ -64,22 +64,22 @@ let pdpaMaskEnabled=true;
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-purple-700 uppercase">Layer 1: Field IoMT & อสม.</div>
               <div class="text-base font-extrabold text-slate-800">ชุดตรวจสุขภาพ 6 รายการ</div>
-              <p class="text-xs text-slate-600 leading-relaxed">อสม. ลงพื้นที่วัดความดัน (BP), ออกซิเจน (%SpO2 & PI), น้ำตาลปลายนิ้ว (DTX), อุณหภูมิ, น้ำหนัก และส่วนสูง พร้อมพิกัด GPS และภาพถ่ายบ้านผู้ป่วย</p>
+              <p class="text-xs text-slate-600 leading-relaxed">แบบฟอร์มรับค่าที่เจ้าหน้าที่วัดได้จริง ไม่สร้างค่าที่ขาดขึ้นเอง; การรับค่าจากอุปกรณ์ IoMT อัตโนมัติยังไม่ได้ตรวจยืนยัน</p>
             </div>
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-indigo-700 uppercase">Layer 2: Serverless Bridge</div>
               <div class="text-base font-extrabold text-slate-800">Google Sheets & Apps Script</div>
-              <p class="text-xs text-slate-600 leading-relaxed">แปลงภาพถ่าย Google Drive เป็น Thumbnail Stream อัตโนมัติ ประมวลผลเกณฑ์ความเสี่ยงเบื้องต้น และซิงค์ข้อมูลแบบ Upsert เข้าฐานข้อมูลคลาวด์</p>
+              <p class="text-xs text-slate-600 leading-relaxed">ชีตต้นทางมี 6 คอลัมน์พิกัดและรูปภาพ ไม่มีผลตรวจ; Apps Script ต้องยืนยันสิทธิ์และจับคู่รหัสบุคคลก่อนนำเข้า ไม่มี Upsert อัตโนมัติตามชื่อ</p>
             </div>
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-emerald-700 uppercase">Layer 3: Cloud Spatial DB</div>
               <div class="text-base font-extrabold text-slate-800">Supabase (PostgreSQL + PostGIS)</div>
-              <p class="text-xs text-slate-600 leading-relaxed">จัดเก็บตาราง <code class="bg-slate-100 px-1 rounded">patients_visits</code> และประวัติ <code class="bg-slate-100 px-1 rounded">sensor_logs (JSONB)</code> 6 ครั้งล่าสุด พร้อมระบบ Row-Level Security (RLS)</p>
+              <p class="text-xs text-slate-600 leading-relaxed">จัดเก็บตาราง <code class="bg-slate-100 px-1 rounded">patients_visits</code> และประวัติ <code class="bg-slate-100 px-1 rounded">sensor_logs (JSONB)</code> ตามประวัติที่บันทึกจริง; เตรียม migration สำหรับ RLS แล้ว แต่ยังต้องตรวจการติดตั้งบนฐานข้อมูลจริง</p>
             </div>
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-rose-700 uppercase">Layer 4: Smart Command Center</div>
-              <div class="text-base font-extrabold text-slate-800">Vercel Edge + Leaflet GIS</div>
-              <p class="text-xs text-slate-600 leading-relaxed">ประมวลผล Point-in-Polygon เทียบขอบเขต <code class="bg-slate-100 px-1 rounded">boluang.json</code> แจ้งเตือนผู้ป่วยกลุ่มเสี่ยง/อันตรายแบบเรียลไทม์สำหรับ รพ.สต. และเทศบาล</p>
+              <div class="text-base font-extrabold text-slate-800">Vercel Node API + Leaflet GIS</div>
+              <p class="text-xs text-slate-600 leading-relaxed">ประมวลผล Point-in-Polygon เทียบขอบเขต <code class="bg-slate-100 px-1 rounded">boluang.json</code> ผ่านฟังก์ชันร่วมและ GeoJSON ใน browser; ข้อมูลเปลี่ยนเมื่อซิงค์ ยังไม่มีระบบแจ้งเตือนหรือ subscription แบบเรียลไทม์</p>
             </div>
           </div>
 
@@ -90,15 +90,15 @@ let pdpaMaskEnabled=true;
               <div class="space-y-2 text-xs">
                 <div class="flex items-center justify-between p-2.5 rounded-lg bg-rose-50 border border-rose-200">
                   <span class="font-bold text-rose-800">ระดับอันตราย (DANGER)</span>
-                  <span class="text-rose-700">BP ≥ 160/100 | SpO2 &lt; 93% | DTX ≥ 180 mg/dL | Temp ≥ 38.5°C</span>
+                  <span class="text-rose-700" data-blueprint="danger">กำลังตรวจเกณฑ์จาก shared model</span>
                 </div>
                 <div class="flex items-center justify-between p-2.5 rounded-lg bg-amber-50 border border-amber-200">
                   <span class="font-bold text-amber-800">ระดับมีความเสี่ยง (RISK)</span>
-                  <span class="text-amber-700">BP 140-159/90-99 | SpO2 93-94% | DTX 126-179 mg/dL | Temp ≥ 37.5°C</span>
+                  <span class="text-amber-700" data-blueprint="risk">กำลังตรวจเกณฑ์จาก shared model</span>
                 </div>
                 <div class="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
                   <span class="font-bold text-emerald-800">ระดับเหมาะสม (NORMAL)</span>
-                  <span class="text-emerald-700">BP &lt; 140/90 | SpO2 ≥ 95% | DTX &lt; 126 mg/dL | Temp 36.0-37.4°C</span>
+                  <span class="text-emerald-700" data-blueprint="normal">ข้อมูลไม่ครบจะไม่สรุปเป็น NORMAL</span>
                 </div>
               </div>
             </div>
@@ -107,16 +107,16 @@ let pdpaMaskEnabled=true;
               <h3 class="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2">สถานะความพร้อมด้านวิศวกรรมข้อมูลและความปลอดภัย (System Audit Status)</h3>
               <div class="space-y-2 text-xs">
                 <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50">
-                  <span class="text-slate-600">สมการข้อมูล KPI (ปกติ 190 + เสี่ยง 336 + อันตราย 394)</span>
-                  <span class="font-bold text-emerald-600">✓ ตรงกัน 920 ราย (100%)</span>
+                  <span class="text-slate-600" data-blueprint="kpiLabel">สมการทะเบียนตามตัวกรอง รวมข้อมูลไม่ครบ</span>
+                  <span class="font-bold text-emerald-600" data-blueprint="kpiStatus">ยังไม่มีข้อมูลที่ยืนยันได้</span>
                 </div>
                 <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50">
                   <span class="text-slate-600">การคำนวณขอบเขตพื้นที่ (Ray-Casting Point-in-Polygon)</span>
-                  <span class="font-bold text-emerald-600">✓ เชื่อม boluang.json แล้ว</span>
+                  <span class="font-bold text-emerald-600" data-blueprint="boundaryStatus">ยังไม่ได้ตรวจไฟล์ขอบเขต</span>
                 </div>
                 <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50">
                   <span class="text-slate-600">การคุ้มครองข้อมูลส่วนบุคคล (PDPA Data Masking & RLS)</span>
-                  <span class="font-bold text-purple-700">✓ เปิดใช้งานสวิตช์ PDPA บนแถบด้านบนได้ทันที</span>
+                  <span class="font-bold text-purple-700" data-blueprint="privacyStatus">ยังไม่ได้ตรวจสิทธิ์ API และนโยบาย RLS</span>
                 </div>
               </div>
             </div>
@@ -127,10 +127,11 @@ let pdpaMaskEnabled=true;
 
     // 5.3 เติมเนื้อหาใน `#viewSheetsSection` หากว่างเปล่า
     const sheetsSec = document.getElementById('viewSheetsSection');
-    if (sheetsSec && sheetsSec.innerHTML.trim().length < 50) {
+    if (sheetsSec && !sheetsSec.querySelector('[data-sheet-bridge-content]')) {
+      const compatibility=sheetsSec.innerHTML;
       sheetsSec.className = 'hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50';
       sheetsSec.innerHTML = `
-        <div class="max-w-5xl mx-auto space-y-6">
+        <div class="max-w-5xl mx-auto space-y-6" data-sheet-bridge-content>
           <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
@@ -158,11 +159,11 @@ let pdpaMaskEnabled=true;
               </div>
             </div>
             <div id="patchCloudStatusMsg" class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-              สถานะ: พร้อมเชื่อมต่อฐานข้อมูลคลาวด์และซิงค์ตารางสัญญาณชีพ 6 รายการ (JSONB)
+              สถานะ: การเชื่อมต่อใช้ server configuration และ session ที่ได้รับสิทธิ์; ไม่ส่งทะเบียนทับตามชื่อ
             </div>
           </div>
         </div>
-      `;
+      ` + compatibility;
     }
   }
 
@@ -188,5 +189,10 @@ let pdpaMaskEnabled=true;
   }
 
 
-document.addEventListener('DOMContentLoaded',()=>{ensureAllFiveTabsAndSections();mountPdpaToggleButton();});
+document.addEventListener('DOMContentLoaded',()=>{
+ ensureAllFiveTabsAndSections();mountPdpaToggleButton();
+ document.getElementById('patchSyncLiveSupabaseBtn')?.addEventListener('click',()=>window.BoLuangApp?.sync());
+ document.getElementById('patchPushToSupabaseBtn')?.addEventListener('click',()=>document.getElementById('seedSupabaseBtn')?.click());
+ window.dispatchEvent(new Event('boluang:blueprint-ready'));
+});
 })();
