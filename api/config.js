@@ -1,2 +1,3 @@
 import {safeHeaders} from '../lib/server.mjs';
-export default function handler(req,res){safeHeaders(res);const source=process.env.HEALTHCARE_SOURCE||'google_sheets';const provider=process.env.GOOGLE_SHEETS_PROVIDER||'apps_script';const sheetConnectionConfigured=provider==='service_account'?Boolean(process.env.GOOGLE_SERVICE_ACCOUNT_JSON):Boolean(process.env.GOOGLE_SHEETS_BRIDGE_URL&&process.env.GOOGLE_SHEETS_BRIDGE_TOKEN);res.status(200).json({version:'2026.10-sheets',configured:Boolean(process.env.SUPABASE_URL&&process.env.SUPABASE_ANON_KEY)&&(source==='supabase'||sheetConnectionConfigured),source,provider,sheetConnectionConfigured,authenticationRequired:true});}
+import {connectionConfig} from '../lib/connection-health.mjs';
+export default function handler(req,res){safeHeaders(res);res.status(200).json({version:'2026.10-connection-health',...connectionConfig(),authenticationRequired:true,connectionVerified:false});}
