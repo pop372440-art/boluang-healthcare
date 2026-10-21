@@ -1,6 +1,6 @@
 import {requireUser,upstream,sameOrigin,safeHeaders,fail} from '../lib/server.mjs';
 import {assess,validateCheckup} from '../lib/health-model.mjs';
-const fields='id,patient_code,full_name,address,village_moo,latitude,longitude,target_group,care_project,visited_at,bp_sys,bp_dia,pulse,spo2,pi_pct,blood_sugar,temp_c,weight_kg,height_cm,sensor_logs,record_version';
+const fields='id,patient_code,full_name,address,drive_image_url,village_moo,latitude,longitude,target_group,care_project,visited_at,bp_sys,bp_dia,pulse,spo2,pi_pct,blood_sugar,temp_c,weight_kg,height_cm,sensor_logs,record_version';
 export default async function handler(req,res){
  safeHeaders(res);try{
  const {token,user,role,villages}=await requireUser(req);
