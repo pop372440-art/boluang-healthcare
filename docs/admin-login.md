@@ -7,3 +7,9 @@ After login, click the patient-load button to open the unchanged main page. The 
 The admin-only login option is enforced before setting a cookie. Existing authorized clinician/viewer API access and village scopes remain unchanged. No public registration, new password, account role or schema is created by this change.
 
 Verification: automated tests use synthetic accounts and cover admin-only denial, secure cookie, login/logout, explicit navigation and expired sessions. A live account and configured Google bridge are required to confirm production patient loading. Browser rendering verification could not run in this environment because the Playwright browser binary is unavailable.
+
+## Admin display and controls
+
+After the first successful admin sync, names, addresses and available photos are shown by default. The header has a logout button, and the masking control reports whether masking is on. Masking and session expiry also hide the patient location actions. Group switches now reflect all/none correctly; Show all resets search and filters.
+
+The patient detail includes coordinates and explicit Google Maps, directions and Street View links for valid source coordinates. Links contain coordinates only and open after a user click; no API key is needed. Google coverage is not guaranteed. Private Drive images may still require file access; thumbnail URLs do not change sharing permissions.
