@@ -1,13 +1,11 @@
-# Municipal field collection
+# Separate municipal field collection application
 
-Photo and location capture is an internal workflow for municipal officers collecting village data, not a public submission form.
+Photo/location capture is a separate municipal staff application. Its owner manages the authorized email allowlist in that application. Healthcare dashboard accounts, sessions and app_metadata do not grant access to it.
 
-- Admins may open/manage the capture workflow. Other existing authorized healthcare accounts require `healthcare_field_collector: true` in server-controlled Supabase `app_metadata` and their assigned villages. A clinician role alone does not grant collection access. User-editable metadata, email text and URL parameters never grant this permission.
-- No account is granted or modified by this code change. An authorized administrator must verify municipal staff identity before assigning the permission. Existing viewer/clinician patient access is unchanged; the permission does not grant clinical writes or administrator privileges.
-- Staff enter at `/login?mode=field`. The server checks collection permission before setting a session cookie. After login, an explicit button requests `/api/photo-app` and opens the capture app. This login path never downloads patient records.
-- The main header labels capture as a staff function and hides it until the session confirms collection permission. The API independently enforces the permission.
-- The existing photo app must itself restrict Google access to authorized staff/accounts (or enforce a verified allowlist). Hiding the button or protecting the URL-discovery API does not protect an otherwise public Apps Script deployment.
-- `APPS_SCRIPT_URL` remains the existing capture application's `/exec` URL. `APPS_SCRIPT_PRIVATE=true` is an administrator assertion after verifying the app's access restrictions, not a mechanism that changes Google permissions. It is intentionally not enabled automatically. Missing verification returns a staff-specific unavailable message.
-- The separate token-protected Sheets JSON bridge is not the capture application. Keep its URL and token configuration separate.
+The Healthcare site no longer contains a capture button or a field-login link. Old `/login?mode=field` bookmarks redirect to the admin login without fetching data. Legacy field-only login requests and `/api/photo-app` return 410 and do not expose the capture URL, set a session, or call the external app.
 
-Automated tests verify anonymous and non-staff denial, rejection of user-editable claims, trusted staff permission, private-app readiness, field-only login, and no patient fetch on the staff login page. Deployment access and real Google-account permissions require live verification by the owner.
+`APPS_SCRIPT_URL`, `APPS_SCRIPT_PRIVATE`, and `healthcare_field_collector` are no longer used to authorize or launch capture from this site. Existing deployment values and account metadata are not automatically deleted. No external Apps Script project, Google sharing setting, email allowlist or collected record was modified.
+
+Keep the token-protected read-only Sheets bridge and its GOOGLE_SHEETS_BRIDGE_URL / GOOGLE_SHEETS_BRIDGE_TOKEN configuration. Registry reads, clinical-code linkage, patient photos, coordinates, Maps and Street View are independent of the removed capture launcher.
+
+Tests cover absent UI links, retired endpoints, old-bookmark redirects, unchanged admin login and independent Google Sheets access. Deployment of the removal still requires merging the PR.

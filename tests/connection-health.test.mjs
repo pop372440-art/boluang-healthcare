@@ -10,9 +10,9 @@ test('both sources checked without disclosing records or upstream errors',async(
  let db=false;const result=await checkConnections({env,checkSheet:async()=>{throw Error('private patient');},checkDatabase:async()=>{db=true;return [{id:'secret'}];}});
  assert.equal(db,true);assert.equal(result.status,'degraded');assert.equal(result.checks.googleSheets.status,'unavailable');assert.equal(result.checks.supabase.status,'reachable');assert.doesNotMatch(JSON.stringify(result),/secret|private patient/);
 });
-test('photo configuration is not proof of reachability',async()=>{
+test('external capture app is excluded from healthcare configuration and health checks',async()=>{
  const result=await checkConnections({env:{...env,APPS_SCRIPT_URL:env.GOOGLE_SHEETS_BRIDGE_URL,APPS_SCRIPT_PRIVATE:'true'},checkSheet:async()=>{},checkDatabase:async()=>{}});
- assert.equal(result.status,'ok');assert.equal(result.checks.photoApp.status,'configured_unverified');
+ assert.equal(result.status,'ok');assert.equal(result.checks.photoApp,undefined);assert.equal(connectionConfig(env).photoAppConfigured,undefined);
 });
 test('missing configuration skips upstream probes',async()=>{
  const unexpected=()=>assert.fail('must not execute');const result=await checkConnections({env:{},checkSheet:unexpected,checkDatabase:unexpected});assert.equal(result.checks.googleSheets.status,'not_configured');assert.equal(result.checks.supabase.status,'not_configured');assert.equal(result.status,'degraded');
