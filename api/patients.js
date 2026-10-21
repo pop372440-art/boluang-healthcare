@@ -1,3 +1,4 @@
+import {readGoogleSheet} from '../lib/google-sheets.mjs';
 import {requireUser,upstream,sameOrigin,safeHeaders,fail} from '../lib/server.mjs';
 import {assess,validateCheckup} from '../lib/health-model.mjs';
 const fields='id,patient_code,full_name,address,drive_image_url,village_moo,latitude,longitude,target_group,care_project,visited_at,bp_sys,bp_dia,pulse,spo2,pi_pct,blood_sugar,temp_c,weight_kg,height_cm,sensor_logs,record_version';
@@ -6,9 +7,17 @@ export default async function handler(req,res){
  const {token,user,role,villages}=await requireUser(req);
  const scope=role==='admin'?'':`&village_moo=in.(${villages.join(',')})`;
  if(req.method==='GET'){
+  const source=process.env.HEALTHCARE_SOURCE||'google_sheets';
+  if(!['google_sheets','supabase'].includes(source))return res.status(503).json({error:'ตั้งค่าแหล่งข้อมูลไม่ถูกต้อง'});
+  if(source==='google_sheets'){
+   const result=await readGoogleSheet();
+   const data=role==='admin'?result.data:result.data.filter(p=>villages.includes(p.village_moo));
+   // Do not expose counts from villages outside this account's authorized scope.
+   return res.status(200).json({data,source:result.source,provider:result.provider,synced_at:result.read_at,read_only:true});
+  }
   const rows=[];let offset=0;
   while(true){const batch=await upstream(`/rest/v1/patients_visits?select=${fields}&order=id.asc&limit=500&offset=${offset}${scope}`,{token});rows.push(...batch);if(batch.length<500)break;offset+=500;if(offset>=100000)throw Object.assign(new Error('ข้อมูลมากเกินขอบเขต กรุณาติดต่อผู้ดูแล'),{status:503});}
-  return res.status(200).json({data:rows,synced_at:new Date().toISOString()});
+  return res.status(200).json({data:rows,source:'supabase',synced_at:new Date().toISOString()});
  }
  if(req.method==='POST'){
   sameOrigin(req);if(!['clinician','admin'].includes(role))return res.status(403).json({error:'บัญชีนี้ดูข้อมูลได้อย่างเดียว'});
