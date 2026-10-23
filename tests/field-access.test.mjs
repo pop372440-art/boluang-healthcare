@@ -20,15 +20,21 @@ test('capture navigation requires confirmed trusted field permission and an assi
  const user={email_confirmed_at:'2026-10-23',app_metadata:{field_collector:true,field_villages:[1,2]}};
  assert.equal(canCollectFieldData(user),true);
  assert.equal(canCollectFieldData({...user,email_confirmed_at:null}),false);
- assert.equal(canCollectFieldData({email_confirmed_at:'2026-10-23',user_metadata:user.app_metadata,app_metadata:{healthcare_role:'admin'}}),false);
+ assert.equal(canCollectFieldData({email_confirmed_at:'2026-10-23',user_metadata:user.app_metadata,app_metadata:{healthcare_role:'viewer'}}),false);
  assert.equal(canCollectFieldData({...user,app_metadata:{field_collector:true,field_villages:[0,14,'1']}}),false);
 });
 
 test('session capability is read from a fresh trusted user response',async()=>{
  process.env.SUPABASE_URL='https://test.supabase.co';process.env.SUPABASE_ANON_KEY='synthetic';
  let permitted=true;
- global.fetch=async()=>({ok:true,status:200,json:async()=>({email_confirmed_at:'2026-10-23',app_metadata:{healthcare_role:'admin',field_collector:permitted,field_villages:[1,2]}})});
+ global.fetch=async()=>({ok:true,status:200,json:async()=>({email_confirmed_at:'2026-10-23',app_metadata:{healthcare_role:'viewer',healthcare_villages:[1,2],field_collector:permitted,field_villages:[1,2]}})});
  const request={method:'GET',headers:{cookie:'__Host-bl_access=synthetic'}};
  let r=response();await session(request,r);assert.equal(r.body.canCollectFieldData,true);assert.equal(r.body.access_token,undefined);
  permitted=false;r=response();await session(request,r);assert.equal(r.body.canCollectFieldData,false);
+});
+
+test('confirmed healthcare admins may collect without additional field flags',()=>{
+ assert.equal(canCollectFieldData({email_confirmed_at:'2026-10-23',app_metadata:{healthcare_role:'admin'}}),true);
+ assert.equal(canCollectFieldData({email_confirmed_at:null,app_metadata:{healthcare_role:'admin'}}),false);
+ assert.equal(canCollectFieldData({email_confirmed_at:'2026-10-23',user_metadata:{healthcare_role:'admin'}}),false);
 });
