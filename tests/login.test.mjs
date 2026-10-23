@@ -21,7 +21,7 @@ test('login requests are same-origin and handle non-JSON failures',async()=>{
 test('login, explicit patient-load button and logout use session only without fetching records on login page',async()=>{
  const doc=dom(),calls=[],destinations=[];let authenticated=false;
  global.fetch=async(url,options)=>{calls.push({url,options});let status=200,data;
-  if(options.method==='POST'){assert.equal(JSON.parse(options.body).adminOnly,true);authenticated=true;data={role:'admin'};}
+  if(options.method==='POST'){assert.equal(JSON.parse(options.body).adminOnly,undefined);authenticated=true;data={role:'admin'};}
   else if(options.method==='DELETE'){authenticated=false;data={ok:true};}
   else if(authenticated)data={role:'admin'};else{status=401;data={error:'กรุณาเข้าสู่ระบบ'};}
   return {ok:status===200,status,json:async()=>data};};
