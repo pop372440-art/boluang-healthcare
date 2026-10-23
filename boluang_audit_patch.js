@@ -16,9 +16,9 @@ let pdpaMaskEnabled=true;
     if (navContainer && !document.querySelector('[data-nav="sheets"]')) {
       const sheetsBtn = document.createElement('button');
       sheetsBtn.type = 'button';
-      sheetsBtn.setAttribute('data-nav', 'sheets');
+      sheetsBtn.setAttribute('data-nav', 'sheets');sheetsBtn.dataset.access='admin';sheetsBtn.hidden=true;
       sheetsBtn.className = 'nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-xs flex items-center justify-between text-slate-600 hover:text-purple-900 hover:bg-purple-50 transition-all';
-      sheetsBtn.innerHTML = '<span>🔗 เชื่อม Google Sheets / โค้ด</span>';
+      sheetsBtn.innerHTML = '<span>คู่มือเชื่อมต่อข้อมูล</span>';
       navContainer.appendChild(sheetsBtn);
     }
 
@@ -27,18 +27,18 @@ let pdpaMaskEnabled=true;
       archBtn.type = 'button';
       archBtn.setAttribute('data-nav', 'architecture');
       archBtn.className = 'nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-xs flex items-center justify-between text-slate-600 hover:text-purple-900 hover:bg-purple-50 transition-all';
-      archBtn.innerHTML = '<span>🏛️ พิมพ์เขียวสถาปัตยกรรม (depa)</span>';
+      archBtn.innerHTML = '<span>สถาปัตยกรรมและสถานะโครงการ</span>';
       navContainer.appendChild(archBtn);
     }
 
     // ปรับป้ายชื่อปุ่มที่มีอยู่ให้ชัดเจนตามเมนูทั้ง 5 แท็บ
     const archBtnExisting = document.querySelector('[data-nav="architecture"]');
     if (archBtnExisting && !archBtnExisting.textContent.includes('พิมพ์เขียว')) {
-      archBtnExisting.innerHTML = '<span>🏛️ พิมพ์เขียวสถาปัตยกรรม</span>';
+      archBtnExisting.innerHTML = '<span>สถาปัตยกรรมและสถานะโครงการ</span>';
     }
     const sheetsBtnExisting = document.querySelector('[data-nav="sheets"]');
     if (sheetsBtnExisting && !sheetsBtnExisting.textContent.includes('โค้ด')) {
-      sheetsBtnExisting.innerHTML = '<span>🔗 เชื่อม Google Sheets / โค้ด</span>';
+      sheetsBtnExisting.innerHTML = '<span>คู่มือเชื่อมต่อข้อมูล</span>';
     }
 
     // 5.2 เติมเนื้อหาใน `#viewArchitectureSection` หากว่างเปล่า
@@ -63,13 +63,13 @@ let pdpaMaskEnabled=true;
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-purple-700 uppercase">Layer 1: Field IoMT & อสม.</div>
-              <div class="text-base font-extrabold text-slate-800">ชุดตรวจสุขภาพ 6 รายการ</div>
-              <p class="text-xs text-slate-600 leading-relaxed">แบบฟอร์มรับค่าที่เจ้าหน้าที่วัดได้จริง ไม่สร้างค่าที่ขาดขึ้นเอง; การรับค่าจากอุปกรณ์ IoMT อัตโนมัติยังไม่ได้ตรวจยืนยัน</p>
+              <div class="text-base font-extrabold text-slate-800">บันทึกผลตรวจสุขภาพ</div>
+              <p class="text-xs text-slate-600 leading-relaxed">สถานะ: แบบฟอร์มใช้งานแล้ว · แบบฟอร์มรับค่าที่เจ้าหน้าที่วัดได้จริง ไม่สร้างค่าที่ขาดขึ้นเอง; การรับค่าจากอุปกรณ์ IoMT อัตโนมัติยังไม่ได้ตรวจยืนยัน</p>
             </div>
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-indigo-700 uppercase">Layer 2: Serverless Bridge</div>
               <div class="text-base font-extrabold text-slate-800">Google Sheets & Apps Script</div>
-              <p class="text-xs text-slate-600 leading-relaxed">ชีตต้นทางมี 6 คอลัมน์พิกัดและรูปภาพ ไม่มีผลตรวจ; Apps Script ต้องยืนยันสิทธิ์และจับคู่รหัสบุคคลก่อนนำเข้า ไม่มี Upsert อัตโนมัติตามชื่อ</p>
+              <p class="text-xs text-slate-600 leading-relaxed">สถานะ: มีโค้ดเชื่อมต่อแล้ว ตรวจสถานะจริงในหน้าการเชื่อมต่อระบบ · ชีตต้นทางมีข้อมูลพิกัดและรูปภาพ ไม่มีผลตรวจ; Apps Script ต้องยืนยันสิทธิ์และจับคู่รหัสบุคคลก่อนนำเข้า ไม่มี Upsert อัตโนมัติตามชื่อ</p>
             </div>
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-emerald-700 uppercase">Layer 3: Cloud Spatial DB</div>
@@ -79,7 +79,7 @@ let pdpaMaskEnabled=true;
             <div class="bg-white rounded-2xl p-5 border border-purple-100 shadow-xs space-y-2">
               <div class="text-xs font-bold text-rose-700 uppercase">Layer 4: Smart Command Center</div>
               <div class="text-base font-extrabold text-slate-800">Vercel Node API + Leaflet GIS</div>
-              <p class="text-xs text-slate-600 leading-relaxed">ประมวลผล Point-in-Polygon เทียบขอบเขต <code class="bg-slate-100 px-1 rounded">boluang.json</code> ผ่านฟังก์ชันร่วมและ GeoJSON ใน browser; ข้อมูลเปลี่ยนเมื่อซิงค์ ยังไม่มีระบบแจ้งเตือนหรือ subscription แบบเรียลไทม์</p>
+              <p class="text-xs text-slate-600 leading-relaxed">สถานะ: แผนที่ใช้งานแล้ว · ประมวลผล Point-in-Polygon เทียบขอบเขต <code class="bg-slate-100 px-1 rounded">boluang.json</code> ผ่านฟังก์ชันร่วมและ GeoJSON ใน browser; ข้อมูลเปลี่ยนเมื่อซิงค์ ยังไม่มีระบบแจ้งเตือนหรือ subscription แบบเรียลไทม์</p>
             </div>
           </div>
 
@@ -130,40 +130,7 @@ let pdpaMaskEnabled=true;
     if (sheetsSec && !sheetsSec.querySelector('[data-sheet-bridge-content]')) {
       const compatibility=sheetsSec.innerHTML;
       sheetsSec.className = 'hidden flex-1 overflow-y-auto p-4 lg:p-6 bg-slate-50';
-      sheetsSec.innerHTML = `
-        <div class="max-w-5xl mx-auto space-y-6" data-sheet-bridge-content>
-          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-              <div>
-                <h2 class="text-lg font-extrabold text-slate-800">เชื่อมประสานข้อมูล Google Sheets & Supabase Cloud</h2>
-                <p class="text-xs text-slate-500">จัดการ Endpointผ่าน <code class="bg-slate-100 px-1.5 py-0.5 rounded">/api/config</code> โดยไม่ฝังคีย์ลับไว้ในซอร์สโค้ดหน้าเว็บ</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <button type="button" id="patchSyncLiveSupabaseBtn" class="px-4 py-2 rounded-xl bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shadow-xs transition-all">
-                  🔄 ดึงข้อมูลจริงจาก Supabase
-                </button>
-                <button type="button" id="patchPushToSupabaseBtn" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all">
-                  ☁️ อัปเดตข้อมูลขึ้น Supabase
-                </button>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div>
-                <label class="block font-bold text-slate-700 mb-1">Supabase Project URL (จาก /api/config หรือตั้งค่าเอง)</label>
-                <input id="patchSupabaseUrlInput" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-[11px]" placeholder="https://your-project.supabase.co">
-              </div>
-              <div>
-                <label class="block font-bold text-slate-700 mb-1">Google Apps Script Webhook URL</label>
-                <input id="patchAppsScriptUrlInput" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-mono text-[11px]" placeholder="https://script.google.com/macros/s/.../exec">
-              </div>
-            </div>
-            <div id="patchCloudStatusMsg" class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-              สถานะ: การเชื่อมต่อใช้ server configuration และ session ที่ได้รับสิทธิ์; ไม่ส่งทะเบียนทับตามชื่อ
-            </div>
-          </div>
-        </div>
-      ` + compatibility;
+      sheetsSec.innerHTML = `<div class="bg-white rounded-xl border p-5" data-sheet-bridge-content><h2>คู่มือเชื่อมต่อข้อมูล</h2><p>ทะเบียนพิกัดและรูปภาพอ่านจาก Google Sheets ผ่านเซิร์ฟเวอร์ ส่วนประวัติผลตรวจอ่านจากฐานข้อมูลตามรหัสผู้รับบริการที่ยืนยันแล้ว</p><p>ผู้ดูแลตั้งค่าการเชื่อมต่อที่ระบบโฮสต์ ไม่มีช่องกรอกคีย์ในเว็บนี้ ข้อมูลปรับปรุงเมื่อกดโหลดข้อมูลล่าสุด</p><p>หากไม่พบประวัติ ตรวจรหัสผู้รับบริการและสถานะการเชื่อมต่อก่อน ไม่จับคู่ตามชื่อและไม่สร้างผลตรวจที่ขาด</p><button id="patchSyncLiveSupabaseBtn" type="button" class="border rounded-lg px-4 py-2">โหลดข้อมูลล่าสุด</button><p>แอปเก็บรูปและพิกัดภาคสนามใช้สิทธิ์แยกจากการดูทะเบียน</p></div>` + compatibility;
     }
   }
 
@@ -176,8 +143,8 @@ let pdpaMaskEnabled=true;
 
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.id = 'pdpaToggleBtnBadge';
-    btn.title = 'คลิกเพื่อเปิด/ปิดการปกปิดชื่อ-นามสกุลผู้ป่วยตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA)';
+    btn.id = 'pdpaToggleBtnBadge';btn.dataset.access='staff';btn.hidden=true;
+    btn.title = 'ซ่อนชื่อ ที่อยู่ และรูปบนหน้าจอนี้ การปกปิดหน้าจอไม่ใช่การกำหนดสิทธิ์เข้าถึง';
     btn.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-100 text-purple-800 border border-purple-200 transition-all cursor-pointer';
     function renderPrivacy(masked){pdpaMaskEnabled=masked;btn.textContent=masked?'ปกปิดข้อมูล: เปิด':'ปกปิดข้อมูล: ปิด';btn.setAttribute('aria-pressed',String(masked));}
     renderPrivacy(window.BoLuangApp?.getPrivacy()??true);

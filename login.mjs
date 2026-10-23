@@ -11,21 +11,21 @@ export function mountLogin(doc=document,location=window.location){
  const email=doc.getElementById('email'),password=doc.getElementById('password');
  const buttons=['signIn','loadPatients','signOut'].map(id=>doc.getElementById(id));let busy=false;
  function show(text,error=false){message.textContent=text;message.dataset.error=String(error);}
- function signedIn(scope){const admin=scope?.role==='admin';form.hidden=admin;actions.hidden=!admin;return admin;}
+ function signedIn(scope){const admin=['admin','clinician','viewer'].includes(scope?.role);form.hidden=admin;actions.hidden=!admin;return admin;}
  async function run(task){if(busy)return;busy=true;buttons.forEach(b=>b.disabled=true);try{await task();}catch(e){if(e.status===401)signedIn(null);show(e.message,true);}finally{busy=false;buttons.forEach(b=>b.disabled=false);}}
  form.addEventListener('submit',event=>{event.preventDefault();run(async()=>{
-  show('กำลังเข้าสู่ระบบ…');try{const scope=await sessionRequest('POST',{email:email.value.trim(),password:password.value,adminOnly:true});
-   if(!signedIn(scope))throw Error('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ');show('เข้าสู่ระบบแล้ว กดปุ่มเพื่อดึงข้อมูลผู้ป่วย');
+  show('กำลังเข้าสู่ระบบ…');try{const scope=await sessionRequest('POST',{email:email.value.trim(),password:password.value});
+   if(!signedIn(scope))throw Error('บัญชีนี้ไม่มีสิทธิ์ระบบสุขภาพ');show('เข้าสู่ระบบแล้ว กดเปิดทะเบียนผู้รับบริการ');
   }finally{password.value='';}
  });});
  doc.getElementById('loadPatients').addEventListener('click',()=>run(async()=>{
-  const scope=await sessionRequest();if(!signedIn(scope)){show('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ',true);return;}
+  const scope=await sessionRequest();if(!signedIn(scope)){show('บัญชีนี้ไม่มีสิทธิ์ระบบสุขภาพ',true);return;}
   // The existing main-page sync reads patients once, using the HttpOnly session.
   location.assign('/');
  }));
  doc.getElementById('signOut').addEventListener('click',()=>run(async()=>{
   try{await sessionRequest('DELETE');signedIn(null);show('ออกจากระบบแล้ว');email.focus();}catch(e){if(e.status===401){signedIn(null);show('เซสชันหมดอายุแล้ว');}else throw e;}
  }));
- return run(async()=>{try{const scope=await sessionRequest();if(signedIn(scope))show('เข้าสู่ระบบแล้ว กดปุ่มเพื่อดึงข้อมูลผู้ป่วย');else show('บัญชีนี้ไม่มีสิทธิ์ผู้ดูแลระบบ',true);}catch(e){if(e.status===401){signedIn(null);show('กรุณาเข้าสู่ระบบ');}else throw e;}});
+ return run(async()=>{try{const scope=await sessionRequest();if(signedIn(scope))show('เข้าสู่ระบบแล้ว กดเปิดทะเบียนผู้รับบริการ');else show('บัญชีนี้ไม่มีสิทธิ์ระบบสุขภาพ',true);}catch(e){if(e.status===401){signedIn(null);show('กรุณาเข้าสู่ระบบ');}else throw e;}});
 }
 if(typeof document!=='undefined')mountLogin();

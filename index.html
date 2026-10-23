@@ -51,6 +51,10 @@
       background-color: #f8fafc !important;
       color: #0f172a !important;
     }
+
+    [hidden]{display:none!important}body{font-size:15px;line-height:1.6}button,input,select,textarea{font:inherit}button,a,input,select,textarea{touch-action:manipulation}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #059669;outline-offset:3px}
+    .text-xs{font-size:14px!important;line-height:1.6!important}[class*="text-[10px]"],[class*="text-[11px]"]{font-size:13px!important;line-height:1.6!important}.text-slate-400{color:#64748b!important}nav button,nav a{font-size:14px!important;min-height:42px}h2,h3{line-height:1.5}h3{font-size:18px!important}header{height:auto!important;min-height:64px;flex-wrap:wrap;gap:8px;padding-bottom:8px;padding-top:8px}header>div:last-child{flex-wrap:wrap;justify-content:flex-end}#accountSummary{font-size:13px;max-width:360px;overflow-wrap:anywhere}#cloudStatusBtnLabel{white-space:normal}#openCloudConfigBtn[data-tone=error]{background:#fff1f2;color:#9f1239;border-color:#fecdd3}#openCloudConfigBtn[data-tone=warning]{background:#fffbeb;color:#92400e;border-color:#fde68a}#openCloudConfigBtn[data-tone=loading],#openCloudConfigBtn[data-tone=neutral]{background:#f1f5f9;color:#334155;border-color:#cbd5e1}#openCloudConfigBtn[data-tone=success]{background:#ecfdf5;color:#065f46;border-color:#a7f3d0}#openCloudConfigBtn>span:first-child{background:currentColor}#viewSummarySection table{min-width:1500px}#viewSummarySection th{position:sticky;top:0;background:#f8fafc;z-index:1}#viewSummarySection th:nth-child(2),#patientSummaryTableBody td:nth-child(2){position:sticky;left:0;background:white;z-index:2;min-width:230px}#viewSummarySection th:nth-child(2){z-index:3}#patientSummaryTableBody td{font-size:14px}#activeFilters{background:#f8fafc;border-bottom:1px solid #e2e8f0}#logoContainerBox{cursor:default}#logoContainerBox>div:last-child{display:none}#viewAnalyticsSection canvas[hidden]{display:none!important}
+    @media(max-width:767px){header>div:first-child{width:100%;border-right:0}header>div:last-child{width:100%;margin:0;padding:0 12px;justify-content:flex-start}aside nav{display:flex;flex-wrap:wrap}aside nav>div{width:100%}#viewMapSection>div{min-height:560px}.map-layer-controls{top:58px!important;left:12px;right:auto!important;max-width:calc(100% - 24px)}.leaflet-top.leaflet-left{top:115px!important}.facility-tools{max-width:calc(100% - 28px)}#viewArchitectureSection{margin:0}#viewSummarySection{margin:8px}}
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-slate-800 selection:text-white">
@@ -74,19 +78,20 @@
 
     <!-- Right Quick Actions & Live Clock -->
     <div class="flex items-center gap-2 ml-auto text-xs">
+      <a id="staffLoginLink" href="/login" class="px-3 py-2 rounded-lg bg-emerald-700 text-white font-semibold">เข้าสู่ระบบเจ้าหน้าที่</a><span id="accountSummary" hidden role="status"></span>
       <span id="liveClockText" class="hidden md:inline-block text-slate-400 font-normal mr-2">วันศุกร์ที่ 16 ตุลาคม 2569</span>
 
-      <button id="openAddCheckupBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition">
+      <button id="openAddCheckupBtn" data-access="write" hidden type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-medium border border-slate-200/90 shadow-[0_1px_2px_rgba(15,23,42,0.02)] transition">
         <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5" y1="12" x2="19" y2="12"/>
         </svg>
-        <span>รับค่าชุดตรวจ อสม.</span>
+        <span>บันทึกผลตรวจสุขภาพ</span>
       </button>
 
-      <button id="openCloudConfigBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50/70 hover:bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-medium transition">
+      <button id="openCloudConfigBtn" data-access="staff" hidden type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50/70 hover:bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-medium transition">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        <span id="cloudStatusBtnLabel">เชื่อมต่อฐานข้อมูลแล้ว</span>
+        <span id="cloudStatusBtnLabel">กำลังตรวจสอบสถานะ</span>
       </button>
 
       <!-- Hidden compatibility elements -->
@@ -103,7 +108,7 @@
       <div>
         <!-- Municipality Seal & Name Box -->
         <div class="px-5 pt-6 pb-5 flex flex-col items-center text-center border-b border-slate-200/80 bg-slate-50/40">
-          <div id="logoContainerBox" title="คลิกเพื่อเปลี่ยนรูปโลโก้เทศบาลตำบลบ่อหลวง" class="group cursor-pointer w-24 h-24 rounded-full bg-white border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center p-1.5 mb-3 relative overflow-hidden transition hover:border-slate-300">
+          <div id="logoContainerBox" title="เทศบาลตำบลบ่อหลวง" class="group cursor-pointer w-24 h-24 rounded-full bg-white border border-slate-200/90 shadow-[0_2px_8px_rgba(15,23,42,0.04)] flex items-center justify-center p-1.5 mb-3 relative overflow-hidden transition hover:border-slate-300">
             <input type="file" id="logoFileInput" accept="image/*" class="hidden" />
             <img id="customLogoImg" src="./logo.png" alt="โลโก้เทศบาลตำบลบ่อหลวง" class="hidden w-full h-full object-contain rounded-full" onerror="this.classList.add('hidden'); document.getElementById('defaultLogoSvg').classList.remove('hidden');" onload="this.classList.remove('hidden'); document.getElementById('defaultLogoSvg').classList.add('hidden');" />
             <svg id="defaultLogoSvg" viewBox="0 0 100 100" class="w-full h-full text-slate-600">
@@ -127,7 +132,7 @@
           <!-- Group 1: Dashboard -->
           <div class="p-3">
             <button type="button" id="toggleDashboardMenuBtn" class="w-full px-2 py-1.5 flex items-center justify-between font-semibold text-slate-400 uppercase tracking-wider text-[10px] hover:text-slate-700 transition">
-              <span>Dashboard</span>
+              <span>ภาพรวม</span>
               <svg id="dashboardMenuArrow" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
@@ -138,23 +143,23 @@
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
-                <span>พิกัดผู้รับการตรวจ</span>
+                <span>แผนที่หน่วยบริการ</span>
               </button>
-              <button type="button" data-nav="summary" class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
+              <button type="button" data-nav="summary" data-access="staff" hidden class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
                 <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                   <line x1="3" y1="9" x2="21" y2="9"/>
                   <line x1="9" y1="21" x2="9" y2="9"/>
                 </svg>
-                <span>ข้อมูลสุขภาพ (ตาราง)</span>
+                <span>ทะเบียนผู้รับบริการ</span>
               </button>
-              <button type="button" data-nav="analytics" class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
+              <button type="button" data-nav="analytics" data-access="staff" hidden class="nav-tab-btn w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition flex items-center gap-2.5">
                 <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="20" x2="18" y2="10"/>
                   <line x1="12" y1="20" x2="12" y2="4"/>
                   <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
-                <span>สถิติรายหมู่บ้าน</span>
+                <span>สถิติสุขภาพรายหมู่บ้าน</span>
               </button>
               <a id="fieldCaptureLink" href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer" hidden style="display:none" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition items-center gap-2.5" aria-label="เก็บข้อมูลภาคสนาม (เปิดแท็บใหม่)">
                 <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M14.5 4h-5L7 7H3v13h18V7h-4z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -164,7 +169,7 @@
           </div>
 
           <!-- Village & Health Unit Filters (13 Villages) -->
-          <div class="p-3.5 bg-slate-50/50 space-y-3">
+          <div data-registry-filters data-access="staff" hidden class="p-3.5 bg-slate-50/50 space-y-3">
             <div>
               <label for="villageSelect" class="block text-[11px] font-medium text-slate-500 mb-1.5">กรองหมู่บ้าน (13 หมู่บ้าน)</label>
               <select id="villageSelect" class="w-full rounded-lg border border-slate-200/90 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 shadow-[0_1px_2px_rgba(15,23,42,0.02)] focus:outline-none focus:border-slate-400 transition">
@@ -198,36 +203,36 @@
           </div>
 
           <!-- Group 2: ตั้งค่า -->
-          <div class="p-3">
-            <button type="button" id="toggleSettingsMenuBtn" class="w-full px-2 py-1.5 flex items-center justify-between font-semibold text-slate-400 uppercase tracking-wider text-[10px] hover:text-slate-700 transition">
+          <div class="p-3" data-access="staff" hidden>
+            <button type="button" id="toggleSettingsMenuBtn" data-access="staff" hidden class="w-full px-2 py-1.5 flex items-center justify-between font-semibold text-slate-400 uppercase tracking-wider text-[10px] hover:text-slate-700 transition">
               <span>ตั้งค่าระบบ</span>
               <svg id="settingsMenuArrow" class="w-3.5 h-3.5 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
-            <div id="settingsSubmenu" class="hidden mt-1.5 space-y-1 text-xs">
-              <button type="button" id="quickPullSupabaseBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+            <div id="settingsSubmenu" data-access="staff" hidden class="hidden mt-1.5 space-y-1 text-xs">
+              <button type="button" id="quickPullSupabaseBtn" data-access="staff" hidden class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
                 <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="23 4 23 10 17 10"/>
                   <polyline points="1 20 1 14 7 14"/>
                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
                 </svg>
-                <span>ซิงค์ข้อมูลล่าสุด</span>
+                <span>โหลดข้อมูลล่าสุด</span>
               </button>
-              <button type="button" id="quickOpenConfigBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+              <button type="button" id="quickOpenConfigBtn" data-access="admin" hidden class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
                 <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                   <ellipse cx="12" cy="5" rx="9" ry="3"/>
                   <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
                   <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
                 </svg>
-                <span>ตั้งค่าฐานข้อมูล Cloud</span>
+                <span>การเชื่อมต่อระบบ</span>
               </button>
-              <button type="button" id="uploadGeoJsonBtn" class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
+              <button type="button" id="uploadGeoJsonBtn" data-access="admin" hidden class="w-full text-left px-3 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent hover:border-slate-200/80 transition flex items-center gap-2">
                 <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
-                <span>อัปเดตไฟล์แผนที่ JSON</span>
+                <span>จัดการขอบเขตแผนที่</span>
               </button>
               <input type="file" id="geoJsonFileInput" accept=".json,.geojson" multiple class="hidden" />
             </div>
@@ -238,9 +243,9 @@
       <!-- Minimal Bottom Status Box -->
       <div class="p-4 border-t border-slate-200/80 bg-slate-50/40 flex items-center justify-between text-xs text-slate-500">
         <div>
-          <div class="text-[11px] text-slate-400">พิกัดที่แสดงบนแผนที่</div>
-          <div class="font-semibold text-slate-700 mt-0.5"><span id="visiblePinCount">12</span> รายการ</div>
-          <span id="sidebarListCountBadge" class="hidden">12 ราย</span>
+          <div data-access="staff" hidden><div class="text-[11px] text-slate-400">ผู้รับบริการที่แสดงบนแผนที่</div>
+          <div class="font-semibold text-slate-700 mt-0.5"><span id="visiblePinCount">0</span> รายการ</div>
+          <span id="sidebarListCountBadge" class="hidden">0 ราย</span></div><p class="text-sm">หน่วยบริการ <strong>4 แห่ง</strong></p>
         </div>
         <button type="button" id="resetMapCenterBtn" title="รีเซ็ตมุมมองแผนที่" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 border border-slate-200/90 flex items-center justify-center text-slate-600 transition shadow-[0_1px_2px_rgba(15,23,42,0.02)]">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -255,21 +260,21 @@
     <main class="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
 
       <!-- 5 Top KPI Summary Cards (Minimal Line + Soft Borders) -->
-      <section aria-label="สรุปสถิติผู้รับการตรวจ" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 bg-white border-b border-slate-200/90 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80">
-        <!-- Card 1: จำนวนผู้รับการตรวจ -->
+      <section aria-label="สรุปสถิติผู้รับการตรวจ" data-access="staff" hidden class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 bg-white border-b border-slate-200/90 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80">
+        <!-- Card 1: จำนวนผู้รับบริการ -->
         <button type="button" data-risk-filter="ALL" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-500">จำนวนผู้รับการตรวจ</span>
+            <span class="text-xs font-medium text-slate-500">จำนวนผู้รับบริการ</span>
             <span class="w-2 h-2 rounded-full bg-slate-300"></span>
           </div>
           <div class="my-auto text-3xl font-semibold text-slate-800 tracking-tight" id="kpiTotalCount">920</div>
-          <div class="text-[11px] text-slate-400">ทั้งหมดในระบบ</div>
+          <div class="text-[11px] text-slate-400">ตามตัวกรองที่เลือก</div>
         </button>
 
-        <!-- Card 2: เกณฑ์สุขภาพเหมาะสม -->
+        <!-- Card 2: ผลคัดกรองปกติ -->
         <button type="button" data-risk-filter="NORMAL" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพเหมาะสม</span>
+            <span class="text-xs font-medium text-slate-500">ผลคัดกรองปกติ</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
           </div>
           <div class="my-auto text-3xl font-semibold text-emerald-600 tracking-tight" id="kpiNormalCount">183</div>
@@ -279,10 +284,10 @@
           </div>
         </button>
 
-        <!-- Card 3: เกณฑ์สุขภาพมีความเสี่ยง -->
+        <!-- Card 3: ผลคัดกรองเสี่ยง -->
         <button type="button" data-risk-filter="RISK" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพมีความเสี่ยง</span>
+            <span class="text-xs font-medium text-slate-500">ผลคัดกรองเสี่ยง</span>
             <span class="w-2 h-2 rounded-full bg-amber-500"></span>
           </div>
           <div class="my-auto text-3xl font-semibold text-amber-600 tracking-tight" id="kpiRiskCount">336</div>
@@ -292,10 +297,10 @@
           </div>
         </button>
 
-        <!-- Card 4: เกณฑ์สุขภาพอันตราย -->
+        <!-- Card 4: ผลคัดกรองอันตราย -->
         <button type="button" data-risk-filter="DANGER" class="kpi-card text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-500">เกณฑ์สุขภาพอันตราย</span>
+            <span class="text-xs font-medium text-slate-500">ผลคัดกรองอันตราย</span>
             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
           </div>
           <div class="my-auto text-3xl font-semibold text-rose-600 tracking-tight" id="kpiDangerCount">394</div>
@@ -305,10 +310,10 @@
           </div>
         </button>
 
-        <!-- Card 5: ประชากรนอกเขต -->
+        <!-- Card 5: ผู้รับบริการนอกเขต -->
         <button type="button" data-risk-filter="OUTAREA" class="kpi-card col-span-2 sm:col-span-1 text-left px-5 py-3.5 hover:bg-slate-50/70 transition flex flex-col justify-between h-28">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-medium text-slate-500">ประชากรนอกเขต</span>
+            <span class="text-xs font-medium text-slate-500">ผู้รับบริการนอกเขต</span>
             <span class="w-2 h-2 rounded-full bg-sky-500"></span>
           </div>
           <div class="my-auto text-3xl font-semibold text-sky-700 tracking-tight" id="kpiOutCount">467</div>
@@ -320,10 +325,10 @@
       </section>
 
       <!-- Minimal Search & 4 Target Group Switches Bar -->
-      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" class="bg-white px-5 py-3 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-4">
+      <section aria-label="ค้นหาและกรองกลุ่มเป้าหมาย" data-access="staff" hidden class="bg-white px-5 py-3 border-b border-slate-200/90 flex flex-wrap items-center justify-between gap-4">
         <!-- Search Input -->
         <div class="flex items-center gap-3">
-          <label for="patientSearchInput" class="text-xs font-medium text-slate-500">ชื่อผู้รับการตรวจ</label>
+          <label for="patientSearchInput" class="text-xs font-medium text-slate-500">ค้นหาผู้รับบริการ</label>
           <div class="relative w-60 sm:w-72">
             <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/>
@@ -340,7 +345,7 @@
             <span class="toggle-track w-10 h-5 rounded-full bg-slate-200 border border-slate-300 relative transition-colors flex items-center p-0.5">
               <span class="toggle-thumb w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform translate-x-0"></span>
             </span>
-            <span class="text-xs font-medium text-slate-700">ปกติ</span>
+            <span class="text-xs font-medium text-slate-700">กลุ่มทั่วไป</span>
           </button>
 
           <button type="button" data-group-toggle="ผู้ป่วยติดเตียง" class="group-toggle-btn flex items-center gap-2 transition">
@@ -364,10 +369,13 @@
             <span class="text-xs font-medium text-slate-700">กลุ่มเปราะบาง</span>
           </button>
 
+          <button id="clearAllFiltersBtn" type="button" class="text-sm border rounded-lg px-3 py-2">ล้างตัวกรองทั้งหมด</button>
           <button id="showAllGroupsBtn" type="button" class="text-xs font-medium text-slate-500 hover:text-slate-900 border border-slate-200/90 rounded-lg px-2.5 py-1 bg-slate-50/60 hover:bg-slate-100 transition">แสดงทุกกลุ่ม</button>
         </div>
       </section>
 
+      <div id="activeFilters" data-access="staff" hidden class="px-4 py-2 text-sm" role="status"></div>
+      <div id="publicMapIntro" class="px-4 py-3 bg-emerald-50 text-emerald-950">แผนที่หน่วยบริการสุขภาพในตำบลบ่อหลวง · กดหมุดเพื่อดูชื่อและนำทาง<br><a href="/login" class="underline">เจ้าหน้าที่เข้าสู่ระบบเพื่อดูทะเบียนและผลตรวจ</a></div>
       <!-- VIEW 1: Full-Width, Full-Height Interactive Map -->
       <section id="viewMapSection" class="flex-1 relative bg-[#f8fafc] p-3 flex flex-col">
         <div class="relative w-full flex-1 min-h-[580px] h-[calc(100vh-235px)] rounded-xl overflow-hidden border border-slate-200/90 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
@@ -379,7 +387,7 @@
           </div>
 
           <!-- Floating Top-Right Boundary Layer Checkboxes -->
-          <div class="absolute top-3 right-3 z-20 flex flex-wrap items-center gap-3 bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-slate-200/90 text-xs">
+          <div class="map-layer-controls absolute top-3 right-3 z-20 flex flex-wrap items-center gap-3 bg-white/95 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-slate-200/90 text-xs">
             <label class="inline-flex items-center gap-1.5 font-medium text-slate-700 cursor-pointer">
               <input type="checkbox" id="toggleTambonBoundaryChk" checked class="rounded border-slate-300 text-slate-800 focus:ring-0" />
               <span>ขอบเขตตำบล</span>
@@ -391,11 +399,12 @@
             <!-- health-unit-layer-control -->
             <label class="inline-flex items-center gap-1.5 font-medium text-slate-700 cursor-pointer">
               <input type="checkbox" id="toggleHealthUnitsChk" checked class="rounded border-slate-300 text-emerald-700 focus:ring-0" />
-              <span>หน่วยบริการ</span>
+              <span>หน่วยบริการ 4 แห่ง</span>
             </label>
             <!-- /health-unit-layer-control -->
           </div>
 
+          <div class="facility-tools absolute bottom-8 left-4 z-20 bg-white/95 rounded-lg border px-3 py-2 text-sm"><span>สัญลักษณ์ + คือหน่วยบริการ</span> · <button id="fitHealthUnitsBtn" type="button" class="underline font-semibold">ดูหน่วยบริการทั้งหมด</button></div>
           <!-- Leaflet Map Canvas -->
           <div id="leafletMapContainer" class="w-full h-full z-10"></div>
 
@@ -410,18 +419,18 @@
         <div class="px-5 py-3.5 bg-slate-50/60 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2.5">
-              <span>ตารางทะเบียนสุขภาพผู้รับการตรวจคัดกรองล่าสุด</span>
-              <span class="text-[11px] font-normal px-2.5 py-0.5 rounded-full bg-white text-slate-500 border border-slate-200/80">คลิกที่แถวเพื่อดูประวัติสัญญาณชีพ 6 รายการ</span>
+              <span>ทะเบียนและผลคัดกรองล่าสุด</span>
+              <span class="text-[11px] font-normal px-2.5 py-0.5 rounded-full bg-white text-slate-500 border border-slate-200/80">กดดูรายละเอียดเพื่อดูผลตรวจและประวัติย้อนหลัง</span>
             </h3>
           </div>
           <div class="flex items-center gap-2">
-            <button id="exportCsvBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 transition">
+            <button id="exportCsvBtn" data-access="staff" hidden type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-700 transition">
               <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              <span>ดาวน์โหลด CSV</span>
+              <span>ดาวน์โหลด CSV ตามตัวกรอง</span>
             </button>
           </div>
         </div>
@@ -434,17 +443,17 @@
                 <th class="py-3 px-3 text-left">ชื่อ-สกุล</th>
                 <th class="py-3 px-2">อายุ (ปี)</th>
                 <th class="py-3 px-2">กลุ่มเป้าหมาย</th>
-                <th class="py-3 px-2">เกณฑ์สุขภาพ</th>
+                <th class="py-3 px-2">ผลคัดกรอง</th>
                 <th class="py-3 px-2">อุณหภูมิ (°C)</th>
-                <th class="py-3 px-2">น้ำหนัก (Kg)</th>
+                <th class="py-3 px-2">น้ำหนัก (กก.)</th>
                 <th class="py-3 px-2">BMI</th>
-                <th class="py-3 px-2">SYS (mmHg)</th>
-                <th class="py-3 px-2">DIA (mmHg)</th>
-                <th class="py-3 px-2">Pulse (min)</th>
-                <th class="py-3 px-2">%SpO2</th>
+                <th class="py-3 px-2">ความดันตัวบน (mmHg)</th>
+                <th class="py-3 px-2">ความดันตัวล่าง (mmHg)</th>
+                <th class="py-3 px-2">ชีพจร (ครั้ง/นาที)</th>
+                <th class="py-3 px-2">ออกซิเจนในเลือด (%)</th>
                 <th class="py-3 px-2">PI (%)</th>
                 <th class="py-3 px-2">น้ำตาล (mg/dL)</th>
-                <th class="py-3 px-3">รายละเอียด</th>
+                <th class="py-3 px-3">ผลตรวจล่าสุด</th><th class="py-3 px-3">รายละเอียด</th>
               </tr>
             </thead>
             <tbody id="patientSummaryTableBody" class="divide-y divide-slate-200/70"></tbody>
@@ -455,14 +464,14 @@
       <!-- VIEW 3: Highland Analytics & Caregiver Workload Section -->
       <section id="viewAnalyticsSection" class="hidden m-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="bg-white rounded-xl border border-slate-200/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-          <h3 class="text-sm font-semibold text-slate-800 mb-1">สัดส่วนผู้ป่วยติดเตียง ผู้พิการ และกลุ่มเปราะบาง รายหมู่บ้าน (ครบ 13 หมู่บ้าน)</h3>
-          <p class="text-xs text-slate-400 mb-4">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อวางแผนจัดสรรทีม Caregiver และ อสม.</p>
-          <div class="relative h-72"><canvas id="villageDistributionChart"></canvas></div>
+          <h3 class="text-sm font-semibold text-slate-800 mb-1">จำนวนผู้รับบริการแยกกลุ่มรายหมู่บ้าน</h3>
+          <p class="text-xs text-slate-400 mb-4">จำแนกตามหมู่บ้านในเขตเทศบาลตำบลบ่อหลวง เพื่อวางแผนจัดสรรทีมผู้ดูแลและ อสม.</p>
+          <p id="analyticsNotice" role="status" class="text-sm py-2"></p><p class="text-sm">นับคนตามทะเบียนที่กรอง ณ วันที่โหลดข้อมูล ไม่ใช่จำนวนครั้งตรวจ</p><div class="relative h-72"><canvas id="villageDistributionChart"></canvas></div>
         </div>
         <div class="bg-white rounded-xl border border-slate-200/90 p-5 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-          <h3 class="text-sm font-semibold text-slate-800 mb-1">สัดส่วนตามเกณฑ์ประเมินสุขภาพ</h3>
+          <h3 class="text-sm font-semibold text-slate-800 mb-1">สัดส่วนผลคัดกรองตามตัวกรองที่เลือก</h3>
           <p class="text-xs text-slate-400 mb-4">เปรียบเทียบสัดส่วนผู้รับการตรวจตามเกณฑ์ความดันโลหิต น้ำตาลในเลือด และออกซิเจน</p>
-          <div class="relative h-72"><canvas id="riskBreakdownChart"></canvas></div>
+          <p class="text-sm">ฐานเปอร์เซ็นต์: ผู้รับบริการตามตัวกรอง รวมกลุ่มข้อมูลไม่ครบ</p><div class="relative h-72"><canvas id="riskBreakdownChart"></canvas></div>
         </div>
       </section>
 
@@ -487,23 +496,23 @@
   </footer>
 
   <!-- MODAL 1: Patient Latest Vital Signs History Modal (Minimal Line + Soft Borders) -->
-  <div id="patientDetailModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+  <div id="patientDetailModal" role="dialog" aria-modal="true" aria-label="รายละเอียดผู้รับบริการ" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-5xl overflow-hidden my-auto">
       <!-- Modal Top Status Header -->
       <div id="modalHeaderBanner" class="bg-rose-50/70 border-b border-rose-200/80 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <span id="modalRiskDot" class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-          <h3 id="modalRiskTitle" class="text-sm font-bold tracking-tight text-rose-900">เกณฑ์สุขภาพอันตราย</h3>
+          <h3 id="modalRiskTitle" class="text-sm font-bold tracking-tight text-rose-900">ผลคัดกรองอันตราย</h3>
           <span id="modalGroupBadge" class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-white text-slate-700 border border-slate-200/90">ผู้ป่วยติดเตียง</span>
         </div>
         <div class="flex items-center gap-2">
-          <button id="downloadPatientReportBtn" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 transition">
+          <button id="downloadPatientReportBtn" data-access="staff" hidden type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 transition">
             <svg class="w-3.5 h-3.5 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
             </svg>
-            <span>ดาวน์โหลด CSV</span>
+            <span>ดาวน์โหลด CSV ตามตัวกรอง</span>
           </button>
           <button id="closePatientModalBtn" type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-slate-100 text-slate-700 border border-slate-200/90 transition">
             <span>ปิดหน้าต่าง</span>
@@ -516,17 +525,17 @@
         <div class="flex flex-wrap sm:flex-nowrap items-center gap-4">
           <img id="modalPatientPhotoImg" src="" alt="รูปภาพการออกเยี่ยมบ้าน" class="hidden w-24 h-20 object-cover rounded-xl border border-slate-200/90 shrink-0" />
           <div id="modalPatientAvatar" class="w-14 h-14 rounded-xl bg-white border border-slate-200/90 flex items-center justify-center text-base font-semibold text-slate-700 shrink-0">
-            อบ
+            —
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h4 id="modalPatientName" class="text-base font-bold text-slate-900">นายอรัญ พงศ์ศักดิ์</h4>
-              <span id="modalPatientAge" class="text-xs font-medium text-slate-500">อายุ 55 ปี</span>
-              <span id="modalCareUnitBadge" class="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-white text-slate-600 border border-slate-200/90">รพ.สต.บ้านนาฟ่อน (ม.4)</span>
-              <a id="modalDrivePhotoLink" href="https://drive.google.com/file/d/1dLsgCJbjuULATi6YZnxcAZGk5txbSmKY/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="hidden text-[11px] font-medium text-slate-700 hover:text-slate-900 underline bg-white px-2.5 py-0.5 rounded-md border border-slate-200/90">เปิดรูปต้นฉบับใน Google Drive</a>
+              <h4 id="modalPatientName" class="text-base font-bold text-slate-900">—</h4>
+              <span id="modalPatientAge" class="text-xs font-medium text-slate-500">—</span>
+              <span id="modalCareUnitBadge" class="text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-white text-slate-600 border border-slate-200/90">—</span>
+              <a id="modalDrivePhotoLink" href="#" target="_blank" rel="noopener noreferrer" class="hidden text-[11px] font-medium text-slate-700 hover:text-slate-900 underline bg-white px-2.5 py-0.5 rounded-md border border-slate-200/90">เปิดรูปต้นฉบับใน Google Drive</a>
             </div>
-            <p id="modalPatientAddress" class="text-xs text-slate-500 mt-1">63 หมู่ที่ 4 บ้านนาฟ่อน ตำบลบ่อหลวง อำเภอฮอด จังหวัดเชียงใหม่</p>
-            <p id="modalPatientCondition" class="text-xs text-slate-700 font-medium mt-1">โรคประจำตัว: ความดันโลหิตสูง, เบาหวานชนิดที่ 2 • คะแนน ADL: 3 (ติดเตียงสมบูรณ์)</p>
+            <p id="modalPatientAddress" class="text-xs text-slate-500 mt-1">—</p>
+            <p id="modalPatientCondition" class="text-xs text-slate-700 font-medium mt-1">—</p>
           </div>
         </div>
 
@@ -534,19 +543,19 @@
         <div class="flex flex-wrap items-center gap-2 bg-white p-3 rounded-xl border border-slate-200/90 text-xs">
           <div class="px-3 py-1 border-r border-slate-200/80">
             <div class="text-[10px] text-slate-400">ความดัน (SYS/DIA)</div>
-            <div id="modalSummaryBp" class="font-semibold text-slate-900 mt-0.5">130/78 <span class="text-[10px] font-normal text-slate-400">mmHg</span></div>
+            <div id="modalSummaryBp" class="font-semibold text-slate-900 mt-0.5">—</div>
           </div>
           <div class="px-3 py-1 border-r border-slate-200/80">
-            <div class="text-[10px] text-slate-400">ออกซิเจน (%SpO2)</div>
-            <div id="modalSummarySpo2" class="font-semibold text-emerald-700 mt-0.5">99% <span class="text-[10px] font-normal text-slate-400">(PI 5.7)</span></div>
+            <div class="text-[10px] text-slate-400">ออกซิเจนในเลือด (%)</div>
+            <div id="modalSummarySpo2" class="font-semibold text-emerald-700 mt-0.5">—</div>
           </div>
           <div class="px-3 py-1 border-r border-slate-200/80">
             <div class="text-[10px] text-slate-400">น้ำตาล (DTX)</div>
-            <div id="modalSummarySugar" class="font-semibold text-rose-600 mt-0.5">171.0 <span class="text-[10px] font-normal text-slate-400">mg/dL</span></div>
+            <div id="modalSummarySugar" class="font-semibold text-rose-600 mt-0.5">—</div>
           </div>
           <div class="px-3 py-1">
             <div class="text-[10px] text-slate-400">อุณหภูมิ / น้ำหนัก</div>
-            <div id="modalSummaryTempWeight" class="font-semibold text-slate-800 mt-0.5">36.3 °C • 79.4 Kg</div>
+            <div id="modalSummaryTempWeight" class="font-semibold text-slate-800 mt-0.5">—</div>
           </div>
         </div>
       </div>
@@ -555,10 +564,10 @@
       <div class="p-5 space-y-3.5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h5 class="text-xs font-semibold text-slate-800">ข้อมูลล่าสุด (บันทึกการส่งค่าจากชุดอุปกรณ์ตรวจสุขภาพ 6 รายการ)</h5>
-            <p class="text-[11px] text-slate-400">ตารางแสดงลำดับเวลาที่เครื่องมือแพทย์แต่ละชิ้นส่งค่าเข้าสู่ระบบ</p>
+            <h5 class="text-xs font-semibold text-slate-800">ข้อมูลล่าสุด (ผลตรวจที่มีการบันทึกจริง)</h5>
+            <p class="text-[11px] text-slate-400">ประวัติผลตรวจตามวันและเวลาที่บันทึก ไม่มีการสร้างค่าที่ขาดขึ้นเอง</p>
           </div>
-          <button id="simulateNewReadingForPatientBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition">
+          <button id="simulateNewReadingForPatientBtn" hidden type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white transition">
             จำลองการส่งค่าจากชุดตรวจ อสม.
           </button>
         </div>
@@ -569,19 +578,19 @@
               <tr class="bg-slate-50 text-slate-600 font-medium border-b border-slate-200/90">
                 <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">ลำดับ</th>
                 <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">อุณหภูมิ<br/><span class="text-[10px] font-normal text-slate-400">(°C)</span></th>
-                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">น้ำหนัก<br/><span class="text-[10px] font-normal text-slate-400">(Kg)</span></th>
-                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">ความสูง<br/><span class="text-[10px] font-normal text-slate-400">(Cm)</span></th>
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">น้ำหนัก<br/><span class="text-[10px] font-normal text-slate-400">(กก.)</span></th>
+                <th rowspan="2" class="border-r border-slate-200/80 py-2.5 px-2">ความสูง<br/><span class="text-[10px] font-normal text-slate-400">(ซม.)</span></th>
                 <th colspan="3" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ความดันโลหิต</th>
-                <th colspan="3" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ออกซิเจนในเลือด</th>
+                <th colspan="3" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ออกซิเจนในเลือด (%)</th>
                 <th colspan="1" class="border-r border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ตรวจเลือด</th>
                 <th colspan="3" class="border-b border-slate-200/80 py-1.5 px-2 bg-slate-50/90">ผู้ตรวจคัดกรอง</th>
               </tr>
               <tr class="bg-slate-50/50 text-slate-500 font-medium border-b border-slate-200/90 text-[11px]">
                 <th class="border-r border-slate-200/80 py-1.5 px-2">SYS<br/><span class="text-[10px] font-normal text-slate-400">(mmHg)</span></th>
                 <th class="border-r border-slate-200/80 py-1.5 px-2">DIA<br/><span class="text-[10px] font-normal text-slate-400">(mmHg)</span></th>
-                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(min)</span></th>
-                <th class="border-r border-slate-200/80 py-1.5 px-2">%SpO2<br/><span class="text-[10px] font-normal text-slate-400">(%)</span></th>
-                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(min)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(ครั้ง/นาที)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">ออกซิเจนในเลือด<br/><span class="text-[10px] font-normal text-slate-400">(%)</span></th>
+                <th class="border-r border-slate-200/80 py-1.5 px-2">Pulse<br/><span class="text-[10px] font-normal text-slate-400">(ครั้ง/นาที)</span></th>
                 <th class="border-r border-slate-200/80 py-1.5 px-2">PI<br/><span class="text-[10px] font-normal text-slate-400">(%)</span></th>
                 <th class="border-r border-slate-200/80 py-1.5 px-2">น้ำตาล<br/><span class="text-[10px] font-normal text-slate-400">(mg/dL)</span></th>
                 <th class="border-r border-slate-200/80 py-1.5 px-2">ผู้ตรวจ</th>
@@ -597,12 +606,12 @@
   </div>
 
   <!-- MODAL 2: Add / Simulate Smart Health Kit Checkup (Minimal Line + Soft Borders) -->
-  <div id="addCheckupModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
+  <div id="addCheckupModal" role="dialog" aria-modal="true" aria-label="บันทึกผลตรวจสุขภาพ" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-xl overflow-hidden">
       <div class="bg-slate-50/80 border-b border-slate-200/90 px-5 py-4 flex items-center justify-between">
         <div>
           <h3 class="text-sm font-semibold text-slate-900">บันทึกผลตรวจเยี่ยมบ้านเชิงรุก (ทต.บ่อหลวง)</h3>
-          <p class="text-[11px] text-slate-400 mt-0.5">ประเมินเกณฑ์สุขภาพและซิงค์เข้าสู่ฐานข้อมูลอัตโนมัติ</p>
+          <p class="text-[11px] text-slate-400 mt-0.5">บันทึกค่าที่วัดได้จริง และโหลดข้อมูลใหม่หลังบันทึกสำเร็จ</p>
         </div>
         <button id="closeAddCheckupModalBtn" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-white text-xs transition">ปิด</button>
       </div>
@@ -621,22 +630,22 @@
 
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label for="formSysInput" class="block font-medium text-slate-600 mb-1.5">ความดัน SYS (mmHg)</label>
+            <label for="formSysInput" class="block font-medium text-slate-600 mb-1.5">ความดัน ความดันตัวบน (mmHg)</label>
             <input id="formSysInput" type="number" value="158" min="60" max="260" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formDiaInput" class="block font-medium text-slate-600 mb-1.5">ความดัน DIA (mmHg)</label>
+            <label for="formDiaInput" class="block font-medium text-slate-600 mb-1.5">ความดัน ความดันตัวล่าง (mmHg)</label>
             <input id="formDiaInput" type="number" value="94" min="40" max="160" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formPulseInput" class="block font-medium text-slate-600 mb-1.5">ชีพจร Pulse (min)</label>
+            <label for="formPulseInput" class="block font-medium text-slate-600 mb-1.5">ชีพจร ชีพจร (ครั้ง/นาที)</label>
             <input id="formPulseInput" type="number" value="84" min="40" max="180" class="w-full rounded-lg border border-slate-200/90 px-3 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
         </div>
 
         <div class="grid grid-cols-4 gap-2.5">
           <div>
-            <label for="formSpo2Input" class="block font-medium text-slate-600 mb-1.5">%SpO2 (%)</label>
+            <label for="formSpo2Input" class="block font-medium text-slate-600 mb-1.5">ออกซิเจนในเลือด (%)</label>
             <input id="formSpo2Input" type="number" value="96" min="70" max="100" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
@@ -648,7 +657,7 @@
             <input id="formTempInput" type="number" step="0.1" value="36.6" min="34" max="42" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
           <div>
-            <label for="formWeightInput" class="block font-medium text-slate-600 mb-1.5">น้ำหนัก (Kg)</label>
+            <label for="formWeightInput" class="block font-medium text-slate-600 mb-1.5">น้ำหนัก (กก.)</label>
             <input id="formWeightInput" type="number" step="0.1" value="62.5" min="20" max="180" class="w-full rounded-lg border border-slate-200/90 px-2.5 py-1.5 focus:outline-none focus:border-slate-400" required />
           </div>
         </div>
@@ -662,58 +671,21 @@
   </div>
 
   <!-- MODAL 3: Live Cloud Connection Settings (Minimal Line + Soft Borders) -->
-  <div id="cloudConfigModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
+  <div id="cloudConfigModal" role="dialog" aria-modal="true" aria-label="สถานะการเชื่อมต่อระบบ" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-[2px] flex items-center justify-center p-3 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 w-full max-w-2xl overflow-hidden my-auto">
       <div class="bg-slate-50/80 border-b border-slate-200/90 px-5 py-4 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-semibold text-slate-900">ตั้งค่าเชื่อมต่อฐานข้อมูล Cloud (Supabase และ Google Sheets)</h3>
-          <p class="text-[11px] text-slate-400 mt-0.5">เชื่อมต่อข้อมูลพิกัดและประวัติสัญญาณชีพแบบเรียลไทม์</p>
+          <h3 class="text-sm font-semibold text-slate-900">สถานะการเชื่อมต่อระบบ</h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">ตรวจ Google Sheets และฐานข้อมูลประวัติผลตรวจแยกกัน ข้อมูลเปลี่ยนเมื่อโหลดใหม่</p>
         </div>
         <button id="closeCloudConfigModalBtn" type="button" class="px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-white text-xs transition">ปิด</button>
       </div>
 
-      <form id="cloudConfigForm" class="p-5 space-y-4 text-xs">
-        <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/90 space-y-2.5">
-          <div class="font-semibold text-slate-800 flex items-center justify-between">
-            <span>ส่วนที่ 1: เชื่อมต่อ Google Sheets (ระบบบันทึกพิกัด)</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200/80 font-medium">Apps Script API</span>
-          </div>
-          <label for="cfgAppsScriptUrlInput" class="block font-medium text-slate-500">Google Apps Script Web App URL:</label>
-          <input id="cfgAppsScriptUrlInput" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/90 space-y-2.5">
-          <div class="font-semibold text-slate-800 flex items-center justify-between">
-            <span>ส่วนที่ 2: เชื่อมต่อฐานข้อมูล Supabase (PostgreSQL)</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-white text-slate-600 border border-slate-200/80 font-medium">REST API</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label for="cfgSupabaseUrlInput" class="block font-medium text-slate-500 mb-1">Supabase Project URL:</label>
-              <input id="cfgSupabaseUrlInput" type="url" placeholder="https://uvtjjhvvtaswzhwhowlj.supabase.co" class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
-            </div>
-            <div>
-              <label for="cfgSupabaseKeyInput" class="block font-medium text-slate-500 mb-1">Supabase Anon Public Key:</label>
-              <input id="cfgSupabaseKeyInput" type="text" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full rounded-lg border border-slate-200/90 px-3 py-2 bg-white text-slate-800 font-mono text-[11px] focus:outline-none focus:border-slate-400" />
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-200/80">
-          <div class="flex flex-wrap items-center gap-2">
-            <button id="testFetchCloudBtn" type="button" class="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 font-medium transition">
-              ดึงข้อมูลสดจากฐานข้อมูล
-            </button>
-            <button id="seedSupabaseBtn" type="button" class="px-3.5 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90 font-medium transition">
-              ส่งข้อมูลขึ้นตาราง Supabase
-            </button>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="cancelCloudConfigBtn" type="button" class="px-4 py-2 rounded-lg border border-slate-200/90 text-slate-600 font-medium hover:bg-slate-50">ยกเลิก</button>
-            <button type="submit" class="px-4 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium">บันทึกและซิงค์</button>
-          </div>
-        </div>
-      </form>
+      <div class="p-5 space-y-4"><p>ระบบใช้ค่าการเชื่อมต่อที่ผู้ดูแลตั้งไว้บนเซิร์ฟเวอร์ ไม่มีการกรอกหรือบันทึกคีย์จากหน้านี้</p>
+      <div id="connectionReport" role="status" aria-live="polite">ยังไม่ได้ตรวจสอบการเชื่อมต่อ</div>
+      <button id="testFetchCloudBtn" type="button" class="border rounded-lg px-4 py-2">ตรวจสอบการเชื่อมต่อ</button>
+      <button id="cancelCloudConfigBtn" type="button" class="border rounded-lg px-4 py-2">ปิดหน้าต่าง</button>
+      <button id="seedSupabaseBtn" type="button" hidden></button></div>
     </div>
   </div>
 

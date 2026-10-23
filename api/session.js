@@ -10,12 +10,12 @@ export default async function handler(req,res){
    // Check authorization before setting any cookie.
    const {scopeFor}=await import('../lib/server.mjs');const scope=scopeFor(session.user);
    if(req.body?.adminOnly===true&&scope.role!=='admin')return res.status(403).json({error:'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น'});
-   sessionCookie(res,session.access_token,Math.min(session.expires_in||3600,3600));return res.status(200).json({...scope,canCollectFieldData:canCollectFieldData(session.user)});
+   sessionCookie(res,session.access_token,Math.min(session.expires_in||3600,3600));return res.status(200).json({...scope,email:session.user.email,canCollectFieldData:canCollectFieldData(session.user)});
   }
   if(req.method==='DELETE'){
    sameOrigin(req);const {token}=await requireUser(req);try{await upstream('/auth/v1/logout',{method:'POST',token});}finally{sessionCookie(res,'',0);}return res.status(200).json({ok:true});
   }
-  if(req.method==='GET'){const {role,villages,user}=await requireUser(req);return res.status(200).json({role,villages,canCollectFieldData:canCollectFieldData(user)});}
+  if(req.method==='GET'){const {role,villages,user}=await requireUser(req);return res.status(200).json({role,villages,email:user.email,canCollectFieldData:canCollectFieldData(user)});}
   res.setHeader('Allow','GET, POST, DELETE');return res.status(405).json({error:'ไม่รองรับคำขอนี้'});
  }catch(e){if(e.status===401||req.method==='DELETE')sessionCookie(res,'',0);fail(res,e);}
 }

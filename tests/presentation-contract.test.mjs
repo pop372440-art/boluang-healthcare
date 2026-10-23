@@ -1,14 +1,15 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const app=readFileSync(new URL('../app.mjs',import.meta.url),'utf8');
-test('landing HTML/CSS retains the baseline except authorized navigation and the health unit layer control',()=>{
- const staticHtml=html.replace(/\n            <!-- health-unit-layer-control -->[\s\S]*?<!-- \/health-unit-layer-control -->/,'').replace(/\n              <a id="fieldCaptureLink"[\s\S]*?<\/a>/,'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'');
- assert.equal(createHash('sha256').update(staticHtml).digest('hex'),'4fae48b672da71256bdd005876be0b0b347ba90482d8c6458ec9df46496758ab');
+test('audited interface has unique ids, scoped staff controls and no credential editor',()=>{
+ const ids=[...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);
+ assert.match(html,/id="staffLoginLink"/);assert.match(html,/id="openAddCheckupBtn" data-access="write" hidden/);
+ assert.doesNotMatch(html,/id="cfgSupabaseKeyInput"|id="cfgAppsScriptUrlInput"/);
 });
 test('restored controls remain bound to existing baseline element ids',()=>{
  const ids=new Set([...html.matchAll(/id="([^"]+)"/g)].map(m=>m[1]));
  const used=[...app.matchAll(/getElementById\('([^']+)'\)/g)].map(m=>m[1]);
- const dynamicIds=['adminLogoutBtn','adminPatientLocation','telehealthSyncStatus'];
+ const dynamicIds=['adminLogoutBtn','adminPatientLocation','telehealthSyncStatus','kpiEvidenceNote'];
  for(const id of dynamicIds)assert.ok(app.includes(".id='"+id+"'"),`Dynamic control not created: ${id}`);
  for(const id of used)assert.ok(ids.has(id)||dynamicIds.includes(id)||id==='quickPushSupabaseBtn',`Missing original control: ${id}`);
 });
