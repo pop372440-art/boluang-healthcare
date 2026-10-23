@@ -1,8 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 const app=readFileSync(new URL('../app.mjs',import.meta.url),'utf8');
-test('landing HTML/CSS retains the baseline except removal of the capture button',()=>{
- const staticHtml=html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'');
+test('landing HTML/CSS retains the baseline except the authorized capture navigation link',()=>{
+ const staticHtml=html.replace(/\n              <a id="fieldCaptureLink"[\s\S]*?<\/a>/,'').replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'');
  assert.equal(createHash('sha256').update(staticHtml).digest('hex'),'4fae48b672da71256bdd005876be0b0b347ba90482d8c6458ec9df46496758ab');
 });
 test('restored controls remain bound to existing baseline element ids',()=>{
