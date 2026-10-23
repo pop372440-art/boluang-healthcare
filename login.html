@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow">
-<title>เข้าสู่ระบบผู้ดูแล | บ่อหลวง Health Care</title>
+<title>เข้าสู่ระบบเจ้าหน้าที่ | บ่อหลวง Health Care</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f1f5f9;color:#0f172a;font:16px/1.6 system-ui,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px}main{background:white;border:1px solid #e2e8f0;border-radius:20px;padding:32px;width:100%;max-width:440px;box-shadow:0 12px 40px #0f172a0d}h1{font-size:24px;margin:8px 0}p{color:#475569}label{display:block;margin-top:16px;font-weight:600}input,button{font:inherit;width:100%;border-radius:10px;padding:12px}input{border:1px solid #94a3b8;margin-top:6px}button{border:0;background:#047857;color:white;margin-top:20px;cursor:pointer;font-weight:600}button:disabled{opacity:.55;cursor:wait}.secondary{background:#e2e8f0;color:#0f172a}a{color:#047857}input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #10b981;outline-offset:3px}[hidden]{display:none!important}#message{min-height:26px;overflow-wrap:anywhere}#message[data-error=true]{color:#b91c1c}.brand{color:#047857;font-weight:700}
 </style>
 <script type="module" src="/login.mjs"></script>
 </head>
 <body><main>
-<div class="brand">บ่อหลวง Health Care</div><h1 id="loginTitle">เข้าสู่ระบบผู้ดูแล</h1>
-<p id="loginIntro">ใช้บัญชีผู้ดูแลระบบสุขภาพเพื่อดึงข้อมูลผู้ป่วย</p>
+<div class="brand">บ่อหลวง Health Care</div><h1 id="loginTitle">เข้าสู่ระบบเจ้าหน้าที่</h1>
+<p id="loginIntro">ใช้บัญชีที่ได้รับสิทธิ์ระบบสุขภาพเพื่อดูทะเบียนหรือบันทึกผลตรวจ</p>
 <form id="loginForm">
 <label for="email">อีเมล</label><input id="email" name="email" type="email" autocomplete="username" required maxlength="254">
 <label for="password">รหัสผ่าน</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024">
 <button id="signIn" type="submit">เข้าสู่ระบบ</button>
 </form>
 <section id="adminActions" hidden aria-label="การจัดการข้อมูลผู้ป่วย">
-<button id="loadPatients" type="button">ดึงข้อมูลผู้ป่วยและเปิดหน้าหลัก</button>
+<button id="loadPatients" type="button">เปิดทะเบียนผู้รับบริการ</button>
 <button id="signOut" type="button" class="secondary">ออกจากระบบ</button>
 </section>
 <p id="message" role="status" aria-live="polite"></p>
-<a href="/">กลับหน้าหลัก</a>
+<a href="/">กลับแผนที่หน่วยบริการ</a><hr><p>เจ้าหน้าที่เก็บรูปและพิกัดตามหมู่บ้าน ใช้แอปภาคสนามแยกต่างหาก โดยแอปจะตรวจบัญชีและสิทธิ์อีกครั้ง</p><a href="https://script.google.com/macros/s/AKfycbyt2CAVOAleKVPWBopV5WCaU3YXEfRZZcIu0Yb7aI0H_X9qfPgYOB-kPQW-yHagCSCSBg/exec" target="_blank" rel="noopener noreferrer">เปิดแอปเก็บข้อมูลภาคสนาม ↗</a>
 </main></body></html>
