@@ -13,7 +13,7 @@ async function requestApi(path, options={}) {
  const res=await fetch(path,{credentials:'same-origin',cache:'no-store',...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
  let data;try{data=await res.json();}catch{throw Object.assign(new Error('บริการตอบกลับไม่ใช่ข้อมูลที่ระบบรองรับ'),{status:502});}
  if(!res.ok){
-  if(res.status===401||res.status===403){dataEvidence.phase=res.status===401?'unauthorized':'forbidden';patientsData.splice(0);cloudSession=null;syncedAt=null;privacyEnabled=true;document.getElementById('patientDetailModal')?.classList.add('hidden');document.getElementById('adminLogoutBtn')?.setAttribute('hidden','');window.dispatchEvent(new CustomEvent('boluang:privacy-change',{detail:{masked:true}}));populateFormSelect();refreshAllViews();}
+  if(res.status===401||res.status===403){dataEvidence.phase=res.status===401?'unauthorized':'forbidden';patientsData.splice(0);cloudSession=null;updateFieldCaptureLink();syncedAt=null;privacyEnabled=true;document.getElementById('patientDetailModal')?.classList.add('hidden');document.getElementById('adminLogoutBtn')?.setAttribute('hidden','');window.dispatchEvent(new CustomEvent('boluang:privacy-change',{detail:{masked:true}}));populateFormSelect();refreshAllViews();}
   throw Object.assign(new Error(data.error||'ไม่สามารถเชื่อมต่อระบบได้'),{status:res.status});
  }
  return data;
@@ -1109,7 +1109,13 @@ async function requestApi(path, options={}) {
         finally{loadingPromise=null;}
        })();return loadingPromise;
       }
+      function updateFieldCaptureLink(){
+       const link=document.getElementById('fieldCaptureLink');
+       const allowed=cloudSession?.canCollectFieldData===true;
+       if(link){link.hidden=!allowed;link.style.display=allowed?'flex':'none';}
+      }
       function updateAdminSessionControls(){
+       updateFieldCaptureLink();
        let button=document.getElementById('adminLogoutBtn');
        if(!button){button=document.createElement('button');button.id='adminLogoutBtn';button.type='button';button.className='px-3 py-1.5 rounded-lg bg-white text-rose-700 border border-rose-200 font-medium';button.textContent='ออกจากระบบ';
         document.getElementById('openCloudConfigBtn').after(button);
