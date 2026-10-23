@@ -1,3 +1,4 @@
+import {mountHealthUnitLayer} from './lib/health-units.mjs';
 import {syncStatus} from './lib/telehealth-status.mjs';
 import {groupIsVisible,toggleGroup,patientMapLinks} from './lib/admin-view.mjs';
 import {renderBlueprint} from './lib/blueprint.mjs';
@@ -68,6 +69,7 @@ async function requestApi(path, options={}) {
       tambonBoundaryLayer = L.layerGroup().addTo(mapInstance);
       villageBoundaryLayer = L.layerGroup().addTo(mapInstance);
       markersLayerGroup = L.layerGroup().addTo(mapInstance);
+      mountHealthUnitLayer({L,map:mapInstance,checkbox:document.getElementById('toggleHealthUnitsChk')});
 
       // โหลดไฟล์ขอบเขตตำบล (boluang.json) และขอบเขตหมู่บ้าน (block.json) อัตโนมัติเมื่อวางไว้ในโฟลเดอร์เดียวกัน
       loadGeoJsonFromUrl('./boluang.json', 'tambon');
